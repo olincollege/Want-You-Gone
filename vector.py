@@ -15,8 +15,8 @@ class Vector():
         """
         Initialize x and y.
         """
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
 
     def __repr__(self):
         """
