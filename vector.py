@@ -84,3 +84,17 @@ class Vector():
             A vector representing the x and y difference from head to tail.
         """
         return Vector(head.x - tail.x, head.y - tail.y)
+    
+    @classmethod
+    def det(cls, vec1, vec2):
+        """
+        Find the determinant of the matrix made by combining two vectors.
+
+        Args:
+            vec1: A Vector representing the left column of the matrix.
+            vec2: A Vector representing the right column of the matrix.
+
+        Returns:
+            The determinant of the matrix [vec1 | vec2]
+        """
+        return vec1.x * vec2.y - vec2.x * vec1.y
