@@ -78,8 +78,7 @@ class Vector():
             increment: A float between 0 and 1 representing the fraction
             of the way self is incremented by
         """
-        self._x += increment * (to.x - self._x)
-        self._y += increment * (to.y - self._y)
+        self.add(Vector(to.x - self._x, to.y - self._y).scale(increment))
 
     def rotate(self, angle):
         """
