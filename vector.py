@@ -2,6 +2,8 @@
 Contains the Vector class.
 """
 
+from math import sin, cos, sqrt
+
 class Vector():
     """
     Store a vector as an x-y coordinate pair.
@@ -26,7 +28,7 @@ class Vector():
             A string representing the vector in row vector format
         """
         return f"({self.x}, {self.y})"
-    
+
     def get_tuple(self):
         """
         Represent the vector as a tuple with the format: (x, y)
@@ -35,7 +37,7 @@ class Vector():
             A tuple holding the values of _x and _y in that order
         """
         return (self._x, self._y)
-    
+
     @property
     def x(self):
         """
@@ -45,7 +47,7 @@ class Vector():
             self._x: A float representing the x component of the vector.
         """
         return self._x
-    
+
     @property
     def y(self):
         """
@@ -61,7 +63,8 @@ class Vector():
         Increments the vector by another vector.
 
         Args:
-            increment: A vector representing the amounts to increase self._x and self._y by.
+            increment: A vector representing the amounts to increase
+            self._x and self._y by.
         """
         self._x += increment.x
         self._y += increment.y
@@ -78,6 +81,47 @@ class Vector():
         self._x += increment * (to.x - self._x)
         self._y += increment * (to.y - self._y)
 
+    def rotate(self, angle):
+        """
+        Find the vector made by rotating self a number of radians
+        counter clockwise about the origin.
+
+        Args:
+            angle: A float representing the angle by which to rotate the vector.
+
+        Returns:
+            A Vector representing self rotated angle radians about the origin.
+        """
+        return Vector(self._x * cos(angle) - self._y * sin(angle),
+                      self._x * sin(angle) + self._y * cos(angle))
+
+    def scale(self, scalar):
+        """
+        Multiply self by a scalar.
+
+        Args:
+            scalar: A float representing the amount to scale self by.
+        
+        Returns:
+            A Vector made by scaling self by scalar.
+        """
+        return Vector(self._x * scalar, self._y * scalar)
+
+    def normal(self):
+        """
+        Find the normal vector that points in the direction of self.
+
+        Returns:
+            A Vector with length 1 that points in the direction of self.
+        """
+        # If self has no direction return the vector with no direction
+        if self._x == 0 and self._y == 0:
+            return self
+
+        # Calculate the magnitude of self and divide self by it
+        magnitude = sqrt(self._x * self._x + self._y * self._y)
+        return self.scale(1 / magnitude)
+
     @classmethod
     def dot(cls, vec1, vec2):
         """
@@ -91,7 +135,7 @@ class Vector():
             A float representing the dot product between vec1 and vec2.
         """
         return vec1.x * vec2.x + vec1.y * vec2.y
-    
+
     @classmethod
     def diff(cls, tail, head):
         """
@@ -105,7 +149,7 @@ class Vector():
             A vector representing the x and y difference from head to tail.
         """
         return Vector(head.x - tail.x, head.y - tail.y)
-    
+
     @classmethod
     def det(cls, vec1, vec2):
         """
