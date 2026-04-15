@@ -27,6 +27,15 @@ class Vector():
         """
         return f"({self.x}, {self.y})"
     
+    def get_tuple(self):
+        """
+        Represent the vector as a tuple with the format: (x, y)
+
+        Returns:
+            A tuple holding the values of _x and _y in that order
+        """
+        return (self._x, self._y)
+    
     @property
     def x(self):
         """
@@ -49,13 +58,25 @@ class Vector():
 
     def add(self, increment):
         """
-        Increments a vector by another vector.
+        Increments the vector by another vector.
 
         Args:
             increment: A vector representing the amounts to increase self._x and self._y by.
         """
         self._x += increment.x
         self._y += increment.y
+
+    def lerp(self, to, increment):
+        """
+        Moves the vector a fraction of the way towards another vector.
+
+        Args:
+            to: A Vector representing the point self is moving towards.
+            increment: A float between 0 and 1 representing the fraction
+            of the way self is incremented by
+        """
+        self._x += increment * (to.x - self._x)
+        self._y += increment * (to.y - self._y)
 
     @classmethod
     def dot(cls, vec1, vec2):
