@@ -1,0 +1,9 @@
+vertices = {[(25, 25); (0, 25); (0, 0); (25, 0)]
+            [(-100, -100); (100, -100); (-100, 25)]}
+position = {(0, 0); (0, 0)}
+velocity = {(0, 0); (0, 0)}
+angle = {0; 0}
+angular_velocity = {0; 0}
+can_move = {False; False}
+is_inverted = {False; False}
+is_bouncy = {False; True}
