@@ -162,3 +162,17 @@ class Vector():
             The determinant of the matrix [vec1 | vec2]
         """
         return vec1.x * vec2.y - vec2.x * vec1.y
+
+    @classmethod
+    def sum(cls, vec1, vec2):
+        """
+        Find the sum of two vectors.
+
+        Args:
+            vec1: A Vector to be summed with vec2.
+            vec2: A Vector to be summed with vec1.
+            
+        Returns:
+            A Vector representing vec1 + vec2
+        """
+        return Vector(vec1.x + vec2.x, vec1.y + vec2.y)

@@ -13,15 +13,18 @@ class Shape:
     Attributes:
         _position: A Vector representing the position of the center of mass.
         _velocity: A Vector representing the velocity of the shape.
-        _angle: A float representing the angular displacement of the shape (radians).
-        _angular_velocity: A float representing the angular velocity (radians/s).
+        _angle: A float representing the angular displacement
+                of the shape (radians).
+        _angular_velocity: A float representing the angular velocity (rad/s).
         _can_move: A boolean representing if the shape can move.
-        _is_inverted: A boolean representing if the mass of the shape is outside it.
-        _elasticity: A float in [0, 1] representing the coefficient of restitution.
-        _friction: A float in [0, 1] representing the coefficient of friction.
+        _is_inverted: A boolean representing if the mass
+                      of the shape is outside it.
+        _is_bouncy: A boolean representing if the shape is
+                    bouncier than usual.
         _moment: A float representing the moment of inertia.
         _mass: A float representing the mass.
-        _radius: A float representing the bounding radius (used for broad-phase collision).
+        _radius: A float representing the bounding radius
+                 (used for broad-phase collision).
     """
 
     def __init__(
@@ -32,8 +35,7 @@ class Shape:
         angular_velocity,
         can_move,
         is_inverted,
-        elasticity,
-        friction,
+        is_bouncy,
         moment,
         mass,
         radius,
@@ -45,11 +47,12 @@ class Shape:
             position: A Vector representing the position of the center of mass.
             velocity: A Vector representing the velocity of the shape.
             angle: A float representing the angular displacement (radians).
-            angular_velocity: A float representing the angular velocity (radians/s).
+            angular_velocity: A float representing the angular velocity (rad/s).
             can_move: A boolean representing if the shape can move.
-            is_inverted: A boolean representing if the mass is outside the shape.
-            elasticity: A float in [0, 1] for the coefficient of restitution.
-            friction: A float in [0, 1] for the coefficient of friction.
+            is_inverted: A boolean representing if the mass is
+                         outside the shape.
+            is_bouncy: A boolean representing if the shape is
+                       bouncier than usual.
             moment: A float representing the moment of inertia.
             mass: A float representing the mass.
             radius: A float representing the bounding radius.
@@ -60,8 +63,7 @@ class Shape:
         self._angular_velocity = angular_velocity
         self._can_move = can_move
         self._is_inverted = is_inverted
-        self._elasticity = elasticity
-        self._friction = friction
+        self._is_bouncy = is_bouncy
         self._moment = moment
         self._mass = mass
         self._radius = radius
@@ -71,46 +73,47 @@ class Shape:
 
     @property
     def position(self):
+        """Get position"""
         return self._position
 
     @property
     def velocity(self):
+        """Get velocity"""
         return self._velocity
 
     @property
     def angle(self):
+        """Get angle"""
         return self._angle
 
     @property
     def angular_velocity(self):
+        """Get angular_velocity"""
         return self._angular_velocity
 
     @property
     def can_move(self):
+        """Get can_move"""
         return self._can_move
 
     @property
     def is_inverted(self):
+        """Get is_inverted"""
         return self._is_inverted
 
     @property
-    def elasticity(self):
-        return self._elasticity
-
-    @property
-    def friction(self):
-        return self._friction
-
-    @property
     def moment(self):
+        """Get moment"""
         return self._moment
 
     @property
     def mass(self):
+        """Get mass"""
         return self._mass
 
     @property
     def radius(self):
+        """Get radius"""
         return self._radius
 
     def update_position(self, dt):
@@ -195,13 +198,12 @@ class Circle(Shape):
         self,
         radius,
         position,
-        velocity=None,
-        angle=0,
-        angular_velocity=0,
-        can_move=False,
-        is_inverted=False,
-        elasticity=0.5,
-        friction=0.5,
+        velocity,
+        angle,
+        angular_velocity,
+        can_move,
+        is_inverted,
+        is_bouncy,
     ):
         """
         Initialize a Circle. Mass and moment are derived from radius.
@@ -209,22 +211,19 @@ class Circle(Shape):
         Args:
             radius: A float representing the radius of the circle.
             position: A Vector representing the position of the center of mass.
-            velocity: A Vector representing the velocity (default zero).
-            angle: A float representing angular displacement in radians (default 0).
-            angular_velocity: A float representing angular velocity in radians/s (default 0).
-            can_move: A boolean representing if the shape can move (default False).
-            is_inverted: A boolean representing if the mass is outside the shape (default False).
-            elasticity: A float in [0, 1] for the coefficient of restitution (default 0.5).
-            friction: A float in [0, 1] for the coefficient of friction (default 0.5).
+            velocity: A Vector representing the velocity.
+            angle: A float representing angular displacement in radians.
+            angular_velocity: A float representing angular velocity in rad/s.
+            can_move: A boolean representing if the shape can move.
+            is_inverted: A boolean representing if the mass
+                         is outside the shape.
+            is_bouncy: A boolean representing if the shape is
+                       bouncier than usual.
         """
-        if velocity is None:
-            velocity = Vector(0, 0)
-
         # Derive mass and moment of inertia from radius (uniform density disc)
-        mass = pi * radius * radius
-        moment = mass * radius * radius / 2
+        mass = pi * radius ** 2
+        moment = mass * radius ** 2 / 2
 
-        self._radius = radius
         super().__init__(
             position,
             velocity,
@@ -232,8 +231,7 @@ class Circle(Shape):
             angular_velocity,
             can_move,
             is_inverted,
-            elasticity,
-            friction,
+            is_bouncy,
             moment,
             mass,
             radius,
@@ -242,8 +240,8 @@ class Circle(Shape):
     def impulse(self, impulse):
         """
         Apply an instantaneous linear impulse. For a circle the angular
-        contribution requires a contact point, so plain impulse is purely linear.
-        Use impulse_at for off-center contact.
+        contribution requires a contact point, so plain impulse is
+        purely linear. Use impulse_at for off-center contact.
 
         Args:
             impulse: A Vector representing the impulse to apply.
@@ -265,7 +263,7 @@ class Circle(Shape):
         self._velocity.add(impulse.scale(1 / self._mass))
         # Δω = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity += (
-            contact_point.x * impulse.y - contact_point.y * impulse.x
+            Vector.det(contact_point, impulse)
         ) / self._moment
 
 
@@ -285,13 +283,12 @@ class Polygon(Shape):
         self,
         vertices,
         position,
-        velocity=None,
-        angle=0,
-        angular_velocity=0,
-        can_move=False,
-        is_inverted=False,
-        elasticity=0.5,
-        friction=0.5,
+        velocity,
+        angle,
+        angular_velocity,
+        can_move,
+        is_inverted,
+        is_bouncy
     ):
         """
         Initialize a Polygon from a list of world-space vertices.
@@ -304,17 +301,15 @@ class Polygon(Shape):
             position: A Vector representing where the polygon's center of mass
                       sits in the world. The vertices are offset so that
                       (0, 0) in local space is the center of mass.
-            velocity: A Vector representing the velocity (default zero).
-            angle: A float representing angular displacement in radians (default 0).
-            angular_velocity: A float representing angular velocity in radians/s (default 0).
-            can_move: A boolean representing if the shape can move (default False).
-            is_inverted: A boolean representing if the mass is outside the shape (default False).
-            elasticity: A float in [0, 1] for the coefficient of restitution (default 0.5).
-            friction: A float in [0, 1] for the coefficient of friction (default 0.5).
+            velocity: A Vector representing the velocity.
+            angle: A float representing angular displacement in radians.
+            angular_velocity: A float representing angular velocity in rad/s.
+            can_move: A boolean representing if the shape can move.
+            is_inverted: A boolean representing if
+                         the mass is outside the shape.
+            is_bouncy: A boolean representing if the shape
+                       is bouncier than usual.
         """
-        if velocity is None:
-            velocity = Vector(0, 0)
-
         n = len(vertices)
 
         # Signed area contributions from each edge (shoelace formula pieces)
@@ -353,7 +348,8 @@ class Polygon(Shape):
             )
             moment_num += cross * dot_sum
             moment_den += cross
-        moment = (mass / 6) * (moment_num / moment_den) if moment_den != 0 else 0
+        moment = ((mass / 6) * (moment_num / moment_den)
+                  if moment_den != 0 else 0)
 
         # Bounding radius: furthest vertex from the center of mass
         bounding_radius = max(
@@ -368,8 +364,7 @@ class Polygon(Shape):
             angular_velocity,
             can_move,
             is_inverted,
-            elasticity,
-            friction,
+            is_bouncy,
             moment,
             mass,
             bounding_radius,
@@ -391,10 +386,7 @@ class Polygon(Shape):
             A list of Vectors representing the current world-space vertices.
         """
         return [
-            Vector(
-                self._position.x + v.rotate(self._angle).x,
-                self._position.y + v.rotate(self._angle).y,
-            )
+            Vector.add(self._position, v.rotate(self._angle))
             for v in self._local_vertices
         ]
 
@@ -413,5 +405,5 @@ class Polygon(Shape):
         if contact_point is not None:
             # Delta w = r × J / I
             self._angular_velocity += (
-                contact_point.x * impulse.y - contact_point.y * impulse.x
+                Vector.det(contact_point, impulse)
             ) / self._moment
