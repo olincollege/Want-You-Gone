@@ -237,17 +237,6 @@ class Circle(Shape):
             radius,
         )
 
-    def impulse(self, impulse):
-        """
-        Apply an instantaneous linear impulse. For a circle the angular
-        contribution requires a contact point, so plain impulse is
-        purely linear. Use impulse_at for off-center contact.
-
-        Args:
-            impulse: A Vector representing the impulse to apply.
-        """
-        super().impulse(impulse)
-
     def impulse_at(self, impulse, contact_point):
         """
         Apply an impulse at a contact point, producing both linear and
