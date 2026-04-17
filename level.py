@@ -34,9 +34,9 @@ class Level():
             path: A string representing the path of the folder.
         """
         self._path = path
-        self.refresh()
+        self.restart()
 
-    def refresh(self):
+    def restart(self):
         """
         Set all attributes to their default values.
         """
@@ -58,21 +58,21 @@ class Level():
 
         # ----------------------------------------------------------------------
 
-        # Read the file for boarder.
-        with open(self._path + "boarder.json", "r", encoding="utf-8") as file:
-            boarder_attributes = json.load(file)
+        # Read the file for border.
+        with open(self._path + "border.json", "r", encoding="utf-8") as file:
+            border_attributes = json.load(file)
 
-        # Initialize boarder.
-        self._boarder = Polygon(
-            self.make_vector(boarder_attributes["vertices"]),
-            self.make_vector(boarder_attributes["position"]),
-            self.make_vector(boarder_attributes["velocity"]),
-            boarder_attributes["angle"],
-            boarder_attributes["angular_velocity"],
+        # Initialize border.
+        self._border = Polygon(
+            self.make_vector(border_attributes["vertices"]),
+            self.make_vector(border_attributes["position"]),
+            self.make_vector(border_attributes["velocity"]),
+            border_attributes["angle"],
+            border_attributes["angular_velocity"],
             False,
             True,
-            boarder_attributes["is_bouncy"],
-            tuple(boarder_attributes["color"]))
+            border_attributes["is_bouncy"],
+            tuple(border_attributes["color"]))
 
         # ----------------------------------------------------------------------
 
@@ -119,3 +119,18 @@ class Level():
 
         # Otherwise go a level deeper into the list
         return [cls.make_vector(i) for i in json_input]
+
+    @property
+    def player(self):
+        """Get player"""
+        return self._player
+
+    @property
+    def border(self):
+        """Get border"""
+        return self._border
+
+    @property
+    def polygons(self):
+        """Get border"""
+        return self._polygons
