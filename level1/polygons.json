@@ -1,0 +1,16 @@
+[{
+    "vertices": [[75, 75], [100, 75], [100, 100], [75, 100]],
+    "position": [0, 0],
+    "velocity": [-10, 0],
+    "angle": 0,
+    "angular_velocity": 0,
+    "is_bouncy": false
+},
+{
+    "vertices": [[-100, -100], [100, -100], [-100, -75]],
+    "position": [0, 0],
+    "velocity": [0, 0],
+    "angle": 0,
+    "angular_velocity": 0,
+    "is_bouncy": true
+}]
