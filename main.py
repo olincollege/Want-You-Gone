@@ -6,13 +6,15 @@ from level import Level
 from view import View
 
 def main():
-    """
+    """ 
     Run the physics simulator, take player input,
     and display the state of the game to a window.
     """
-    level = Level("level1/")
+    fps = 60
+    dt = 1 / fps
+    level = Level('level1/')
     view = View(level)
-    view.refresh()
+    view.refresh(dt)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
