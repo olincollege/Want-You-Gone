@@ -46,6 +46,7 @@ class Level():
 
         # Initialize player.
         self._player = Circle(
+            player_attributes["radius"],
             self.make_vector(player_attributes["position"]),
             self.make_vector(player_attributes["velocity"]),
             player_attributes["angle"],
@@ -53,7 +54,6 @@ class Level():
             True,
             False,
             player_attributes["is_bouncy"],
-            player_attributes["radius"],
             tuple(player_attributes["color"]))
 
         # ----------------------------------------------------------------------
@@ -112,7 +112,7 @@ class Level():
             ValueError: If a base list is not of length two.
         """
         # If json_input is a list of numbers return it as a Vector.
-        if json_input[0].isinstance(int) or json_input[0].isinstance(float):
+        if isinstance(json_input[0], int) or isinstance(json_input[0], float):
             if len(json_input) != 2:
                 raise ValueError("A base list is not of length two!")
             return Vector(float(json_input[0]), float(json_input[1]))

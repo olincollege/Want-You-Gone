@@ -232,8 +232,8 @@ class Circle(Shape):
             color: A tuple representing the RGB values of the shape's color.
         """
         # Derive mass and moment of inertia from radius (uniform density disc)
-        mass = pi * radius ** 2
-        moment = mass * radius ** 2 / 2
+        mass = pi * radius * radius
+        moment = mass * radius * radius / 2
 
         super().__init__(
             position,
