@@ -2,13 +2,17 @@
 Contains the Level class.
 """
 
+import json
 from shape import Circle, Polygon
+from vector import Vector
 
 class Level():
     """
     Store the physical state of a set of 2D shapes.
 
     Attributes:
+        self._path: A string representing the path to the folder
+        with all the starting data for the level.
         self._player: A Circle representing the player character.
         self._boarder: A Polygon representing the outmost border
         of the space objects can move inside.
@@ -29,127 +33,86 @@ class Level():
         Args:
             path: A string representing the path of the folder.
         """
-        # Read the file for player.
-        with open(path + "player.txt", "r", encoding="utf-8") as f:
-            player_text = f.read()
+        self._path = path
+        self.refresh()
 
-        # Extract the attributes of player.
-        player_position = self.read_vector(
-            self.read_variable(player_text, "position"))
-        player_velocity = self.read_vector(
-            self.read_variable(player_text, "velocity"))
-        player_angle = float(self.read_variable(player_text, "angle"))
-        player_angular_velocity = float(
-            self.read_variable(player_text, "angular_velocity"))
-        player_can_move = True
-        player_is_inverted = False
-        player_is_bouncy = self.read_boolean(
-            self.read_variable(player_text, "is_bouncy"))
-        player_radius = abs(float(self.read_variable(player_text, "radius")))
+    def refresh(self):
+        """
+        Set all attributes to their default values.
+        """
+        # Read the file for player.
+        with open(self._path + "player.json", "r", encoding="utf-8") as file:
+            player_attributes = json.load(file)
 
         # Initialize player.
-        self._player = Circle(player_position,
-                              player_velocity,
-                              player_angle,
-                              player_angular_velocity,
-                              player_can_move,
-                              player_is_inverted,
-                              player_is_bouncy,
-                              player_radius)
+        self._player = Circle(
+            self.make_vector(player_attributes["position"]),
+            self.make_vector(player_attributes["velocity"]),
+            player_attributes["angle"],
+            player_attributes["angular_velocity"],
+            True,
+            False,
+            player_attributes["is_bouncy"],
+            player_attributes["radius"])
 
         # ----------------------------------------------------------------------
 
         # Read the file for boarder.
-        with open(path + "boarder.txt", "r", encoding="utf-8") as f:
-            boarder_text = f.read()
-
-        # Extract the attributes of boarder.
-        player_position = self.read_vector(
-            self.read_variable(boarder_text, "position"))
-        player_velocity = self.read_vector(
-            self.read_variable(boarder_text, "velocity"))
-        player_angle = float(self.read_variable(boarder_text, "angle"))
-        player_angular_velocity = float(self.read_variable(
-            boarder_text, "angular_velocity"))
-        player_can_move = False
-        player_is_inverted = True
-        player_is_bouncy = self.read_boolean(self.read_variable(
-            boarder_text, "is_bouncy"))
-        player_vertices = [self.read_vector(vertex)
-                           for vertex in self.read_list(
-                           self.read_variable(boarder_text, "vertices"))]
+        with open(self._path + "boarder.json", "r", encoding="utf-8") as file:
+            boarder_attributes = json.load(file)
 
         # Initialize boarder.
-        self._boarder = Polygon(player_vertices,
-                         player_position,
-                         player_velocity,
-                         player_angle,
-                         player_angular_velocity,
-                         player_can_move,
-                         player_is_inverted,
-                         player_is_bouncy)
+        self._boarder = Polygon(
+            self.make_vector(boarder_attributes["vertices"]),
+            self.make_vector(boarder_attributes["position"]),
+            self.make_vector(boarder_attributes["velocity"]),
+            boarder_attributes["angle"],
+            boarder_attributes["angular_velocity"],
+            False,
+            True,
+            boarder_attributes["is_bouncy"])
+
+        # ----------------------------------------------------------------------
+
+        # Read the file for polygons.
+        with open(self._path + "polygons.json", "r", encoding="utf-8") as file:
+            polygons_attributes = json.load(file)
+
+        # Initialize polygons.
+        self._polygons = [Polygon(
+            self.make_vector(polygons_attributes["vertices"][i]),
+            self.make_vector(polygons_attributes["position"][i]),
+            self.make_vector(polygons_attributes["velocity"][i]),
+            polygons_attributes["angle"][i],
+            polygons_attributes["angular_velocity"][i],
+            False,
+            False,
+            polygons_attributes["is_bouncy"][i])
+            for i in range(polygons_attributes["num_shapes"])]
 
     @classmethod
-    def read_variable(cls, text, name):
+    def make_vector(cls, json_input):
         """
-        Find the value of a variable as defined in a string.
+        Convert lists of numbers to Vectors,
+        lists of lists of numbers to lists of Vectors,
+        and so on.
 
         Args:
-            text: A string representing a set of variable names and
-                  the values associated with them.
-            name: The name of the variable to find the value of.
-        
+            json_input: A list of numbers (floats or integers),
+            a list of lists of numbers, or a nested list of a higher degree.
+
         Returns:
-            A string representing the value of the variable.
-
-        Raises:
-            ValueError: If variable is not defined in text.
-        """
-
-    @classmethod
-    def read_list(cls, text):
-        """
-        Find the elements in a list described by a string.
-
-        Args:
-            test: A string representing a list of values.
-        
-        Returns:
-            A list representing the values described in text.
-        """
-
-    @classmethod
-    def read_vector(cls, text):
-        """
-        Find the Vector described by a string.
-
-        Args:
-            text: A string representing a vector.
-        
-        Returns:
-            The Vector described by text.
+            The same nested list structure as json_input but with Vectors
+            replacing the lowest lists in the hierarchy.
         
         Raises:
-            ValueError: If the vector doesn't have two indices
-            or if any of its indices can't be cast as floats.
+            ValueError: If a base list is not of length two.
         """
+        # If json_input is a list of numbers return it as a Vector.
+        if json_input[0].isinstance(int) or json_input[0].isinstance(float):
+            if len(json_input) != 2:
+                raise ValueError("A base list is not of length two!")
+            return Vector(float(json_input[0]), float(json_input[1]))
 
-    @classmethod
-    def read_boolean(cls, text):
-        """
-        Find the boolean described by a string.
-
-        Args:
-            text: A string representing a boolean.
-        
-        Returns:
-            The boolean described by text.
-
-        Raises:
-            ValueError: If text is neither "True" nor "False".
-        """
-        if text == "True":
-            return True
-        if text == "False":
-            return False
-        raise ValueError("value is neither \"True\" nor \"False\"")
+        # Otherwise go a level deeper into the list
+        return [cls.make_vector(i) for i in json_input]

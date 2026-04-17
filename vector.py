@@ -16,9 +16,13 @@ class Vector():
     def __init__(self, x, y):
         """
         Initialize x and y.
+
+        Args:
+            x: A float representing the x component of the vector.
+            y: A float representing the y component of the vector.
         """
-        self._x = x
-        self._y = y
+        self._x = float(x)
+        self._y = float(y)
 
     def __repr__(self):
         """
