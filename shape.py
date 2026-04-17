@@ -25,6 +25,7 @@ class Shape:
         _mass: A float representing the mass.
         _radius: A float representing the bounding radius
                  (used for broad-phase collision).
+        _color: A tuple representing the RGB values of the shape's color.
     """
 
     def __init__(
@@ -39,6 +40,7 @@ class Shape:
         moment,
         mass,
         radius,
+        color,
     ):
         """
         Initializes all Shape attributes.
@@ -56,6 +58,7 @@ class Shape:
             moment: A float representing the moment of inertia.
             mass: A float representing the mass.
             radius: A float representing the bounding radius.
+            color: A tuple representing the RGB values of the shape's color.
         """
         self._position = position
         self._velocity = velocity
@@ -67,6 +70,7 @@ class Shape:
         self._moment = moment
         self._mass = mass
         self._radius = radius
+        self._color = color
 
     # We do not need all of these, but for now just leave them as is.
     # We can remove what we do not need later.
@@ -115,6 +119,11 @@ class Shape:
     def radius(self):
         """Get radius"""
         return self._radius
+
+    @property
+    def color(self):
+        """Get color"""
+        return self._color
 
     def update_position(self, dt):
         """
@@ -204,6 +213,7 @@ class Circle(Shape):
         can_move,
         is_inverted,
         is_bouncy,
+        color,
     ):
         """
         Initialize a Circle. Mass and moment are derived from radius.
@@ -219,6 +229,7 @@ class Circle(Shape):
                          is outside the shape.
             is_bouncy: A boolean representing if the shape is
                        bouncier than usual.
+            color: A tuple representing the RGB values of the shape's color.
         """
         # Derive mass and moment of inertia from radius (uniform density disc)
         mass = pi * radius ** 2
@@ -235,6 +246,7 @@ class Circle(Shape):
             moment,
             mass,
             radius,
+            color,
         )
 
     def impulse_at(self, impulse, contact_point):
@@ -277,7 +289,8 @@ class Polygon(Shape):
         angular_velocity,
         can_move,
         is_inverted,
-        is_bouncy
+        is_bouncy,
+        color,
     ):
         """
         Initialize a Polygon from a list of world-space vertices.
@@ -298,6 +311,7 @@ class Polygon(Shape):
                          the mass is outside the shape.
             is_bouncy: A boolean representing if the shape
                        is bouncier than usual.
+            color: A tuple representing the RGB values of the shape's color.
         """
         n = len(vertices)
 
@@ -357,6 +371,7 @@ class Polygon(Shape):
             moment,
             mass,
             bounding_radius,
+            color,
         )
 
     @property

@@ -53,7 +53,8 @@ class Level():
             True,
             False,
             player_attributes["is_bouncy"],
-            player_attributes["radius"])
+            player_attributes["radius"],
+            tuple(player_attributes["color"]))
 
         # ----------------------------------------------------------------------
 
@@ -70,7 +71,8 @@ class Level():
             boarder_attributes["angular_velocity"],
             False,
             True,
-            boarder_attributes["is_bouncy"])
+            boarder_attributes["is_bouncy"],
+            tuple(boarder_attributes["color"]))
 
         # ----------------------------------------------------------------------
 
@@ -80,15 +82,16 @@ class Level():
 
         # Initialize polygons.
         self._polygons = [Polygon(
-            self.make_vector(polygons_attributes["vertices"][i]),
-            self.make_vector(polygons_attributes["position"][i]),
-            self.make_vector(polygons_attributes["velocity"][i]),
-            polygons_attributes["angle"][i],
-            polygons_attributes["angular_velocity"][i],
+            self.make_vector(polygon_attributes["vertices"]),
+            self.make_vector(polygon_attributes["position"]),
+            self.make_vector(polygon_attributes["velocity"]),
+            polygon_attributes["angle"],
+            polygon_attributes["angular_velocity"],
             False,
             False,
-            polygons_attributes["is_bouncy"][i])
-            for i in range(polygons_attributes["num_shapes"])]
+            polygon_attributes["is_bouncy"],
+            tuple(polygon_attributes["color"]))
+            for polygon_attributes in polygons_attributes]
 
     @classmethod
     def make_vector(cls, json_input):
