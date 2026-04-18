@@ -381,6 +381,16 @@ class Polygon(Shape):
         """
         return self._local_vertices
 
+    def rotated_vertices(self):
+        """
+        Find the vertex positions relative to the center of mass at angle.
+
+        Returns:
+            A list of Vectors representing the local vertices
+            rotated by self._angle.
+        """
+        return [v.rotate(self._angle) for v in self._local_vertices]
+
     def world_vertices(self):
         """
         Compute the current world-space vertex positions by rotating local
