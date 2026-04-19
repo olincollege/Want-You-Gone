@@ -36,7 +36,7 @@ class View():
         """
         Gets coordinates from and object and determines whether or not to display them.
         """
-        pass
+        surface = pygame.image.load(self._imagepath).convert()
 
     def draw_shapes(self):
         """
