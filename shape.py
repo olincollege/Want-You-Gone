@@ -400,7 +400,7 @@ class Polygon(Shape):
             A list of Vectors representing the current world-space vertices.
         """
         return [
-            Vector.add(self._position, v.rotate(self._angle))
+            Vector.sum(self._position, v.rotate(self._angle))
             for v in self._local_vertices
         ]
 
