@@ -1,33 +1,4 @@
-# Python Project Template Repository
+# Want You Gone
 
-This is a template repository for a Python project. Feel free to use and edit
-this repository (including this file) for your needs. Below, find some
-instructions and tips for using this template repository.
-
-## How to Use
-
-Click on the "Use this template" button in the top right corner to create a new
-repository based on this template. If this is for a class project, we ask that
-you keep it in the `olincollege` GitHub organization, and that you refrain from
-keeping the repository private. This will ensure that relevant people can access
-your repository for assessment, etc.
-
-## Requirements
-
-The `requirements.txt` file is blank and should be filled out with any project
-dependencies. There is a Python package called `pipreqs` that autogenerates the
-contents of the `requirements.txt` file based on the `import` statements in your
-`.py` files. To get this, run
-
-```
-pip install pipreqs
-```
-
-Then, in the root of your project repository, run:
-
-```
-pipreqs --mode compat
-```
-
-If you already have a `requirements.txt`, the above command will ask you to
-rerun the command with the `--force` flag to overwrite it.
+This is a video game that runs via pygame. It involes a developed 2D physics engine inspired by games like Redball, with a focus on collisions between objects. The player controls a simple character, shaped like a ball, and traverses a level via interacting with objects to proceed. 
+The player inputs include WASD moving controls in the cardinal directions and jumping. 
