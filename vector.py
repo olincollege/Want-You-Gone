@@ -4,7 +4,8 @@ Contains the Vector class.
 
 from math import sin, cos, sqrt
 
-class Vector():
+
+class Vector:
     """
     Store a vector as an x-y coordinate pair.
 
@@ -95,8 +96,10 @@ class Vector():
         Returns:
             A Vector representing self rotated angle radians about the origin.
         """
-        return Vector(self._x * cos(angle) - self._y * sin(angle),
-                      self._x * sin(angle) + self._y * cos(angle))
+        return Vector(
+            self._x * cos(angle) - self._y * sin(angle),
+            self._x * sin(angle) + self._y * cos(angle),
+        )
 
     def scale(self, scalar):
         """
@@ -104,7 +107,7 @@ class Vector():
 
         Args:
             scalar: A float representing the amount to scale self by.
-        
+
         Returns:
             A Vector made by scaling self by scalar.
         """
@@ -129,7 +132,7 @@ class Vector():
     def dot(cls, vec1, vec2):
         """
         Calculate the dot product between two vectors.
-        
+
         Args:
             vec1: A vector to be put on the left side of the dot product.
             vec2: A vector to be put on the right side of the dot product.
@@ -175,7 +178,7 @@ class Vector():
         Args:
             vec1: A Vector to be summed with vec2.
             vec2: A Vector to be summed with vec1.
-            
+
         Returns:
             A Vector representing vec1 + vec2
         """

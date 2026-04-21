@@ -181,7 +181,7 @@ class Shape:
         """
         v_sq = Vector.dot(self._velocity, self._velocity)
         translational = 0.5 * self._mass * v_sq
-        rotational = 0.5 * self._moment * self._angular_velocity ** 2
+        rotational = 0.5 * self._moment * self._angular_velocity**2
         return translational + rotational
 
     def get_momentum(self):
@@ -345,14 +345,13 @@ class Polygon(Shape):
             p2 = local_vertices[i]
             cross = abs(Vector.det(p1, p2))
             dot_sum = (
-                Vector.dot(p1, p1)
-                + Vector.dot(p1, p2)
-                + Vector.dot(p2, p2)
+                Vector.dot(p1, p1) + Vector.dot(p1, p2) + Vector.dot(p2, p2)
             )
             moment_num += cross * dot_sum
             moment_den += cross
-        moment = ((mass / 6) * (moment_num / moment_den)
-                  if moment_den != 0 else 0)
+        moment = (
+            (mass / 6) * (moment_num / moment_den) if moment_den != 0 else 0
+        )
 
         # Bounding radius: furthest vertex from the center of mass
         bounding_radius = max(
