@@ -2,7 +2,10 @@
 Contains the view class
 """
 
-class View():
+from vector import Vector
+import pygame
+
+class View:
     """
     Displays the state of a level to a graphical window.
 
@@ -25,7 +28,7 @@ class View():
             with every sprite.
         """
         self._level = level
-        self._camera = level.player.position()
+        self._camera = level.player.position
         self._path = path
         self._lerp_speed = 0.9
         self._window = pygame.display.set_mode((1200, 900))
@@ -47,5 +50,3 @@ class View():
 
     def check_cull(self):
         pass
-
-

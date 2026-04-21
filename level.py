@@ -6,7 +6,8 @@ import json
 from shape import Circle, Polygon
 from vector import Vector
 
-class Level():
+
+class Level:
     """
     Store the physical state of a set of 2D shapes.
 
@@ -41,57 +42,62 @@ class Level():
         Set all attributes to their default values.
         """
         # Read the file for player.
-        with open(self._path + 'player.json', 'r', encoding='utf-8') as file:
+        with open(self._path + "player.json", "r", encoding="utf-8") as file:
             player_attributes = json.load(file)
 
         # Initialize player.
         self._player = Circle(
-            player_attributes['radius'],
-            self.make_vector(player_attributes['position']),
-            self.make_vector(player_attributes['velocity']),
-            player_attributes['angle'],
-            player_attributes['angular_velocity'],
+            player_attributes["radius"],
+            self.make_vector(player_attributes["position"]),
+            self.make_vector(player_attributes["velocity"]),
+            player_attributes["angle"],
+            player_attributes["angular_velocity"],
             True,
             False,
-            player_attributes['is_bouncy'],
-            tuple(player_attributes['color']))
+            player_attributes["is_bouncy"],
+            tuple(player_attributes["color"]),
+        )
 
         # ----------------------------------------------------------------------
 
         # Read the file for border.
-        with open(self._path + 'border.json', 'r', encoding='utf-8') as file:
+        with open(self._path + "border.json", "r", encoding="utf-8") as file:
             border_attributes = json.load(file)
 
         # Initialize border.
         self._border = Polygon(
-            self.make_vector(border_attributes['vertices']),
-            self.make_vector(border_attributes['position']),
-            self.make_vector(border_attributes['velocity']),
-            border_attributes['angle'],
-            border_attributes['angular_velocity'],
+            self.make_vector(border_attributes["vertices"]),
+            self.make_vector(border_attributes["position"]),
+            self.make_vector(border_attributes["velocity"]),
+            border_attributes["angle"],
+            border_attributes["angular_velocity"],
             False,
             True,
-            border_attributes['is_bouncy'],
-            tuple(border_attributes['color']))
+            border_attributes["is_bouncy"],
+            tuple(border_attributes["color"]),
+        )
 
         # ----------------------------------------------------------------------
 
         # Read the file for polygons.
-        with open(self._path + 'polygons.json', 'r', encoding='utf-8') as file:
+        with open(self._path + "polygons.json", "r", encoding="utf-8") as file:
             polygons_attributes = json.load(file)
 
         # Initialize polygons.
-        self._polygons = [Polygon(
-            self.make_vector(polygon_attributes['vertices']),
-            self.make_vector(polygon_attributes['position']),
-            self.make_vector(polygon_attributes['velocity']),
-            polygon_attributes['angle'],
-            polygon_attributes['angular_velocity'],
-            False,
-            False,
-            polygon_attributes['is_bouncy'],
-            tuple(polygon_attributes['color']))
-            for polygon_attributes in polygons_attributes]
+        self._polygons = [
+            Polygon(
+                self.make_vector(polygon_attributes["vertices"]),
+                self.make_vector(polygon_attributes["position"]),
+                self.make_vector(polygon_attributes["velocity"]),
+                polygon_attributes["angle"],
+                polygon_attributes["angular_velocity"],
+                False,
+                False,
+                polygon_attributes["is_bouncy"],
+                tuple(polygon_attributes["color"]),
+            )
+            for polygon_attributes in polygons_attributes
+        ]
 
     @classmethod
     def make_vector(cls, json_input):
@@ -107,7 +113,7 @@ class Level():
         Returns:
             The same nested list structure as json_input but with Vectors
             replacing the lowest lists in the hierarchy.
-        
+
         Raises:
             ValueError: If a base list is not of length two.
         """
