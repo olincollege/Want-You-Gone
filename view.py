@@ -1,11 +1,7 @@
-"""
-Contains the view class
-"""
-
-from vector import Vector
 import pygame
+pygame.init()
 
-class View:
+class View():
     """
     Displays the state of a level to a graphical window.
 
@@ -28,25 +24,54 @@ class View:
             with every sprite.
         """
         self._level = level
-        self._camera = level.player.position
+        self._camera = level.player.position()
         self._path = path
         self._lerp_speed = 0.9
         self._window = pygame.display.set_mode((1200, 900))
 
-    def display_objects(self):
+    def update_window(self, _window):
         """
-        Gets coordinates from and object and determines whether or not to display them.
+        Creates window to be run for each frame. 
         """
-        surface = pygame.image.load(self._path).convert()
+        screen = self._window
+        pygame.display.set_caption('Want You Gone')
 
-    def draw_shapes(self):
+    def draw_sprite(self, angle, path):
+        """
+        Gets coordinates and rotation to display sprite.
+        """
+        #get image and rotate it
+        character_original = pygame.image.load(path).convert_alpha()
+        character_surface = pygame.transform.rotate(character_original, angle)
+        position = self._camera.get_tuple
+        character_rect = character_surface.get_rect(center = position)
+        #draws image. Remember that a screen (display surface) is needed 
+        screen.blit(character_rect, position)
+
+    def draw_circle(self, x, y):
+        """
+        Gets coordinates of a circle to display and displays it.
+        """
+        circle_surface = pygame.Surface(400,400)
+        circle_surface.set_alpha(0)
+        pygame.draw.circle(circle_surface,Circle.color, Circle.position,Circle.radius)
+
+    def draw_polygon(self):
         """
         Gets coordinates and image of a shape to display and displays that shape.
         """
+        polygon_surface = pygame.Surface(400,400)
+        polygon_surface.set_alpha(0)
+        pygame.draw.polygon(polygon_surface, Polygon.color, Polygon.vertices,)
+
+    def update_lerp(self, x, y):
         pass
 
-    def update_lerp(self):
-        pass
+    def check_cull(self, x, y):
+        """
+        Gets coordinates from and object and determines whether or not to display them.
+        """
+        screen_rect = pygame.Rect(0, 0, 1200, 900)
+        return screen_rect.collidepoint(x,y)
 
-    def check_cull(self):
-        pass
+
