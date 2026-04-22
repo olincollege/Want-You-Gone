@@ -95,11 +95,11 @@ class View():
         circle_surface = pygame.Surface((
             ceil(circle.radius * 2), ceil(circle.radius * 2)))
         circle_surface.set_alpha(0)
-        circle_rect = pygame.draw.circle(circle_surface, circle.color,
+        pygame.draw.circle(circle_surface, circle.color,
                            circle.position.get_tuple(), circle.radius)
         position = Vector.sum(Vector.diff(self._camera, circle.position),
                               Vector(-circle.radius, -circle.radius))
-        self._window.blit(circle_rect, position.get_tuple())
+        self._window.blit(circle_surface, position.get_tuple())
         print(f"{position = }")
 
     def draw_polygon(self, polygon):
