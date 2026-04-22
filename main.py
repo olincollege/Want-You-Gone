@@ -13,10 +13,10 @@ def main():
     """
     fps = 60
     dt = 1 / fps
-    level = Level("level1/")
+    level = Level("example_level/")
     view = View(level, "sprites/")
-    view.refresh(dt)
-
+    while True:
+        pass
 
 if __name__ == "__main__":
     main()

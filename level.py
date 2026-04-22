@@ -2,6 +2,7 @@
 Contains the Level class.
 """
 
+from math import sqrt
 import json
 from shape import Circle, Polygon
 from vector import Vector
@@ -12,10 +13,11 @@ class Level:
     Store the physical state of a set of 2D shapes.
 
     Attributes:
+        _gravity: A Vector representing the gravity on the level.
         self._path: A string representing the path to the folder
         with all the starting data for the level.
         self._player: A Circle representing the player character.
-        self._boarder: A Polygon representing the outmost border
+        self._border: A Polygon representing the outmost border
         of the space objects can move inside.
         self._circles: A list of Circles representing the
         stationary circles on the level.
@@ -26,6 +28,7 @@ class Level:
         self._moving_polygons: A list of Polygons representing the
         moving polygons on the level.
     """
+    _gravity = Vector(0, 0.2)
 
     def __init__(self, path):
         """
@@ -125,6 +128,64 @@ class Level:
 
         # Otherwise go a level deeper into the list
         return [cls.make_vector(i) for i in json_input]
+
+    def update(self, dt):
+        """
+        Update the position velocity, angular velocity,
+        and angle of all shapes on the level.
+
+        Args:
+            dt: A float representing the amount of time to update for.
+        """
+        # Update the velocity of all shapes by adding gravity to them.
+        self._player.force(self._gravity, dt)
+        self._border.force(self._gravity, dt)
+        for polygon in self._polygons:
+            polygon.force(self._gravity, dt)
+
+        # Update the positions and angles of all shapes by adding
+        # their velocity and angular velocity to them.
+        self._player.update_position(dt)
+        self._border.update_position(dt)
+        for polygon in self._polygons:
+            polygon.update_position(dt)
+
+        # Find the shortest distance between the player's center and
+        # the closest point to it on each shape.
+        for polygon in self._polygons:
+            # If the player is too far from the polygon, skip it.
+            if (polygon.radius + self.player.radius) ** 2 < Vector.diff(
+                polygon.position, self._player.position).magnitude_squared():
+                continue
+
+            # Otherwise find the closest point on the polygon
+            # to the player and the distance between them.
+            shortest_distance = None
+            closest_line = None
+            closest_vertex = None
+            for i, vertex in enumerate(polygon.vertices):
+                # Find the distance between the player and the line segment
+                # between vertices i - 1 and i and update
+                # shortest_distance if it is shorter.
+                distance = self._player.position.line_point_distance(
+                    polygon.vertices[i - 1], vertex)
+                if distance is not None and (shortest_distance is None or
+                    abs(distance) < abs(shortest_distance)):
+                    shortest_distance = distance
+                    closest_line = i
+
+                # Find the distance between the player and the vertex
+                # and update shortest_distance if it is shorter.
+                distance = sqrt(Vector.diff(
+                    self._player.position, vertex).magnitude_squared())
+                if shortest_distance is None or distance < abs(
+                    shortest_distance):
+                    shortest_distance = distance
+                    closest_vertex = i
+
+            # Find the collision normal for the line or vertex
+            # that is closest to the player.
+            
 
     @property
     def player(self):

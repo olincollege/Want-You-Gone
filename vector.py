@@ -19,8 +19,8 @@ class Vector:
         Initialize x and y.
 
         Args:
-            x: A float representing the x component of the vector.
-            y: A float representing the y component of the vector.
+            x: A number representing the x component of the vector.
+            y: A number representing the y component of the vector.
         """
         self._x = float(x)
         self._y = float(y)
@@ -127,6 +127,48 @@ class Vector:
         # Calculate the magnitude of self and divide self by it
         magnitude = sqrt(self._x * self._x + self._y * self._y)
         return self.scale(1 / magnitude)
+
+    def line_point_distance(self, line1, line2):
+        """
+        Find the signed distance between a point and a line segment.
+
+        Args:
+            self: A Vector representing the point.
+            line1: A Vector representing the right end of the line
+            when observed facing in the positive direction.
+            line2: A Vector representing the left end of the line
+            when observed facing in the positive direction.
+        
+        Returns:
+            A float representing the signed distance between self and the line
+            segment between line1 and line2. The distance is positive when
+            the point is on the right side of the line when observed from
+            the perspective of line1, facing line2.
+            None: If the point on the line segment
+            that self is closest to is line1 or line2.
+        """
+        tangent = Vector.diff(line1, line2).normal()
+
+        # If the point is behind line1 return None.
+        if tangent.dot(self, Vector.diff(self, line1)) < 0:
+            return None
+
+        # If the point is past line2 return None.
+        if tangent.dot(self, Vector.diff(self, line2)) > 0:
+            return None
+
+        # Otherwise return the determinant of the matrix
+        # [self - line1 | tangent]
+        return Vector.det(Vector.diff(self, line1), tangent)
+
+    def magnitude_squared(self):
+        """
+        Find the magnitude of self squared.
+
+        Returns:
+            A float representing the magnitude of self squared.
+        """
+        return self._x * self._x + self._y * self._y
 
     @classmethod
     def dot(cls, vec1, vec2):

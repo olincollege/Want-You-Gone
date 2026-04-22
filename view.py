@@ -1,4 +1,10 @@
+"""
+Contains the View class.
+"""
+
+from math import ceil
 import pygame
+from vector import Vector
 pygame.init()
 
 class View():
@@ -23,55 +29,121 @@ class View():
             path: A string representing the path of the folder
             with every sprite.
         """
+        self._window_center = Vector(600, 450)
         self._level = level
-        self._camera = level.player.position()
+        self._camera = Vector.diff(self._window_center, level.player.position)
         self._path = path
         self._lerp_speed = 0.9
         self._window = pygame.display.set_mode((1200, 900))
-
-    def update_window(self, _window):
-        """
-        Creates window to be run for each frame. 
-        """
-        screen = self._window
         pygame.display.set_caption('Want You Gone')
+        self.refresh(0)
 
-    def draw_sprite(self, angle, path):
+    def refresh(self, dt):
         """
-        Gets coordinates and rotation to display sprite.
-        """
-        #get image and rotate it
-        character_original = pygame.image.load(path).convert_alpha()
-        character_surface = pygame.transform.rotate(character_original, angle)
-        position = self._camera.get_tuple
-        character_rect = character_surface.get_rect(center = position)
-        #draws image. Remember that a screen (display surface) is needed 
-        screen.blit(character_rect, position)
+        Refresh the display to show the current state of the level.
 
-    def draw_circle(self, x, y):
+        Args:
+            dt: A float representing the time since the last refresh.
         """
-        Gets coordinates of a circle to display and displays it.
+        self.update_lerp(dt)
+        self._window.fill(self._level.border.color)
+        # self.draw_background(self._path + "background.png")
+        for polygon in self._level.polygons:
+            self.draw_polygon(polygon)
+        # self.draw_sprite(self._level.player, self._path + "player.png")
+        self.draw_circle(self._level.player)
+        pygame.display.flip()
+
+    def draw_background(self, sprite_path):
         """
-        circle_surface = pygame.Surface(400,400)
+        Draws the background texture on the window in the shape of the border.
+
+        Args:
+            sprite_path: A string representing the file path
+            of the background texture.
+        """
+
+    def draw_sprite(self, shape, sprite_path):
+        """
+        Draws a sprite on the window based on the position and rotation
+        of a shape and the position of the camera.
+
+        Args:
+            shape: A Circle or Polygon representing the shape to display.
+            path: A string representing the file path of the sprite to display.
+        """
+        # Get image and rotate it.
+        sprite = pygame.image.load(sprite_path).convert_alpha()
+        rotated_sprite = pygame.transform.rotate(sprite, shape.angle)
+        position = Vector.diff(self._camera, shape.position).add(
+            Vector(shape.radius, shape.radius)).get_tuple()
+        sprite_rect = rotated_sprite.get_rect(center = position)
+
+        # Draw image on the window.
+        self._window.blit(sprite_rect, position)
+
+    def draw_circle(self, circle):
+        """
+        Draws a circle on the window based on the position and rotation
+        of a circle and the position of the camera.
+
+        Args:
+            circle: A Circle representing the circle to display.
+        """
+        if self.check_cull(circle):
+            return
+        circle_surface = pygame.Surface((
+            ceil(circle.radius * 2), ceil(circle.radius * 2)))
         circle_surface.set_alpha(0)
-        pygame.draw.circle(circle_surface,Circle.color, Circle.position,Circle.radius)
+        circle_rect = pygame.draw.circle(circle_surface, circle.color,
+                           circle.position.get_tuple(), circle.radius)
+        position = Vector.sum(Vector.diff(self._camera, circle.position),
+                              Vector(-circle.radius, -circle.radius))
+        self._window.blit(circle_rect, position.get_tuple())
+        print(f"{position = }")
 
-    def draw_polygon(self):
+    def draw_polygon(self, polygon):
         """
-        Gets coordinates and image of a shape to display and displays that shape.
+        Draws a polygon on the window based on the position and rotation
+        of a polygon and the position of the camera.
+
+        Args:
+            polygon: A Polygon representing the polygon to display.
         """
-        polygon_surface = pygame.Surface(400,400)
+        if self.check_cull(polygon):
+            return
+        polygon_surface = pygame.Surface(
+            (ceil(polygon.radius * 2), ceil(polygon.radius * 2)))
         polygon_surface.set_alpha(0)
-        pygame.draw.polygon(polygon_surface, Polygon.color, Polygon.vertices,)
+        pygame.draw.polygon(polygon_surface, polygon.color,
+        [vertex.get_tuple() for vertex in polygon.rotated_vertices()])
+        position = Vector.sum(Vector.diff(self._camera, polygon.position),
+                              Vector(-polygon.radius, -polygon.radius))
+        self._window.blit(polygon_surface, position.get_tuple())
 
-    def update_lerp(self, x, y):
-        pass
-
-    def check_cull(self, x, y):
+    def update_lerp(self, dt):
         """
-        Gets coordinates from and object and determines whether or not to display them.
+        Updates the camera's position to smoothly follow the player.
+
+        Args:
+            dt: A float representing the time since the last refresh.
         """
-        screen_rect = pygame.Rect(0, 0, 1200, 900)
-        return screen_rect.collidepoint(x,y)
+        self._camera.lerp(Vector.diff(self._window_center,
+                    self._level.player.position), self._lerp_speed * dt)
 
+    def check_cull(self, shape):
+        """
+        Determines whether or not to display a shape.
 
+        Args:
+            shape: A Circle or Polygon representing the shape to check.
+        
+        Returns:
+            A boolean representing whether or not to
+            cull (not display) the shape.
+        """
+        screen_rect = self._window.get_rect()
+        shape_rect = pygame.Rect(Vector.sum(shape.position,
+        Vector(shape.radius, shape.radius)).get_tuple(),
+        (shape.radius * 2, shape.radius * 2))
+        return not screen_rect.colliderect(shape_rect)
