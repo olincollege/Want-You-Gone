@@ -21,7 +21,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-        #pygame.display.update()
+        pygame.display.update()
 
 if __name__ == "__main__":
     main()

@@ -94,7 +94,7 @@ class View():
             return
         circle_surface = pygame.Surface((
             ceil(circle.radius * 2), ceil(circle.radius * 2)))
-        circle_surface.set_alpha(0)
+        #circle_surface.set_alpha(0)
         pygame.draw.circle(circle_surface, circle.color,
                            circle.position.get_tuple(), circle.radius)
         position = Vector.sum(Vector.diff(self._camera, circle.position),
@@ -114,7 +114,7 @@ class View():
             return
         polygon_surface = pygame.Surface(
             (ceil(polygon.radius * 2), ceil(polygon.radius * 2)))
-        polygon_surface.set_alpha(0)
+        #polygon_surface.set_alpha(0)
         pygame.draw.polygon(polygon_surface, polygon.color,
         [vertex.get_tuple() for vertex in polygon.rotated_vertices()])
         position = Vector.sum(Vector.diff(self._camera, polygon.position),
