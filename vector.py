@@ -225,3 +225,20 @@ class Vector:
             A Vector representing vec1 + vec2
         """
         return Vector(vec1.x + vec2.x, vec1.y + vec2.y)
+    
+    @classmethod
+    def sum_all(cls, vectors):
+        """
+        Find the sum of a list of vectors.
+
+        Args:
+            vectors: A list of Vectors to be summed together.
+
+        Returns:
+            A Vector representing the sum of all the vectors in vectors.
+        """
+        if not vectors:
+            return Vector(0, 0)
+        x_sum = sum(vector.x for vector in vectors)
+        y_sum = sum(vector.y for vector in vectors)
+        return Vector(x_sum, y_sum)

@@ -2,7 +2,7 @@
 Contains the Level class.
 """
 
-from math import sqrt
+from math import sqrt, copysign
 import json
 from shape import Circle, Polygon
 from vector import Vector
@@ -29,6 +29,10 @@ class Level:
         moving polygons on the level.
     """
     _gravity = Vector(0, 0.2)
+    _jump_strength = 5
+    _default_cor = 0.2
+    _bouncy_cor = 0.8
+    _friction_coefficient = 0.5
 
     def __init__(self, path):
         """
@@ -129,13 +133,17 @@ class Level:
         # Otherwise go a level deeper into the list
         return [cls.make_vector(i) for i in json_input]
 
-    def update(self, dt):
+    def update(self, dt, is_jumping, is_bouncing):
         """
         Update the position velocity, angular velocity,
         and angle of all shapes on the level.
 
         Args:
             dt: A float representing the amount of time to update for.
+            is_jumping: A boolean representing whether or not the player is
+            jumping in this update.
+            is_bouncing: A boolean representing whether or not the player is
+            bouncing in this update.
         """
         # Update the velocity of all shapes by adding gravity to them.
         self._player.force(self._gravity, dt)
@@ -150,9 +158,14 @@ class Level:
         for polygon in self._polygons:
             polygon.update_position(dt)
 
+        # ----------------------------------------------------------------------
+
+        # Find the impulse vector for every collision with the player.
+        collisions = []
+
         # Find the shortest distance between the player's center and
         # the closest point to it on each shape.
-        for polygon in self._polygons:
+        for polygon in self._polygons + [self._border]:
             # If the player is too far from the polygon, skip it.
             if (polygon.radius + self.player.radius) ** 2 < Vector.diff(
                 polygon.position, self._player.position).magnitude_squared():
@@ -163,16 +176,18 @@ class Level:
             shortest_distance = None
             closest_line = None
             closest_vertex = None
-            for i, vertex in enumerate(polygon.vertices):
+            vertices = polygon.world_vertices()
+            for i, vertex in enumerate(vertices):
                 # Find the distance between the player and the line segment
                 # between vertices i - 1 and i and update
                 # shortest_distance if it is shorter.
                 distance = self._player.position.line_point_distance(
-                    polygon.vertices[i - 1], vertex)
+                    vertices[i - 1], vertex)
                 if distance is not None and (shortest_distance is None or
                     abs(distance) < abs(shortest_distance)):
                     shortest_distance = distance
                     closest_line = i
+                    closest_vertex = None
 
                 # Find the distance between the player and the vertex
                 # and update shortest_distance if it is shorter.
@@ -182,10 +197,170 @@ class Level:
                     shortest_distance):
                     shortest_distance = distance
                     closest_vertex = i
+                    closest_line = None
 
-            # Find the collision normal for the line or vertex
-            # that is closest to the player.
+            # Determine the type of collision the player
+            # is having with each polygon.
+
+            # If the player is not colliding with the polygon, skip it.
+            if shortest_distance is None or shortest_distance > self._player.radius:
+                continue
+
+            # If the player is colliding with a vertex:
+            if closest_vertex is not None:
+                # If the player's center is outside the polygon,
+                # add the impulse for the vertex.
+                if Vector.det(
+                    Vector.diff(vertices[closest_vertex - 1], vertices[closest_vertex]),
+                    Vector.diff(vertices[closest_vertex], vertices[closest_vertex + 1])
+                ) < 0:
+                    collisions.append(self.circle_corner_impulse(
+                        self._player, polygon, closest_vertex, is_jumping, is_bouncing))
+                
+                # If the player's center is inside the polygon,
+                # add the impulses for the two edges connected to the vertex.
+                else:
+                    collisions.append(self.circle_edge_impulse(
+                        self._player, polygon, closest_vertex, is_jumping, is_bouncing))
+                    collisions.append(self.circle_corner_impulse(
+                        self._player, polygon, (closest_vertex + 1) % len(vertices),
+                        is_jumping, is_bouncing))
+
+            hit_edge = False
+            # If the player is colliding with an edge:
+            elif closest_line is not None:
+                # If the player is colliding with the closest edge,
+                # and the one next to it in the clockwise direction,
+                # add the impulse for those edges.
+                if (Vector.det(
+                    Vector.diff(vertices[closest_line - 2], vertices[closest_line - 1]),
+                    Vector.diff(vertices[closest_line - 1], vertices[closest_line])
+                ) > 0 and Vector.det(
+                    Vector.diff(self._player.position, vertices[closest_line - 1]),
+                    Vector.diff(vertices[closest_line - 2], vertices[closest_line - 1])
+                ) < self._player.radius ** 2):
+                    collisions.append(self.circle_edge_impulse(
+                        self._player, polygon, closest_line - 1, is_jumping, is_bouncing))
+                    collisions.append(self.circle_edge_impulse(
+                        self._player, polygon, closest_line, is_jumping, is_bouncing))
+                    hit_edge = True
+                
+                # If the player is colliding with the closest edge,
+                # and the one next to it in the counterclockwise direction,
+                # add the impulse for those edges.
+                if Vector.det(
+                    Vector.diff(vertices[closest_line - 1], vertices[closest_line]),
+                    Vector.diff(vertices[closest_line], vertices[closest_line + 1])
+                ) > 0 and Vector.det(
+                    Vector.diff(self._player.position, vertices[closest_line]),
+                    Vector.diff(vertices[closest_line], vertices[closest_line + 1])
+                ) < self._player.radius ** 2:
+                    collisions.append(self.circle_edge_impulse(
+                        self._player, polygon, closest_line - 1, is_jumping, is_bouncing))
+                    if not hit_edge:
+                        collisions.append(self.circle_edge_impulse(
+                        self._player, polygon, closest_line, is_jumping, is_bouncing))
+                
+                elif not hit_edge:
+                    collisions.append(self.circle_edge_impulse(
+                        self._player, polygon, closest_line, is_jumping, is_bouncing))
+                    
+        # Average all the impulse vectors together and apply the result to the player.
+        impulse = Vector.sum_all(collisions).scale(self._player.mass / len(collisions))
+        relative_velocity = Vector.det(self._player.velocity, impulse) + (
+            self._player.angular_velocity * self._player.radius) ** 2
+        friction = impulse.scale(copysign(self._friction_coefficient, relative_velocity))
+        friction = Vector(-friction.y, friction.x)
+        self._player.impulse(impulse)
+        self._player.impulse_at(friction, impulse.normalized().scale(-self._player.radius))
+
+    def circle_corner_impulse(self, circle, polygon, vertex, is_jumping, is_bouncing):
+        """
+        Find the impulse vector for a collision between a circle and a corner.
+
+        Args:
+            circle: A Circle representing the circle in the collision.
+            polygon: A Polygon representing the polygon in the collision.
+            vertex: A integer representing the index of the corner in the
+            collision.
+            is_jumping: A boolean representing whether or not the player is
+            jumping in the collision.
+            is_bouncing: A boolean representing whether or not the player is
+            bouncing in the collision.
+
+        Returns:
+            A Vector representing the impulse vector for the collision.
+        """
+        # Find the normal vector for the collision.
+        normal = Vector.diff(polygon.world_vertices()[vertex], circle.position)
+        normal = normal.normal()
+
+        # Find the relative velocity of the circle and the vertex.
+        relative_velocity = Vector.diff(
+            polygon.velocity, circle.velocity)
+
+        return self.calculate_impulse(
+            circle, polygon, normal, relative_velocity, is_jumping, is_bouncing)
+    
+    def circle_edge_impulse(self, circle, polygon, line, is_jumping, is_bouncing):
+        """
+        Find the impulse vector for a collision between a circle and an edge.
+
+        Args:
+            circle: A Circle representing the circle in the collision.
+            polygon: A Polygon representing the polygon in the collision.
+            line: A integer representing the index of the edge in the
+            collision. The edge is between vertices line - 1 and line.
+            is_jumping: A boolean representing whether or not the player is
+            jumping in the collision.
+            is_bouncing: A boolean representing whether or not the player is
+            bouncing in the collision.
+
+        Returns:
+            A Vector representing the impulse vector for the collision.
+        """
+        # Find the normal vector for the collision.
+        tangent = Vector.diff(polygon.world_vertices()[line],
+            polygon.world_vertices()[line - 1]).normal()
+        normal = Vector(-tangent.y, tangent.x)
+
+        # Find the relative velocity of the circle and the edge.
+        relative_velocity = Vector.diff(
+            polygon.velocity, circle.velocity)
+
+        return self.calculate_impulse(
+            circle, polygon, normal, relative_velocity, is_jumping, is_bouncing)
+
+    def calculate_impulse(self, circle, polygon, normal, relative_velocity, is_jumping, is_bouncing):
+        """
+        Find the impulse vector for a collision between a circle and a polygon.
+        Args:
+            circle: A Circle representing the circle in the collision.
+            polygon: A Polygon representing the polygon in the collision.
+            normal: A Vector representing the normal vector for the collision.
+            relative_velocity: A Vector representing the relative velocity of
+            the circle and the point on the polygon that is colliding with it.
+            is_jumping: A boolean representing whether or not the player is
+            jumping in the collision.
+            is_bouncing: A boolean representing whether or not the player is
+            bouncing in the collision.
             
+        Returns:
+            A Vector representing the impulse vector for the collision.
+        """
+        # Find the impulse vector using the formula
+        # impulse = (1 + e) * (relative_velocity dot normal + jump) * normal
+        # where e is the coefficient of restitution
+        # and jump is the jumping strength.
+        e = self._default_cor
+        if circle.is_bouncy or polygon.is_bouncy:
+            e = self._bouncy_cor
+        if not is_bouncing:
+            e = 0
+        jump = self._jump_strength if is_jumping else 0
+
+        return normal.scale(
+            (1 + e) * Vector.dot(normal, relative_velocity + jump))
 
     @property
     def player(self):

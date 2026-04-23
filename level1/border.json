@@ -1,9 +1,0 @@
-{
-    "vertices": [[100, 100], [-100, 100], [-100, -100], [100, -100]],
-    "position": [0, 0],
-    "velocity": [0, 0],
-    "angle": 0,
-    "angular_velocity": 0,
-    "is_bouncy": false,
-    "color": [200, 200, 200]
-}
