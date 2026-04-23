@@ -62,6 +62,8 @@ class View():
             sprite_path: A string representing the file path
             of the background texture.
         """
+        background = pygame.image.load(sprite_path).convert_alpha()
+        self._window.blit(background, (0,0))
 
     def draw_sprite(self, shape, sprite_path):
         """
@@ -93,14 +95,14 @@ class View():
         if self.check_cull(circle):
             return
         circle_surface = pygame.Surface((
-            ceil(circle.radius * 2), ceil(circle.radius * 2)))
-        #circle_surface.set_alpha(0)
+            ceil(circle.radius * 2), ceil(circle.radius * 2)), pygame.SRCALPHA)
         pygame.draw.circle(circle_surface, circle.color,
                            circle.position.get_tuple(), circle.radius)
         position = Vector.sum(Vector.diff(self._camera, circle.position),
                               Vector(-circle.radius, -circle.radius))
-        self._window.blit(circle_surface, position.get_tuple())
-        print(f"{position = }")
+        circle_rect = circle_surface.get_rect(center = position.get_tuple())
+        self._window.blit(circle_surface, circle_rect)
+        print(f"{circle_rect = }")
 
     def draw_polygon(self, polygon):
         """
@@ -113,13 +115,13 @@ class View():
         if self.check_cull(polygon):
             return
         polygon_surface = pygame.Surface(
-            (ceil(polygon.radius * 2), ceil(polygon.radius * 2)))
-        #polygon_surface.set_alpha(0)
+            (ceil(polygon.radius * 2), ceil(polygon.radius * 2)), pygame.SRCALPHA)
         pygame.draw.polygon(polygon_surface, polygon.color,
         [vertex.get_tuple() for vertex in polygon.rotated_vertices()])
         position = Vector.sum(Vector.diff(self._camera, polygon.position),
                               Vector(-polygon.radius, -polygon.radius))
-        self._window.blit(polygon_surface, position.get_tuple())
+        polygon_rect = polygon_surface.get_rect(center = position.get_tuple())
+        self._window.blit(polygon_surface, polygon_rect)
 
     def update_lerp(self, dt):
         """
