@@ -28,10 +28,10 @@ class Level:
         self._moving_polygons: A list of Polygons representing the
         moving polygons on the level.
     """
-    _gravity = Vector(0, 100)
+    _gravity = Vector(0, 200)
     _jump_strength = 5
-    _default_cor = 0.5
-    _bouncy_cor = 0.8
+    _default_cor = 0.7
+    _bouncy_cor = 0.9
     _friction_coefficient = 0.5
 
     def __init__(self, path):
@@ -309,6 +309,7 @@ class Level:
         self._player.impulse(impulse)
         self._player.impulse_at(friction,
                                 impulse.normal().scale(-self._player.radius))
+        self._player.nudge(impulse.scale(dt))
 
     def circle_corner_impulse(self, circle, polygon, vertex,
                               is_jumping, is_bouncing):
@@ -357,6 +358,7 @@ class Level:
         tangent = Vector.diff(polygon.world_vertices()[line],
             polygon.world_vertices()[line - 1]).normal()
         normal = Vector(tangent.y, -tangent.x)
+        normal = normal.normal()
 
         return self.calculate_impulse(
             circle, polygon, normal, is_jumping, is_bouncing)

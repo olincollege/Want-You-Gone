@@ -23,7 +23,6 @@ class Controller:
 
     def __init__(self):
         """Initialise all input-state bookkeeping."""
-        pass
 
     def update(self, dt_seconds):
         """
@@ -34,8 +33,6 @@ class Controller:
         Args:
             dt_seconds: A float representing the frame duration in seconds.
         """
-        pass
-
 
     @property
     def restart(self):

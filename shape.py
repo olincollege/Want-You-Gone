@@ -177,6 +177,18 @@ class Shape:
             return
         self._velocity.add(impulse)
 
+    def nudge(self, nudge):
+        """
+        Apply an instantaneous nudge, which is a very small position change
+        used to prevent shapes from getting stuck together.
+
+        Args:
+            nudge: A Vector representing the nudge to apply.
+        """
+        if not self._can_move:
+            return
+        self._position.add(nudge)
+
     def get_energy(self):
         """
         Calculate the total kinetic energy (translational + rotational).
@@ -197,6 +209,23 @@ class Shape:
             A Vector representing p = mv.
         """
         return self._velocity.scale(self._mass)
+
+    def get_point_momentum(self, contact_point):
+        """
+        Calculate the momentum at a point, which is the linear momentum
+        plus the contribution from angular momentum.
+
+        Args:
+            contact_point: A Vector representing the point
+            relative to the center of mass.
+        
+        Returns:
+            A Vector representing the momentum at the contact point.
+        """
+        linear_momentum = Vector.det(contact_point, self.get_momentum())
+        angular_momentum = self._angular_velocity * self._moment * sqrt(
+            contact_point.magnitude_squared())
+        return linear_momentum + angular_momentum
 
 
 class Circle(Shape):
