@@ -17,6 +17,7 @@ def main():
     level = Level("example_level/")
     controller = Controller()
     view = View(level, "sprites/")
+    clock = pygame.time.Clock()
     while True:
         # If the window is closed, quit the game.
         for event in pygame.event.get():
@@ -32,6 +33,7 @@ def main():
         # Draw the current state of the level to the window.
         view.refresh(dt)
         pygame.display.update()
+        clock.tick(fps)
 
 if __name__ == "__main__":
     main()

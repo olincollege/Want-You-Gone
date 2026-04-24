@@ -331,10 +331,7 @@ class Polygon(Shape):
         # Reverse and recompute when the winding is wrong.
         if (signed_area > 0) == is_inverted:
             vertices.reverse()
-            segment_areas = [
-                Vector.det(vertices[i - 1], vertices[i]) for i in range(n)
-            ]
-            signed_area = sum(segment_areas)
+            signed_area = -signed_area
         mass = abs(signed_area) / 2
 
         # Center of mass via the standard polygon centroid formula
