@@ -77,13 +77,13 @@ class View():
         """
         # Get image and rotate it.
         sprite = pygame.image.load(sprite_path).convert_alpha()
-        sprite = pygame.transform.scale_by(sprite, 2)
-        rotated_sprite = pygame.transform.rotate(sprite, shape.angle)
+        sprite = pygame.transform.scale_by(sprite, 1)
         position = Vector.sum(Vector.diff(self._camera, shape.position),(
             Vector(shape.radius, shape.radius))).get_tuple()
-        sprite_rect = rotated_sprite.get_rect(center = position)
+        sprite_rect = sprite.get_rect(center = position)
 
-        self._window.blit(rotated_sprite,sprite_rect)
+        rotated_sprite = pygame.transform.rotate(sprite_rect, shape.angle)
+        self._window.blit(rotated_sprite, sprite_rect)
 
 
 
