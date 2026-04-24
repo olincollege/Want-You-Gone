@@ -28,7 +28,7 @@ class Controller:
     """
 
     JUMP_BUFFER_MS = 200
-    ROLL_TORQUE = 3.0  # tweak to taste
+    ROLL_TORQUE = 300.0  # tweak to taste
 
     def __init__(self):
         """Initialise all input-state bookkeeping."""
