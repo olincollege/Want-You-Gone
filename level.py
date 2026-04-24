@@ -253,6 +253,7 @@ class Level:
                     Vector.diff(vertices[closest_line - 2],
                                 vertices[closest_line - 1])
                 ) < self._player.radius ** 2):
+                    print("e")
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line - 1,
                         is_jumping, is_bouncing))
@@ -274,6 +275,7 @@ class Level:
                     Vector.diff(vertices[closest_line],
                                 vertices[(closest_line + 1) % len(vertices)])
                 ) < self._player.radius ** 2:
+                    print("e")
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line - 1,
                         is_jumping, is_bouncing))
@@ -286,15 +288,20 @@ class Level:
                 # but not either of the edges next to it,
                 # add the impulse for the closest edge.
                 elif not hit_edge:
+                    print("e")
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line,
                         is_jumping, is_bouncing))
 
         # Average all the impulse vectors together
         # and apply the result to the player.
+        if not collisions:
+            return
         print(f"collisions: {collisions}")
         impulse = Vector.sum_all(collisions).scale(self._player.mass
-                / len(collisions)) if collisions else Vector(0, 0)
+                / len(collisions))
+        if Vector.dot(impulse, self._player.velocity) <= 0:
+            return
         relative_velocity = Vector.det(self._player.velocity, impulse) + (
             self._player.angular_velocity * self._player.radius) ** 2
         friction = impulse.scale(copysign(self._friction_coefficient,
@@ -387,7 +394,7 @@ class Level:
 
         # Apply collision impulse along the normal
         collision_impulse = normal.scale(
-            (-1 - e) * min(Vector.dot(normal, relative_velocity), 0))
+            (1 + e) * max(Vector.dot(normal, relative_velocity), 0))
         
         # Apply jump impulse upward (negative Y direction)
         jump_impulse = Vector(0, -self._jump_strength) if is_jumping else Vector(0, 0)
