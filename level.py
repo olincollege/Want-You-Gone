@@ -376,18 +376,24 @@ class Level:
             polygon.velocity, circle.velocity)
 
         # Find the impulse vector using the formula
-        # impulse = (1 + e) * (relative_velocity dot normal + jump) * normal
+        # impulse = (1 + e) * (relative_velocity dot normal) * normal + jump_up
         # where e is the coefficient of restitution
-        # and jump is the jumping strength.
+        # and jump_up is applied as an upward force when jumping.
         e = self._default_cor
         if circle.is_bouncy or polygon.is_bouncy:
             e = self._bouncy_cor
         if not is_bouncing:
             e = 0
-        jump = self._jump_strength if is_jumping else 0
 
-        return normal.scale(
-            (-1 - e) * min(Vector.dot(normal, relative_velocity), 0) + jump)
+        # Apply collision impulse along the normal
+        collision_impulse = normal.scale(
+            (-1 - e) * min(Vector.dot(normal, relative_velocity), 0))
+        
+        # Apply jump impulse upward (negative Y direction)
+        jump_impulse = Vector(0, -self._jump_strength) if is_jumping else Vector(0, 0)
+        
+        return Vector(collision_impulse.x + jump_impulse.x, 
+                     collision_impulse.y + jump_impulse.y)
 
     @property
     def player(self):

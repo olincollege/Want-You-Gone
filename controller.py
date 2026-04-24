@@ -11,28 +11,19 @@ class Controller:
 
     The controller handles:
       - Left/right rolling (A/D or arrow keys) applied as torque each frame.
-      - Jumping (W or up arrow) applied as an impulse on collision in the collision
-        direction.
+      - Jumping (W or up arrow) applied as an upward impulse on collision.
       - Bounce suppression (S or down arrow) sets restitution to zero on
         touchdown so the player doesn't bounce.
-      - Jump buffering: afaik, because a bounce resolves in a single frame, pressing
-        W up to JUMP_BUFFER_MS milliseconds *before* a collision still counts
-        as a jump input for that collision.
 
     Attributes:
-        _jump_buffer_ms: An int representing how long (ms) a jump keypress
-                         is buffered before a collision.
-        _jump_buffer_timer: A float tracking remaining buffer time (ms).
         _roll_torque: A float representing the torque applied per second
                       when rolling.
     """
-
-    JUMP_BUFFER_MS = 200
     ROLL_TORQUE = 300.0  # tweak to taste
 
     def __init__(self):
         """Initialise all input-state bookkeeping."""
-        self._jump_buffer_timer = 0.0  # counts down in ms
+        pass
 
     def update(self, dt_seconds):
         """
@@ -43,17 +34,8 @@ class Controller:
         Args:
             dt_seconds: A float representing the frame duration in seconds.
         """
-        dt_ms = dt_seconds * 1000.0
+        pass
 
-        # Drain the jump buffer.
-        if self._jump_buffer_timer > 0:
-            self._jump_buffer_timer = max(0.0, self._jump_buffer_timer - dt_ms)
-
-        # Check for a fresh jump keypress this frame and (re-)fill the buffer.
-        keys = pygame.key.get_pressed()
-        jump_held = keys[pygame.K_w] or keys[pygame.K_UP]
-        if jump_held:
-            self._jump_buffer_timer = self.JUMP_BUFFER_MS
 
     @property
     def restart(self):
@@ -71,16 +53,15 @@ class Controller:
     @property
     def is_jumping(self):
         """
-        True when a jump input is buffered (key held or pressed recently).
+        True when the player is pressing the jump key right now.
 
-        This stays True for up to JUMP_BUFFER_MS after the key was pressed,
-        so the player can press W slightly before a collision and still get
-        the jump bonus on that bounce.
+        Pressing W or up arrow triggers a jump.
 
         Returns:
             A bool.
         """
-        return self._jump_buffer_timer > 0
+        keys = pygame.key.get_pressed()
+        return keys[pygame.K_w] or keys[pygame.K_UP]
 
     @property
     def is_bouncing(self):
@@ -116,12 +97,3 @@ class Controller:
             direction += 1
         return direction * self.ROLL_TORQUE
 
-    def consume_jump_buffer(self):
-        """
-        Clear the jump buffer after it has been used for a collision.
-
-        Call this inside Level.update() immediately after a collision is
-        resolved so that a single keypress doesn't apply the jump bonus
-        to multiple simultaneous collision contacts.
-        """
-        self._jump_buffer_timer = 0.0
