@@ -56,6 +56,19 @@ class Controller:
             self._jump_buffer_timer = self.JUMP_BUFFER_MS
 
     @property
+    def restart(self):
+        """
+        True when the player wants to restart the level.
+
+        Pressing R triggers this, which tells main.py to reload the level.
+
+        Returns:
+            A bool.
+        """
+        keys = pygame.key.get_pressed()
+        return keys[pygame.K_r]
+
+    @property
     def is_jumping(self):
         """
         True when a jump input is buffered (key held or pressed recently).

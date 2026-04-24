@@ -329,7 +329,7 @@ class Polygon(Shape):
         # For a normal polygon we want CCW winding (signed_area > 0).
         # For an inverted polygon we want CW winding (signed_area < 0).
         # Reverse and recompute when the winding is wrong.
-        if (signed_area > 0) == is_inverted:
+        if (signed_area < 0) == is_inverted:
             vertices.reverse()
             segment_areas = [
                 Vector.det(vertices[i - 1], vertices[i]) for i in range(n)
