@@ -165,7 +165,7 @@ class Level:
 
         # Find the shortest distance between the player's center and
         # the closest point to it on each shape.
-        for poly_index, polygon in enumerate(self._polygons):# + [self._border]:
+        for poly_index, polygon in enumerate(self._polygons + [self._border]):
             # If the player is too far from the polygon, skip it.
             if (polygon.radius + self.player.radius) ** 2 < Vector.diff(
                 polygon.position, self._player.position).magnitude_squared():
@@ -206,12 +206,11 @@ class Level:
             if (shortest_distance is None or
                 shortest_distance > self._player.radius):
                 continue
+            print("")
             print(f"is_inverted: {polygon.is_inverted}")
             print(f"shortest_distance: {shortest_distance}")
-            print(f"closest_line: {closest_line}")
-            print(f"closest_vertex: {closest_vertex}")
+            #print(f"closest_line: {polygon.vertices[closest_line - 1]} to {polygon.vertices[closest_line]}")
             print(f"poly_index: {poly_index}")
-            print("")
 
             # If the player is colliding with a vertex:
             if closest_vertex is not None:
@@ -221,7 +220,7 @@ class Level:
                     Vector.diff(vertices[closest_vertex - 1],
                                 vertices[closest_vertex]),
                     Vector.diff(vertices[closest_vertex],
-                                vertices[closest_vertex + 1])
+                                vertices[(closest_vertex + 1) % len(vertices)])
                 ) < 0:
                     collisions.append(self.circle_corner_impulse(
                         self._player, polygon, closest_vertex,
@@ -293,8 +292,9 @@ class Level:
 
         # Average all the impulse vectors together
         # and apply the result to the player.
-        impulse = Vector.sum_all(collisions).scale(1 / len(collisions)
-                                                   ) if collisions else Vector(0, 0)
+        print(f"collisions: {collisions}")
+        impulse = Vector.sum_all(collisions).scale(self._player.mass
+                / len(collisions)) if collisions else Vector(0, 0)
         relative_velocity = Vector.det(self._player.velocity, impulse) + (
             self._player.angular_velocity * self._player.radius) ** 2
         friction = impulse.scale(copysign(self._friction_coefficient,
@@ -326,12 +326,8 @@ class Level:
         normal = Vector.diff(polygon.world_vertices()[vertex], circle.position)
         normal = normal.normal()
 
-        # Find the relative velocity of the circle and the vertex.
-        relative_velocity = Vector.diff(
-            polygon.velocity, circle.velocity)
-
         return self.calculate_impulse(
-            circle, polygon, normal, relative_velocity, is_jumping, is_bouncing)
+            circle, polygon, normal, is_jumping, is_bouncing)
 
     def circle_edge_impulse(self, circle, polygon, line,
                             is_jumping, is_bouncing):
@@ -378,7 +374,7 @@ class Level:
         # Find the relative velocity of the circle and the edge.
         relative_velocity = Vector.diff(
             polygon.velocity, circle.velocity)
-        
+
         # Find the impulse vector using the formula
         # impulse = (1 + e) * (relative_velocity dot normal + jump) * normal
         # where e is the coefficient of restitution

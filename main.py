@@ -29,6 +29,8 @@ def main():
         level.player.torque(controller.roll_torque, dt)
         controller.update(dt)
         level.update(dt, controller.is_jumping, controller.is_bouncing)
+        if controller.restart:
+            level.restart()
 
         # Draw the current state of the level to the window.
         view.refresh(dt)
