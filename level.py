@@ -146,10 +146,10 @@ class Level:
             bouncing in this update.
         """
         # Update the velocity of all shapes by adding gravity to them.
-        self._player.force(self._gravity.scale(self._player.mass), dt)
-        self._border.force(self._gravity.scale(self._border.mass), dt)
+        self._player.accelerate(self._gravity, dt)
+        self._border.accelerate(self._gravity, dt)
         for polygon in self._polygons:
-            polygon.force(self._gravity.scale(polygon.mass), dt)
+            polygon.accelerate(self._gravity, dt)
 
         # Update the positions and angles of all shapes by adding
         # their velocity and angular velocity to them.

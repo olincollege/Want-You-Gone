@@ -142,29 +142,29 @@ class Shape:
         self._position.add(self._velocity.scale(dt))
         self._angle += self._angular_velocity * dt
 
-    def force(self, force, dt):
+    def accelerate(self, acceleration, dt):
         """
-        Apply a continuous force for one timestep (F = ma → Δv = F/m * dt).
+        Apply a continuous acceleration for one timestep.
 
         Args:
-            force: A Vector representing the force to apply.
+            acceleration: A Vector representing the acceleration to apply.
             dt: A float representing the timestep in seconds.
         """
         if not self._can_move:
             return
-        self._velocity.add(force.scale(dt / self._mass))
+        self._velocity.add(acceleration.scale(dt))
 
-    def torque(self, torque, dt):
+    def angular_accelerate(self, angular_acceleration, dt):
         """
-        Apply a continuous torque for one timestep (τ = Iα → Δω = τ/I * dt).
+        Apply a continuous angular acceleration for one timestep.
 
         Args:
-            torque: A float representing the torque to apply (positive = CCW).
+            angular_acceleration: A float representing the angular acceleration to apply.
             dt: A float representing the timestep in seconds.
         """
         if not self._can_move:
             return
-        self._angular_velocity += torque * dt / self._moment
+        self._angular_velocity += angular_acceleration * dt
 
     def impulse(self, impulse):
         """

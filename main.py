@@ -4,6 +4,7 @@ Contains the Main class.
 import pygame
 from controller import Controller
 from level import Level
+from vector import Vector
 from view import View
 
 
@@ -26,7 +27,8 @@ def main():
                 exit()
 
         # Update the level with the current state of the controller.
-        level.player.torque(controller.roll_torque, dt)
+        level.player.angular_accelerate(controller.roll_torque, dt)
+        level.player.accelerate(Vector(-1, 0).scale(controller.roll_torque), dt)
         controller.update(dt)
         level.update(dt, controller.is_jumping, controller.is_bouncing)
         if controller.restart:
