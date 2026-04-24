@@ -30,7 +30,7 @@ class Level:
     """
     _gravity = Vector(0, 100)
     _jump_strength = 5
-    _default_cor = 0.2
+    _default_cor = 0.5
     _bouncy_cor = 0.8
     _friction_coefficient = 0.5
 
@@ -145,6 +145,7 @@ class Level:
             is_bouncing: A boolean representing whether or not the player is
             bouncing in this update.
         """
+        print(f"player position: {self._player.position}")
         # Update the velocity of all shapes by adding gravity to them.
         self._player.accelerate(self._gravity, dt)
         self._border.accelerate(self._gravity, dt)
@@ -300,8 +301,6 @@ class Level:
         print(f"collisions: {collisions}")
         impulse = Vector.sum_all(collisions).scale(self._player.mass
                 / len(collisions))
-        if Vector.dot(impulse, self._player.velocity) <= 0:
-            return
         relative_velocity = Vector.det(self._player.velocity, impulse) + (
             self._player.angular_velocity * self._player.radius) ** 2
         friction = impulse.scale(copysign(self._friction_coefficient,
@@ -357,7 +356,7 @@ class Level:
         # Find the normal vector for the collision.
         tangent = Vector.diff(polygon.world_vertices()[line],
             polygon.world_vertices()[line - 1]).normal()
-        normal = Vector(-tangent.y, tangent.x)
+        normal = Vector(tangent.y, -tangent.x)
 
         return self.calculate_impulse(
             circle, polygon, normal, is_jumping, is_bouncing)
@@ -378,6 +377,7 @@ class Level:
         Returns:
             A Vector representing the impulse vector for the collision.
         """
+        print(f"normal: {normal}")
         # Find the relative velocity of the circle and the edge.
         relative_velocity = Vector.diff(
             polygon.velocity, circle.velocity)
@@ -393,14 +393,11 @@ class Level:
             e = 0
 
         # Apply collision impulse along the normal
-        collision_impulse = normal.scale(
-            (1 + e) * max(Vector.dot(normal, relative_velocity), 0))
-        
-        # Apply jump impulse upward (negative Y direction)
-        jump_impulse = Vector(0, -self._jump_strength) if is_jumping else Vector(0, 0)
-        
-        return Vector(collision_impulse.x + jump_impulse.x, 
-                     collision_impulse.y + jump_impulse.y)
+        collision_scalar = max((1 + e) * -Vector.dot(normal, relative_velocity), 0)
+        if collision_scalar != 0:
+            collision_scalar += self._jump_strength if is_jumping else 0
+
+        return normal.scale(collision_scalar / circle.mass)
 
     @property
     def player(self):

@@ -124,7 +124,7 @@ class Shape:
     def color(self):
         """Get color"""
         return self._color
-    
+
     @property
     def is_bouncy(self):
         """Get is_bouncy"""
@@ -175,7 +175,7 @@ class Shape:
         """
         if not self._can_move:
             return
-        self._velocity.add(impulse.scale(1 / self._mass))
+        self._velocity.add(impulse)
 
     def get_energy(self):
         """
