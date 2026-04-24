@@ -124,6 +124,11 @@ class Shape:
     def color(self):
         """Get color"""
         return self._color
+    
+    @property
+    def is_bouncy(self):
+        """Get is_bouncy"""
+        return self._is_bouncy
 
     def update_position(self, dt):
         """
@@ -312,11 +317,6 @@ class Polygon(Shape):
             is_bouncy: A boolean representing if the shape
                        is bouncier than usual.
             color: A tuple representing the RGB values of the shape's color.
-        
-        Raises:
-            ValueError: If vertices are not in CCW order when not inverted,
-                         or in CW order when inverted.
-
         """
         n = len(vertices)
 
@@ -326,8 +326,9 @@ class Polygon(Shape):
             Vector.det(vertices[i - 1], vertices[i]) for i in range(n)
         ]
         signed_area = sum(segment_areas)
-        if signed_area < 0 ^ is_inverted:
-            raise ValueError("Vertices must be in CCW order if not inverted, CW if inverted.")
+        if signed_area > 0 ^ is_inverted:
+            vertices.reverse()
+            print("Warning: polygon vertices are wound the wrong way! Reversing them.")
         mass = abs(signed_area) / 2
 
         # Center of mass via the standard polygon centroid formula

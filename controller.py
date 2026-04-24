@@ -12,7 +12,8 @@ class Controller:
 
     The controller handles:
       - Left/right rolling (A/D or arrow keys) applied as torque each frame.
-      - Jumping (W or up arrow) applied as an upward impulse on collision.
+      - Jumping (W or up arrow) applied as an impulse on collision in the collision
+        direction.
       - Bounce suppression (S or down arrow) sets restitution to zero on
         touchdown so the player doesn't bounce.
       - Jump buffering: afaik, because a bounce resolves in a single frame, pressing

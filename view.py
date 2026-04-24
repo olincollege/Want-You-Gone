@@ -102,7 +102,6 @@ class View():
                               Vector(-circle.radius, -circle.radius))
         circle_rect = circle_surface.get_rect(center = position.get_tuple())
         self._window.blit(circle_surface, circle_rect)
-        print(f"{circle_rect = }")
 
     def draw_polygon(self, polygon):
         """

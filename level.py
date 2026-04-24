@@ -28,7 +28,7 @@ class Level:
         self._moving_polygons: A list of Polygons representing the
         moving polygons on the level.
     """
-    _gravity = Vector(0, 0.2)
+    _gravity = Vector(0, 30)
     _jump_strength = 5
     _default_cor = 0.2
     _bouncy_cor = 0.8
@@ -146,10 +146,10 @@ class Level:
             bouncing in this update.
         """
         # Update the velocity of all shapes by adding gravity to them.
-        self._player.force(self._gravity, dt)
-        self._border.force(self._gravity, dt)
+        self._player.force(self._gravity.scale(self._player.mass), dt)
+        self._border.force(self._gravity.scale(self._border.mass), dt)
         for polygon in self._polygons:
-            polygon.force(self._gravity, dt)
+            polygon.force(self._gravity.scale(polygon.mass), dt)
 
         # Update the positions and angles of all shapes by adding
         # their velocity and angular velocity to them.
@@ -263,11 +263,11 @@ class Level:
                     Vector.diff(vertices[closest_line - 1],
                                 vertices[closest_line]),
                     Vector.diff(vertices[closest_line],
-                                vertices[closest_line + 1])
+                                vertices[(closest_line + 1) % len(vertices)])
                 ) > 0 and Vector.det(
                     Vector.diff(self._player.position, vertices[closest_line]),
                     Vector.diff(vertices[closest_line],
-                                vertices[closest_line + 1])
+                                vertices[(closest_line + 1) % len(vertices)])
                 ) < self._player.radius ** 2:
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line - 1,
@@ -287,8 +287,8 @@ class Level:
 
         # Average all the impulse vectors together
         # and apply the result to the player.
-        impulse = Vector.sum_all(collisions).scale(
-            self._player.mass / len(collisions))
+        impulse = Vector.sum_all(collisions).scale(1 / len(collisions)
+                                                   ) if collisions else Vector(0, 0)
         relative_velocity = Vector.det(self._player.velocity, impulse) + (
             self._player.angular_velocity * self._player.radius) ** 2
         friction = impulse.scale(copysign(self._friction_coefficient,
@@ -387,7 +387,7 @@ class Level:
         jump = self._jump_strength if is_jumping else 0
 
         return normal.scale(
-            (1 + e) * Vector.dot(normal, relative_velocity + jump))
+            (1 + e) * Vector.dot(normal, relative_velocity) + jump)
 
     @property
     def player(self):
