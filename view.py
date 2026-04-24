@@ -47,11 +47,11 @@ class View():
         """
         self.update_lerp(dt)
         self._window.fill(self._level.border.color)
-        # self.draw_background(self._path + "background.png")
+        self.draw_background(self._path + "night_sky_.png")
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
-        # self.draw_sprite(self._level.player, self._path + "player.png")
-        self.draw_circle(self._level.player)
+        self.draw_sprite(self._level.player, self._path + "wheatley.png")
+        #self.draw_circle(self._level.player)
         pygame.display.flip()
 
     def draw_background(self, sprite_path):
@@ -63,6 +63,7 @@ class View():
             of the background texture.
         """
         background = pygame.image.load(sprite_path).convert_alpha()
+        background = pygame.transform.scale_by(background,1.3)
         self._window.blit(background, (0,0))
 
     def draw_sprite(self, shape, sprite_path):
@@ -76,13 +77,15 @@ class View():
         """
         # Get image and rotate it.
         sprite = pygame.image.load(sprite_path).convert_alpha()
+        sprite = pygame.transform.scale_by(sprite, 2)
         rotated_sprite = pygame.transform.rotate(sprite, shape.angle)
-        position = Vector.diff(self._camera, shape.position).add(
-            Vector(shape.radius, shape.radius)).get_tuple()
+        position = Vector.sum(Vector.diff(self._camera, shape.position),(
+            Vector(shape.radius, shape.radius))).get_tuple()
         sprite_rect = rotated_sprite.get_rect(center = position)
 
-        # Draw image on the window.
-        self._window.blit(sprite_rect, position)
+        self._window.blit(rotated_sprite,sprite_rect)
+
+
 
     def draw_circle(self, circle):
         """
