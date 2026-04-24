@@ -3,7 +3,6 @@ Contains the Controller class.
 """
 
 import pygame
-from vector import Vector
 
 
 class Controller:

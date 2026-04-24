@@ -2,7 +2,6 @@
 Contains the Main class.
 """
 import pygame
-from sys import exit
 from controller import Controller
 from level import Level
 from view import View
