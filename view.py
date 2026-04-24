@@ -31,7 +31,7 @@ class View():
         """
         self._window_center = Vector(600, 450)
         self._level = level
-        self._camera = Vector.diff(self._window_center, level.player.position)
+        self._camera = Vector.diff(level.player.position, self._window_center)
         self._path = path
         self._lerp_speed = 0.9
         self._window = pygame.display.set_mode((1200, 900))
@@ -94,14 +94,15 @@ class View():
         """
         if self.check_cull(circle):
             return
-        circle_surface = pygame.Surface((
-            ceil(circle.radius * 2), ceil(circle.radius * 2)), pygame.SRCALPHA)
-        pygame.draw.circle(circle_surface, circle.color,
-                           circle.position.get_tuple(), circle.radius)
-        position = Vector.sum(Vector.diff(self._camera, circle.position),
-                              Vector(-circle.radius, -circle.radius))
-        circle_rect = circle_surface.get_rect(center = position.get_tuple())
-        self._window.blit(circle_surface, circle_rect)
+        r = ceil(circle.radius)
+        circle_surface = pygame.Surface((r * 2, r * 2), pygame.SRCALPHA)
+        # Draw at the center of the surface, not at world coords.
+        pygame.draw.circle(circle_surface, circle.color, (r, r), circle.radius)
+        # World -> screen: screen_pos = world_pos + camera.
+        # Blit so the surface center lands on screen_pos.
+        screen_pos = Vector.sum(circle.position, self._camera)
+        blit_pos = Vector.sum(screen_pos, Vector(-r, -r))
+        self._window.blit(circle_surface, blit_pos.get_tuple())
 
     def draw_polygon(self, polygon):
         """
@@ -113,14 +114,18 @@ class View():
         """
         if self.check_cull(polygon):
             return
-        polygon_surface = pygame.Surface(
-            (ceil(polygon.radius * 2), ceil(polygon.radius * 2)), pygame.SRCALPHA)
-        pygame.draw.polygon(polygon_surface, polygon.color,
-        [vertex.get_tuple() for vertex in polygon.rotated_vertices()])
-        position = Vector.sum(Vector.diff(self._camera, polygon.position),
-                              Vector(-polygon.radius, -polygon.radius))
-        polygon_rect = polygon_surface.get_rect(center = position.get_tuple())
-        self._window.blit(polygon_surface, polygon_rect)
+        r = ceil(polygon.radius)
+        polygon_surface = pygame.Surface((r * 2, r * 2), pygame.SRCALPHA)
+        # Rotated vertices are relative to the polygon center.
+        # Offset them to the center of the surface so they draw correctly.
+        local_verts = [
+            (v.x + r, v.y + r) for v in polygon.rotated_vertices()
+        ]
+        pygame.draw.polygon(polygon_surface, polygon.color, local_verts)
+        # World -> screen: screen_pos = world_pos + camera.
+        screen_pos = Vector.sum(polygon.position, self._camera)
+        blit_pos = Vector.sum(screen_pos, Vector(-r, -r))
+        self._window.blit(polygon_surface, blit_pos.get_tuple())
 
     def update_lerp(self, dt):
         """
@@ -129,8 +134,8 @@ class View():
         Args:
             dt: A float representing the time since the last refresh.
         """
-        self._camera.lerp(Vector.diff(self._window_center,
-                    self._level.player.position), self._lerp_speed * dt)
+        self._camera.lerp(Vector.diff(self._level.player.position,
+                    self._window_center), self._lerp_speed * dt)
 
     def check_cull(self, shape):
         """
@@ -144,7 +149,10 @@ class View():
             cull (not display) the shape.
         """
         screen_rect = self._window.get_rect()
-        shape_rect = pygame.Rect(Vector.sum(shape.position,
-        Vector(shape.radius, shape.radius)).get_tuple(),
-        (shape.radius * 2, shape.radius * 2))
+        # World -> screen: screen_pos = world_pos + camera.
+        screen_pos = Vector.sum(shape.position, self._camera)
+        r = shape.radius
+        shape_rect = pygame.Rect(
+            screen_pos.x - r, screen_pos.y - r, r * 2, r * 2
+        )
         return not screen_rect.colliderect(shape_rect)

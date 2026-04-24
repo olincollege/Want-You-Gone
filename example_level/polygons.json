@@ -1,18 +1,62 @@
-[{
-    "vertices": [[75, -75], [100, -75], [100, -100], [75, -100]],
-    "position": [0, 0],
-    "velocity": [0, 0],
-    "angle": 0,
-    "angular_velocity": 0,
-    "is_bouncy": false,
-    "color": [255, 255, 0]
-},
-{
-    "vertices": [[-100, -100], [100, -100], [-100, -75]],
-    "position": [0, 0],
-    "velocity": [0, 0],
-    "angle": 0,
-    "angular_velocity": 0,
-    "is_bouncy": true,
-    "color": [0, 255, 0]
-}]
+[
+    {
+        "comment": "Floor",
+        "vertices": [[-450, -10], [450, -10], [450, 10], [-450, 10]],
+        "position": [0, 200],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [80, 80, 100]
+    },
+    {
+        "comment": "Low left platform",
+        "vertices": [[-90, -10], [90, -10], [90, 10], [-90, 10]],
+        "position": [-200, 50],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [80, 80, 100]
+    },
+    {
+        "comment": "Right platform",
+        "vertices": [[-90, -10], [90, -10], [90, 10], [-90, 10]],
+        "position": [220, -80],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [80, 80, 100]
+    },
+    {
+        "comment": "High left platform",
+        "vertices": [[-70, -10], [70, -10], [70, 10], [-70, 10]],
+        "position": [-100, -200],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [80, 80, 100]
+    },
+    {
+        "comment": "Ramp - triangle from floor up to right platform height",
+        "vertices": [[-150.0, 80.0], [100.0, 80.0], [100.0, -120.0]],
+        "position": [60, 120],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [100, 90, 80]
+    },
+    {
+        "comment": "Bouncy pad on the floor",
+        "vertices": [[-50, -10], [50, -10], [50, 10], [-50, 10]],
+        "position": [-50, 180],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": true,
+        "color": [60, 180, 100]
+    }
+]

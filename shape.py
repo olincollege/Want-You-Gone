@@ -267,7 +267,7 @@ class Circle(Shape):
         if not self._can_move:
             return
         self._velocity.add(impulse.scale(1 / self._mass))
-        # Δω = r × J / I  (2D cross product: rx*Jy - ry*Jx)
+        # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity += (
             Vector.det(contact_point, impulse)
         ) / self._moment
@@ -326,9 +326,15 @@ class Polygon(Shape):
             Vector.det(vertices[i - 1], vertices[i]) for i in range(n)
         ]
         signed_area = sum(segment_areas)
-        if signed_area > 0 ^ is_inverted:
+        # For a normal polygon we want CCW winding (signed_area > 0).
+        # For an inverted polygon we want CW winding (signed_area < 0).
+        # Reverse and recompute when the winding is wrong.
+        if (signed_area > 0) == is_inverted:
             vertices.reverse()
-            print("Warning: polygon vertices are wound the wrong way! Reversing them.")
+            segment_areas = [
+                Vector.det(vertices[i - 1], vertices[i]) for i in range(n)
+            ]
+            signed_area = sum(segment_areas)
         mass = abs(signed_area) / 2
 
         # Center of mass via the standard polygon centroid formula

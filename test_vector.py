@@ -101,7 +101,7 @@ def test_vector_scale():
 
     v2 = Vector(10, 10)
     scaled2 = v2.scale(-2)
-    assert scaled.get_tuple() == (5.0, 5.0)
+    assert scaled2.get_tuple() == (-20.0, -20.0)
 
 def test_vector_normal():
     """

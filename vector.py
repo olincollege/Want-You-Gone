@@ -32,7 +32,9 @@ class Vector:
         Returns:
             A string representing the vector in row vector format
         """
-        return f"({self.x}, {self.y})"
+        def _fmt(v):
+            return int(v) if v == int(v) else v
+        return f"({_fmt(self._x)}, {_fmt(self._y)})"
 
     def get_tuple(self):
         """
@@ -150,11 +152,11 @@ class Vector:
         tangent = Vector.diff(line1, line2).normal()
 
         # If the point is behind line1 return None.
-        if tangent.dot(self, Vector.diff(self, line1)) < 0:
+        if Vector.dot(tangent, Vector.diff(line1, self)) < 0:
             return None
 
         # If the point is past line2 return None.
-        if tangent.dot(self, Vector.diff(self, line2)) > 0:
+        if Vector.dot(tangent, Vector.diff(line2, self)) > 0:
             return None
 
         # Otherwise return the determinant of the matrix
