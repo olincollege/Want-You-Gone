@@ -5,7 +5,6 @@ from math import copysign
 import pygame
 from controller import Controller
 from level import Level
-from vector import Vector
 from view import View
 
 
