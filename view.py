@@ -2,7 +2,7 @@
 Contains the View class.
 """
 
-from math import ceil
+from math import ceil, degrees
 import pygame
 from vector import Vector
 pygame.init()
@@ -78,7 +78,7 @@ class View():
         # Get image and rotate it.
         sprite = pygame.image.load(sprite_path).convert_alpha()
         sprite = pygame.transform.scale_by(sprite, 0.47)
-        rotated_sprite = pygame.transform.rotate(sprite, shape.angle)
+        rotated_sprite = pygame.transform.rotate(sprite, degrees(shape.angle))
         position = Vector.sum(shape.position, self._camera) 
         position = position.get_tuple()
         sprite_rect = rotated_sprite.get_rect(center = position)

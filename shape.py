@@ -175,7 +175,7 @@ class Shape:
         """
         if not self._can_move:
             return
-        self._velocity.add(impulse)
+        self._velocity.add(impulse.scale(1 / self._mass))
 
     def nudge(self, nudge):
         """
@@ -210,22 +210,24 @@ class Shape:
         """
         return self._velocity.scale(self._mass)
 
-    def get_point_momentum(self, contact_point):
+    def get_effective_mass(self, contact_point, direction):
         """
-        Calculate the momentum at a point, which is the linear momentum
-        plus the contribution from angular momentum.
+        Calculate the effective mass at a point, which is the linear mass
+        plus the contribution from angular mass.
 
         Args:
             contact_point: A Vector representing the point
             relative to the center of mass.
+            relative_velocity: A Vector representing the velocity of the contact
+            projected onto the impulse direction.
         
         Returns:
             A Vector representing the momentum at the contact point.
         """
-        linear_momentum = Vector.det(contact_point, self.get_momentum())
-        angular_momentum = self._angular_velocity * self._moment * sqrt(
-            contact_point.magnitude_squared())
-        return linear_momentum + angular_momentum
+        inverse_translational = 1 / self.mass
+        inverse_rotational = Vector.det(contact_point, direction) ** 2 / self._moment
+        return 1 / abs(inverse_translational + inverse_rotational) if (
+            inverse_translational + inverse_rotational) != 0 else 0
 
 
 class Circle(Shape):
@@ -298,7 +300,7 @@ class Circle(Shape):
         self._velocity.add(impulse.scale(1 / self._mass))
         # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity += (
-            Vector.det(contact_point, impulse)
+            Vector.det(impulse, contact_point)
         ) / self._moment
 
 

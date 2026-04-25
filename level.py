@@ -29,10 +29,10 @@ class Level:
         moving polygons on the level.
     """
     _gravity = Vector(0, 200)
-    _jump_strength = 5
-    _default_cor = 0.7
+    _jump_strength = 200
+    _default_cor = 0.2
     _bouncy_cor = 0.9
-    _friction_coefficient = 0.5
+    _friction_coefficient = 1
 
     def __init__(self, path):
         """
@@ -145,7 +145,6 @@ class Level:
             is_bouncing: A boolean representing whether or not the player is
             bouncing in this update.
         """
-        print(f"player position: {self._player.position}")
         # Update the velocity of all shapes by adding gravity to them.
         self._player.accelerate(self._gravity, dt)
         self._border.accelerate(self._gravity, dt)
@@ -207,11 +206,6 @@ class Level:
             if (shortest_distance is None or
                 shortest_distance > self._player.radius):
                 continue
-            print("")
-            print(f"is_inverted: {polygon.is_inverted}")
-            print(f"shortest_distance: {shortest_distance}")
-            #print(f"closest_line: {polygon.vertices[closest_line - 1]} to {polygon.vertices[closest_line]}")
-            print(f"poly_index: {poly_index}")
 
             # If the player is colliding with a vertex:
             if closest_vertex is not None:
@@ -254,7 +248,6 @@ class Level:
                     Vector.diff(vertices[closest_line - 2],
                                 vertices[closest_line - 1])
                 ) < self._player.radius ** 2):
-                    print("e")
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line - 1,
                         is_jumping, is_bouncing))
@@ -276,7 +269,6 @@ class Level:
                     Vector.diff(vertices[closest_line],
                                 vertices[(closest_line + 1) % len(vertices)])
                 ) < self._player.radius ** 2:
-                    print("e")
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line - 1,
                         is_jumping, is_bouncing))
@@ -289,27 +281,33 @@ class Level:
                 # but not either of the edges next to it,
                 # add the impulse for the closest edge.
                 elif not hit_edge:
-                    print("e")
                     collisions.append(self.circle_edge_impulse(
                         self._player, polygon, closest_line,
                         is_jumping, is_bouncing))
 
-        # Average all the impulse vectors together
-        # and apply the result to the player.
+        # Average all the impulse vectors together.
         if not collisions:
             return
-        print(f"collisions: {collisions}")
-        impulse = Vector.sum_all(collisions).scale(self._player.mass
-                / len(collisions))
-        relative_velocity = Vector.det(self._player.velocity, impulse) + (
-            self._player.angular_velocity * self._player.radius) ** 2
-        friction = impulse.scale(copysign(self._friction_coefficient,
-                                          relative_velocity))
-        friction = Vector(-friction.y, friction.x)
-        self._player.impulse(impulse)
-        self._player.impulse_at(friction,
-                                impulse.normal().scale(-self._player.radius))
+        impulse = Vector.sum_all(collisions).scale(1 / len(collisions))
         self._player.nudge(impulse.scale(dt))
+        impulse = impulse.scale(self._player.mass)
+
+        # Calculate the friction for the collision.
+        impulse_normal = impulse.normal()
+        impulse_direction = Vector(impulse_normal.y, -impulse_normal.x)
+        contact_point = impulse_normal.scale(-self._player.radius)
+        effective_mass = self._player.get_effective_mass(contact_point, impulse_direction)
+        relative_velocity = Vector.sum(self._player.velocity,
+            impulse_direction.scale(self._player.angular_velocity * self._player.radius))
+        friction_magnitude = abs(Vector.dot(relative_velocity, impulse_direction) * effective_mass)
+        max_friction = self._friction_coefficient * sqrt(impulse.magnitude_squared())
+        friction_magnitude = min(friction_magnitude, max_friction)
+        friction_impulse = impulse_direction.scale(copysign(friction_magnitude, Vector.dot(relative_velocity, impulse_direction)))
+
+        # Apply the impulse and friction to the player.
+        self._player.impulse(impulse)
+        self._player.impulse_at(friction_impulse, contact_point)
+        
 
     def circle_corner_impulse(self, circle, polygon, vertex,
                               is_jumping, is_bouncing):
@@ -379,7 +377,6 @@ class Level:
         Returns:
             A Vector representing the impulse vector for the collision.
         """
-        print(f"normal: {normal}")
         # Find the relative velocity of the circle and the edge.
         relative_velocity = Vector.diff(
             polygon.velocity, circle.velocity)
@@ -399,7 +396,7 @@ class Level:
         if collision_scalar != 0:
             collision_scalar += self._jump_strength if is_jumping else 0
 
-        return normal.scale(collision_scalar / circle.mass)
+        return normal.scale(collision_scalar)
 
     @property
     def player(self):

@@ -122,12 +122,13 @@ class Vector:
         Returns:
             A Vector with length 1 that points in the direction of self.
         """
-        # If self has no direction return the vector with no direction
-        if self._x == 0 and self._y == 0:
-            return self
-
         # Calculate the magnitude of self and divide self by it
-        magnitude = sqrt(self._x * self._x + self._y * self._y)
+        magnitude = sqrt(self.magnitude_squared())
+
+        # If self has no direction return the vector with no direction
+        if magnitude == 0:
+            return Vector(0, 0)
+
         return self.scale(1 / magnitude)
 
     def line_point_distance(self, line1, line2):
@@ -170,7 +171,10 @@ class Vector:
         Returns:
             A float representing the magnitude of self squared.
         """
-        return self._x * self._x + self._y * self._y
+        magnitude_squared = self._x * self._x + self._y * self._y
+        if abs(magnitude_squared) < 0.1:
+            return 0
+        return magnitude_squared
 
     @classmethod
     def dot(cls, vec1, vec2):

@@ -1,6 +1,7 @@
 """
 Contains the Main class.
 """
+from math import copysign
 import pygame
 from controller import Controller
 from level import Level
@@ -15,6 +16,7 @@ def main():
     """
     fps = 30
     dt = 1 / fps
+    max_angular_velocity = 5
     level = Level("example_level/")
     controller = Controller()
     view = View(level, "sprites/")
@@ -27,8 +29,11 @@ def main():
                 exit()
 
         # Update the level with the current state of the controller.
-        level.player.angular_accelerate(controller.roll_torque, dt)
-        level.player.accelerate(Vector(-1, 0).scale(controller.roll_torque), dt)
+        roll_torque = controller.roll_torque
+        if copysign(1, roll_torque) != copysign(1, level.player.angular_velocity
+            ) or abs(level.player.angular_velocity) < max_angular_velocity:
+            level.player.angular_accelerate(roll_torque, dt)
+        #level.player.accelerate(Vector(-1, 0).scale(roll_torque), dt)
         controller.update(dt)
         level.update(dt, controller.is_jumping, controller.is_bouncing)
         if controller.restart:
