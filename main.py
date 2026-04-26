@@ -14,7 +14,7 @@ def main():
     Run the physics simulator, take player input,
     and display the state of the game to a window.
     """
-    fps = 30
+    fps = 60
     dt = 1 / fps
     max_angular_velocity = 10
     level = Level("example_level/")
