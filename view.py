@@ -75,6 +75,7 @@ class View():
             of the background texture.
         """
         texture = pygame.image.load(texture_path).convert()
+        texture = pygame.transform.scale_by(texture, 1.25)
         texture_rect = texture.get_rect()
         texture_rect.center = self._window_center.get_tuple()
         mask = pygame.Surface((texture_rect.width, texture_rect.height))
