@@ -47,7 +47,7 @@ class View():
         """
         self.update_lerp(dt)
         self._window.fill(self._level.border.color)
-        self.draw_background(self._path + "night_sky_.png")
+        self.new_draw_background(self._path + "night_sky_.png")
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
         self.draw_sprite(self._level.player, self._path + "wheatley.png")
@@ -65,6 +65,35 @@ class View():
         background = pygame.image.load(sprite_path).convert_alpha()
         background = pygame.transform.scale_by(background,1.3)
         self._window.blit(background, (0,0))
+
+    def new_draw_background(self, texture_path):
+        """
+        Draws the background texture on the window in the shape of the border.
+
+        Args:
+            texture_path: A string representing the file path
+            of the background texture.
+        """
+        texture = pygame.image.load(texture_path).convert()
+        texture_rect = texture.get_rect()
+        texture_rect.center = self._window_center.get_tuple()
+        mask = pygame.Surface((texture_rect.width, texture_rect.height))
+        mask.fill((255, 255, 255))
+        vertices = [Vector.sum(vertex, self._camera).get_tuple() for vertex in self._level.border.world_vertices()]
+        pygame.draw.polygon(mask, (0, 0, 0), vertices)
+        mask_rect = mask.get_rect()
+        mask_rect.center = self._window_center.get_tuple()
+
+        tmp_image = texture.copy() # make a copy of the texture to keep it unchanged for future usage
+        mask.set_colorkey((0, 0, 0)) # we want the black colored parts of the mask to be transparent
+        tmp_image.blit(mask, (0, 0)) # blit the mask to the texture. the black parts are transparent so we see the pixels of the texture there
+
+        tmp_rect = tmp_image.get_rect()
+        tmp_rect.center = self._window_center.get_tuple()
+        tmp_image.set_colorkey((255, 255, 255))
+        self._window.blit(texture, texture_rect)
+        self._window.blit(mask, mask_rect)
+        self._window.blit(tmp_image,  tmp_rect)
 
     def draw_sprite(self, shape, sprite_path):
         """
