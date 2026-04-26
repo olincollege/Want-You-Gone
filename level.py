@@ -304,7 +304,7 @@ class Level:
         friction_magnitude = abs(Vector.dot(relative_velocity,
                                             impulse_direction) * effective_mass)
         print(f"{friction_magnitude = }")
-        friction_magnitude = max(friction_magnitude - 100000, 0)
+        friction_magnitude = max(friction_magnitude - 50000, 0)
         max_friction = self._friction_coefficient * sqrt(
             impulse.magnitude_squared())
         friction_magnitude = min(friction_magnitude, max_friction)

@@ -79,7 +79,7 @@ class View():
         texture_rect = texture.get_rect()
         texture_rect.center = self._window_center.get_tuple()
         mask = pygame.Surface((texture_rect.width, texture_rect.height))
-        mask.fill((255, 255, 255))
+        mask.fill(self._level.border.color)
         vertices = [Vector.sum(vertex, self._camera).get_tuple() for vertex in self._level.border.world_vertices()]
         pygame.draw.polygon(mask, (0, 0, 0), vertices)
         mask_rect = mask.get_rect()
@@ -94,7 +94,7 @@ class View():
         tmp_image.set_colorkey((255, 255, 255))
         self._window.blit(texture, texture_rect)
         self._window.blit(mask, mask_rect)
-        self._window.blit(tmp_image,  tmp_rect)
+        self._window.blit(tmp_image, tmp_rect)
 
     def draw_sprite(self, shape, sprite_path):
         """
