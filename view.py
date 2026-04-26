@@ -33,7 +33,7 @@ class View():
         self._level = level
         self._camera = Vector.diff(level.player.position, self._window_center)
         self._path = path
-        self._lerp_speed = 0.9
+        self._lerp_speed = 0.97
         self._window = pygame.display.set_mode((1200, 900))
         pygame.display.set_caption('Want You Gone')
         self.refresh(0)
@@ -91,7 +91,7 @@ class View():
 
         tmp_rect = tmp_image.get_rect()
         tmp_rect.center = self._window_center.get_tuple()
-        tmp_image.set_colorkey((255, 255, 255))
+        tmp_image.set_colorkey(self._level.border.color)
         self._window.blit(texture, texture_rect)
         self._window.blit(mask, mask_rect)
         self._window.blit(tmp_image, tmp_rect)

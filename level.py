@@ -30,7 +30,7 @@ class Level:
     """
     _gravity = Vector(0, 200)
     _jump_strength = 200
-    _default_cor = 0.2
+    _default_cor = 0.3
     _bouncy_cor = 0.9
     _friction_coefficient = 1
 
@@ -303,7 +303,6 @@ class Level:
                 self._player.angular_velocity * self._player.radius))
         friction_magnitude = abs(Vector.dot(relative_velocity,
                                             impulse_direction) * effective_mass)
-        print(f"{friction_magnitude = }")
         friction_magnitude = max(friction_magnitude - 50000, 0)
         max_friction = self._friction_coefficient * sqrt(
             impulse.magnitude_squared())

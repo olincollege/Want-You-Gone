@@ -4,6 +4,7 @@ Contains the Main class.
 from math import copysign
 import pygame
 from controller import Controller
+from vector import Vector
 from level import Level
 from view import View
 
@@ -32,7 +33,7 @@ def main():
         if copysign(1, roll_torque) != copysign(1, level.player.angular_velocity
             ) or abs(level.player.angular_velocity) < max_angular_velocity:
             level.player.angular_accelerate(roll_torque, dt)
-        #level.player.accelerate(Vector(-1, 0).scale(roll_torque), dt)
+        level.player.accelerate(Vector(-1, 0).scale(roll_torque), dt)
         controller.update(dt)
         level.update(dt, controller.is_jumping, controller.is_bouncing)
         if controller.restart:
