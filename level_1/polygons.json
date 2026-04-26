@@ -1,8 +1,8 @@
 [
     {
-        "comment": "downhill",
-        "vertices": [[-2400, 500], [-2400, 1000], [-1600, 1000]],
-        "position": [-2400, 970],
+        "comment": "block",
+        "vertices": [[0,0], [800,0], [800,-100], [0,-100]],
+        "position": [-3000, 1000],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,
@@ -10,9 +10,29 @@
         "color": [191, 69, 90]
     },
     {
-        "comment": "block",
-        "vertices": [[0,0], [0,-600], [700,-600], [700,0]],
-        "position": [-3000, 1000],
+        "comment": "block2",
+        "vertices": [[0,0], [600,0], [600,-200], [0,-200]],
+        "position": [-1800, 1000],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "down ramp1",
+        "vertices": [[0,0], [600,0], [0,-200]],
+        "position": [-1200, 1000],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "up ramp1",
+        "vertices": [[0,0], [-300,0], [0,-200]],
+        "position": [-200, 1000],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,
