@@ -16,16 +16,16 @@ class Shape:
         _angle: A float representing the angular displacement
                 of the shape (radians).
         _angular_velocity: A float representing the angular velocity (rad/s).
-        _can_move: A boolean representing if the shape can move.
-        _is_inverted: A boolean representing if the mass
+        _CAN_MOVE: A boolean representing if the shape can move.
+        _IS_INVERTED: A boolean representing if the mass
                       of the shape is outside it.
-        _is_bouncy: A boolean representing if the shape is
+        _IS_BOUNCY: A boolean representing if the shape is
                     bouncier than usual.
-        _moment: A float representing the moment of inertia.
-        _mass: A float representing the mass.
-        _radius: A float representing the bounding radius
+        _MOMENT: A float representing the moment of inertia.
+        _MASS: A float representing the mass.
+        _RADIUS: A float representing the bounding radius
                  (used for broad-phase collision).
-        _color: A tuple representing the RGB values of the shape's color.
+        _COLOR: A tuple representing the RGB values of the shape's color.
     """
 
     def __init__(
@@ -64,13 +64,13 @@ class Shape:
         self._velocity = velocity
         self._angle = angle
         self._angular_velocity = angular_velocity
-        self._can_move = can_move
-        self._is_inverted = is_inverted
-        self._is_bouncy = is_bouncy
-        self._moment = moment
-        self._mass = mass
-        self._radius = radius
-        self._color = color
+        self._CAN_MOVE = can_move
+        self._IS_INVERTED = is_inverted
+        self._IS_BOUNCY = is_bouncy
+        self._MOMENT = moment
+        self._MASS = mass
+        self._RADIUS = radius
+        self._COLOR = color
 
     # We do not need all of these, but for now just leave them as is.
     # We can remove what we do not need later.
@@ -98,37 +98,37 @@ class Shape:
     @property
     def can_move(self):
         """Get can_move"""
-        return self._can_move
+        return self._CAN_MOVE
 
     @property
     def is_inverted(self):
         """Get is_inverted"""
-        return self._is_inverted
+        return self._IS_INVERTED
 
     @property
     def moment(self):
         """Get moment"""
-        return self._moment
+        return self._MOMENT
 
     @property
     def mass(self):
         """Get mass"""
-        return self._mass
+        return self._MASS
 
     @property
     def radius(self):
         """Get radius"""
-        return self._radius
+        return self._RADIUS
 
     @property
     def color(self):
         """Get color"""
-        return self._color
+        return self._COLOR
 
     @property
     def is_bouncy(self):
         """Get is_bouncy"""
-        return self._is_bouncy
+        return self._IS_BOUNCY
 
     def update_position(self, dt):
         """
@@ -137,7 +137,7 @@ class Shape:
         Args:
             dt: A float representing the timestep in seconds.
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
         self._position.add(self._velocity.scale(dt))
         self._angle += self._angular_velocity * dt
@@ -150,7 +150,7 @@ class Shape:
             acceleration: A Vector representing the acceleration to apply.
             dt: A float representing the timestep in seconds.
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
         self._velocity.add(acceleration.scale(dt))
 
@@ -163,7 +163,7 @@ class Shape:
             the angular acceleration to apply.
             dt: A float representing the timestep in seconds.
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
         self._angular_velocity += angular_acceleration * dt
 
@@ -174,9 +174,9 @@ class Shape:
         Args:
             impulse: A Vector representing the impulse to apply.
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
-        self._velocity.add(impulse.scale(1 / self._mass))
+        self._velocity.add(impulse.scale(1 / self._MASS))
 
     def nudge(self, nudge):
         """
@@ -186,7 +186,7 @@ class Shape:
         Args:
             nudge: A Vector representing the nudge to apply.
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
         self._position.add(nudge)
 
@@ -198,8 +198,8 @@ class Shape:
             A float representing KE = ½mv² + ½Iω².
         """
         v_sq = Vector.dot(self._velocity, self._velocity)
-        translational = 0.5 * self._mass * v_sq
-        rotational = 0.5 * self._moment * self._angular_velocity**2
+        translational = 0.5 * self._MASS * v_sq
+        rotational = 0.5 * self._MOMENT * self._angular_velocity**2
         return translational + rotational
 
     def get_momentum(self):
@@ -209,7 +209,7 @@ class Shape:
         Returns:
             A Vector representing p = mv.
         """
-        return self._velocity.scale(self._mass)
+        return self._velocity.scale(self._MASS)
 
     def get_effective_mass(self, contact_point, direction):
         """
@@ -227,7 +227,7 @@ class Shape:
         """
         inverse_translational = 1 / self.mass
         inverse_rotational = Vector.det(contact_point, direction
-                                        ) ** 2 / self._moment
+                                        ) ** 2 / self._MOMENT
         return 1 / abs(inverse_translational + inverse_rotational) if (
             inverse_translational + inverse_rotational) != 0 else 0
 
@@ -237,7 +237,7 @@ class Circle(Shape):
     Stores the physical state of a circle in 2D space.
 
     Attributes:
-        _radius: A float representing the radius of the circle.
+        _RADIUS: A float representing the radius of the circle.
         All other attributes are inherited from Shape.
     """
 
@@ -297,13 +297,13 @@ class Circle(Shape):
             contact_point: A Vector representing the contact point
                            relative to the center of mass.
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
-        self._velocity.add(impulse.scale(1 / self._mass))
+        self._velocity.add(impulse.scale(1 / self._MASS))
         # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity += (
             Vector.det(impulse, contact_point)
-        ) / self._moment
+        ) / self._MOMENT
 
 
 class Polygon(Shape):
@@ -313,7 +313,7 @@ class Polygon(Shape):
     is simply a matter of rotating each vertex by _angle.
 
     Attributes:
-        _local_vertices: A list of Vectors representing vertex positions
+        _LOCAL_VERTICES: A list of Vectors representing vertex positions
                          relative to the center of mass at angle = 0.
         All other attributes are inherited from Shape. I think.
     """
@@ -379,11 +379,11 @@ class Polygon(Shape):
             (vertices[i - 1].y + vertices[i].y) * segment_areas[i]
             for i in range(n)
         ) / (6 * mass if signed_area > 0 else -6 * mass)
-        center_of_mass = Vector(x_com, y_com)
+        center_of_MASS = Vector(x_com, y_com)
 
         # Re-center vertices so local (0, 0) is the center of mass
-        local_vertices = [Vector.diff(center_of_mass, v) for v in vertices]
-        position = Vector.sum(position, center_of_mass)
+        local_vertices = [Vector.diff(center_of_MASS, v) for v in vertices]
+        position = Vector.sum(position, center_of_MASS)
 
         # Moment of inertia for a polygon about its centroid
         moment_num = 0.0
@@ -406,7 +406,7 @@ class Polygon(Shape):
             sqrt(v.x * v.x + v.y * v.y) for v in local_vertices
         )
 
-        self._local_vertices = local_vertices
+        self._LOCAL_VERTICES = local_vertices
         super().__init__(
             position,
             velocity,
@@ -426,7 +426,7 @@ class Polygon(Shape):
         """
         Vertex positions relative to the center of mass at angle = 0.
         """
-        return self._local_vertices
+        return self._LOCAL_VERTICES
 
     def rotated_vertices(self):
         """
@@ -436,7 +436,7 @@ class Polygon(Shape):
             A list of Vectors representing the local vertices
             rotated by self._angle.
         """
-        return [v.rotate(self._angle) for v in self._local_vertices]
+        return [v.rotate(self._angle) for v in self._LOCAL_VERTICES]
 
     def world_vertices(self):
         """
@@ -448,7 +448,7 @@ class Polygon(Shape):
         """
         return [
             Vector.sum(self._position, v.rotate(self._angle))
-            for v in self._local_vertices
+            for v in self._LOCAL_VERTICES
         ]
 
     def impulse(self, impulse, contact_point=None):
@@ -460,11 +460,11 @@ class Polygon(Shape):
             contact_point: A Vector representing the contact point relative
                            to the center of mass (None for pure linear).
         """
-        if not self._can_move:
+        if not self._CAN_MOVE:
             return
-        self._velocity.add(impulse.scale(1 / self._mass))
+        self._velocity.add(impulse.scale(1 / self._MASS))
         if contact_point is not None:
             # Delta w = r × J / I
             self._angular_velocity += (
                 Vector.det(contact_point, impulse)
-            ) / self._moment
+            ) / self._MOMENT

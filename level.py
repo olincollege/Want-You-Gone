@@ -13,7 +13,7 @@ class Level:
     Store the physical state of a set of 2D shapes.
 
     Attributes:
-        _gravity: A Vector representing the gravity on the level.
+        _GRAVITY: A Vector representing the gravity on the level.
         self._path: A string representing the path to the folder
         with all the starting data for the level.
         self._player: A Circle representing the player character.
@@ -28,11 +28,11 @@ class Level:
         self._moving_polygons: A list of Polygons representing the
         moving polygons on the level.
     """
-    _gravity = Vector(0, 200)
-    _jump_strength = 200
-    _default_cor = 0.3
-    _bouncy_cor = 0.9
-    _friction_coefficient = 1
+    _GRAVITY = Vector(0, 200)
+    _JUMP_STRENGTH = 200
+    _DEFAULT_COR = 0.3
+    _BOUNCY_COR = 0.9
+    _FRICTION_COEFFICIENT = 1
 
     def __init__(self, path):
         """
@@ -146,10 +146,10 @@ class Level:
             bouncing in this update.
         """
         # Update the velocity of all shapes by adding gravity to them.
-        self._player.accelerate(self._gravity, dt)
-        self._border.accelerate(self._gravity, dt)
+        self._player.accelerate(self._GRAVITY, dt)
+        self._border.accelerate(self._GRAVITY, dt)
         for polygon in self._polygons:
-            polygon.accelerate(self._gravity, dt)
+            polygon.accelerate(self._GRAVITY, dt)
 
         # Update the positions and angles of all shapes by adding
         # their velocity and angular velocity to them.
@@ -315,7 +315,7 @@ class Level:
         friction_magnitude = abs(Vector.dot(relative_velocity,
                                             impulse_direction) * effective_mass)
         friction_magnitude = max(friction_magnitude, 0)
-        max_friction = self._friction_coefficient * sqrt(
+        max_friction = self._FRICTION_COEFFICIENT * sqrt(
             impulse.magnitude_squared())
         friction_magnitude = min(friction_magnitude, max_friction)
         friction_impulse = impulse_direction.scale(copysign(friction_magnitude,
@@ -401,9 +401,9 @@ class Level:
         # impulse = (1 + e) * (relative_velocity dot normal) * normal + jump_up
         # where e is the coefficient of restitution
         # and jump_up is applied as an upward force when jumping.
-        e = self._default_cor
+        e = self._DEFAULT_COR
         if circle.is_bouncy or polygon.is_bouncy:
-            e = self._bouncy_cor
+            e = self._BOUNCY_COR
         if not is_bouncing:
             e = 0
 
@@ -411,7 +411,7 @@ class Level:
         collision_scalar = max((1 + e) * (5 - Vector.dot(normal,
                                                      relative_velocity)), 0)
         if collision_scalar != 0:
-            collision_scalar += self._jump_strength if is_jumping else 0
+            collision_scalar += self._JUMP_STRENGTH if is_jumping else 0
 
         return normal.scale(collision_scalar)
 
