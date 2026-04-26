@@ -383,6 +383,7 @@ class Polygon(Shape):
 
         # Re-center vertices so local (0, 0) is the center of mass
         local_vertices = [Vector.diff(center_of_mass, v) for v in vertices]
+        position = Vector.sum(position, center_of_mass)
 
         # Moment of inertia for a polygon about its centroid
         moment_num = 0.0
