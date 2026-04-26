@@ -1,0 +1,22 @@
+[
+    {
+        "comment": "downhill",
+        "vertices": [[-2400, 500], [-2400, 1000], [-1600, 1000]],
+        "position": [-2400, 970],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "block",
+        "vertices": [[0,0], [0,-600], [700,-600], [700,0]],
+        "position": [-3000, 1000],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    }
+]

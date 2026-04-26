@@ -1,0 +1,9 @@
+{
+    "radius": 25,
+    "position": [-2950, 600],
+    "velocity": [0, 0],
+    "angle": 0,
+    "angular_velocity": 0,
+    "is_bouncy": false,
+    "color": [220, 60, 60]
+}

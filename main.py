@@ -17,7 +17,7 @@ def main():
     fps = 60
     dt = 1 / fps
     max_angular_velocity = 10
-    level = Level("example_level/")
+    level = Level("level_1/")
     controller = Controller()
     view = View(level, "sprites/")
     clock = pygame.time.Clock()
