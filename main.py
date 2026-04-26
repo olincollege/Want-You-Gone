@@ -33,7 +33,7 @@ def main():
         if copysign(1, roll_torque) != copysign(1, level.player.angular_velocity
             ) or abs(level.player.angular_velocity) < max_angular_velocity:
             level.player.angular_accelerate(roll_torque, dt)
-        #level.player.accelerate(Vector(-1, 0).scale(roll_torque), dt)
+        level.player.accelerate(Vector(-1, 0).scale(roll_torque), dt)
         controller.update(dt)
         level.update(dt)
         level.apply_collisions(controller.is_jumping,
