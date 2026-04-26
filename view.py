@@ -18,6 +18,8 @@ class View():
         _lerp_speed: A float representing the speed at which the camera
         follows the player.
         _window: A surface that will have the level drawn on it.
+        _background_texture: A surface representing the background texture to draw.
+        _player_sprite: A surface representing the sprite to draw for the player.
     """
 
     def __init__(self, level, path):
@@ -36,6 +38,10 @@ class View():
         self._lerp_speed = 0.97
         self._window = pygame.display.set_mode((1200, 900))
         pygame.display.set_caption('Want You Gone')
+        self._background_texture = pygame.image.load(
+            self._path + "night_sky.png").convert_alpha()
+        self._player_sprite = pygame.image.load(
+            self._path + "wheatley.png").convert_alpha()
         self.refresh(0)
 
     def refresh(self, dt):
@@ -47,26 +53,14 @@ class View():
         """
         self.update_lerp(dt)
         self._window.fill(self._level.border.color)
-        self.new_draw_background(self._path + "night_sky_.png")
+        self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
-        self.draw_sprite(self._level.player, self._path + "wheatley.png")
+        self.draw_player(self._level.player)
         #self.draw_circle(self._level.player)
         pygame.display.flip()
 
-    def draw_background(self, sprite_path):
-        """
-        Draws the background texture on the window in the shape of the border.
-
-        Args:
-            sprite_path: A string representing the file path
-            of the background texture.
-        """
-        background = pygame.image.load(sprite_path).convert_alpha()
-        background = pygame.transform.scale_by(background,1.3)
-        self._window.blit(background, (0,0))
-
-    def new_draw_background(self, texture_path):
+    def draw_background(self):
         """
         Draws the background texture on the window in the shape of the border.
 
@@ -74,8 +68,7 @@ class View():
             texture_path: A string representing the file path
             of the background texture.
         """
-        texture = pygame.image.load(texture_path).convert()
-        texture = pygame.transform.scale_by(texture, 1.25)
+        texture = pygame.transform.scale_by(self._background_texture, 1.25)
         texture_rect = texture.get_rect()
         texture_rect.center = self._window_center.get_tuple()
         mask = pygame.Surface((texture_rect.width, texture_rect.height))
@@ -96,7 +89,7 @@ class View():
         self._window.blit(mask, mask_rect)
         self._window.blit(tmp_image, tmp_rect)
 
-    def draw_sprite(self, shape, sprite_path):
+    def draw_player(self, shape):
         """
         Draws a sprite on the window based on the position and rotation
         of a shape and the position of the camera.
@@ -106,8 +99,7 @@ class View():
             path: A string representing the file path of the sprite to display.
         """
         # Get image and rotate it.
-        sprite = pygame.image.load(sprite_path).convert_alpha()
-        sprite = pygame.transform.scale_by(sprite, 0.47)
+        sprite = pygame.transform.scale_by(self._player_sprite, 0.47)
         rotated_sprite = pygame.transform.rotate(sprite, degrees(shape.angle))
         position = Vector.sum(shape.position, self._camera) 
         position = position.get_tuple()

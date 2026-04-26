@@ -133,7 +133,7 @@ class Level:
         # Otherwise go a level deeper into the list
         return [cls.make_vector(i) for i in json_input]
 
-    def update(self, dt, is_jumping, is_bouncing):
+    def update(self, dt):
         """
         Update the position velocity, angular velocity,
         and angle of all shapes on the level.
@@ -158,8 +158,18 @@ class Level:
         for polygon in self._polygons:
             polygon.update_position(dt)
 
-        # ----------------------------------------------------------------------
+    def apply_collisions(self, is_jumping, is_bouncing, dt):
+        """
+        Calculate and apply the impulses for all collisions between the player
+        and the polygons on the level.
 
+        Args:
+            is_jumping: A boolean representing whether or not the player is
+            jumping in this update.
+            is_bouncing: A boolean representing whether or not the player is
+            bouncing in this update.
+            dt: A float representing the amount of time to apply the impulses for.
+        """
         # Find the impulse vector for every collision with the player.
         collisions = []
 
