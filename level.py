@@ -300,9 +300,11 @@ class Level:
             contact_point, impulse_direction)
         relative_velocity = Vector.sum(self._player.velocity,
             impulse_direction.scale(
-                self._player.angular_velocity* self._player.radius))
+                self._player.angular_velocity * self._player.radius))
         friction_magnitude = abs(Vector.dot(relative_velocity,
                                             impulse_direction) * effective_mass)
+        print(f"{friction_magnitude = }")
+        friction_magnitude = max(friction_magnitude - 100000, 0)
         max_friction = self._friction_coefficient * sqrt(
             impulse.magnitude_squared())
         friction_magnitude = min(friction_magnitude, max_friction)
@@ -396,8 +398,8 @@ class Level:
             e = 0
 
         # Apply collision impulse along the normal
-        collision_scalar = max((1 + e) * -Vector.dot(normal,
-                                                     relative_velocity), 0)
+        collision_scalar = max((1 + e) * (5 - Vector.dot(normal,
+                                                     relative_velocity)), 0)
         if collision_scalar != 0:
             collision_scalar += self._jump_strength if is_jumping else 0
 

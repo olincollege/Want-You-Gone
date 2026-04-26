@@ -15,7 +15,7 @@ def main():
     """
     fps = 30
     dt = 1 / fps
-    max_angular_velocity = 5
+    max_angular_velocity = 10
     level = Level("example_level/")
     controller = Controller()
     view = View(level, "sprites/")
