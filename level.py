@@ -168,7 +168,8 @@ class Level:
             jumping in this update.
             is_bouncing: A boolean representing whether or not the player is
             bouncing in this update.
-            dt: A float representing the amount of time to apply the impulses for.
+            dt: A float representing the amount of time
+            to apply the impulses for.
         """
         # Find the impulse vector for every collision with the player.
         collisions = []
@@ -308,12 +309,12 @@ class Level:
         contact_point = impulse_normal.scale(-self._player.radius)
         effective_mass = self._player.get_effective_mass(
             contact_point, impulse_direction)
-        relative_velocity = Vector.sum(self._player.velocity,
+        relative_velocity = Vector.diff(self._player.velocity,
             impulse_direction.scale(
                 self._player.angular_velocity * self._player.radius))
         friction_magnitude = abs(Vector.dot(relative_velocity,
                                             impulse_direction) * effective_mass)
-        friction_magnitude = max(friction_magnitude - 50000, 0)
+        friction_magnitude = max(friction_magnitude, 0)
         max_friction = self._friction_coefficient * sqrt(
             impulse.magnitude_squared())
         friction_magnitude = min(friction_magnitude, max_friction)

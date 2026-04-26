@@ -159,7 +159,8 @@ class Shape:
         Apply a continuous angular acceleration for one timestep.
 
         Args:
-            angular_acceleration: A float representing the angular acceleration to apply.
+            angular_acceleration: A float representing
+            the angular acceleration to apply.
             dt: A float representing the timestep in seconds.
         """
         if not self._can_move:
@@ -225,7 +226,8 @@ class Shape:
             A Vector representing the momentum at the contact point.
         """
         inverse_translational = 1 / self.mass
-        inverse_rotational = Vector.det(contact_point, direction) ** 2 / self._moment
+        inverse_rotational = Vector.det(contact_point, direction
+                                        ) ** 2 / self._moment
         return 1 / abs(inverse_translational + inverse_rotational) if (
             inverse_translational + inverse_rotational) != 0 else 0
 
