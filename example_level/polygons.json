@@ -52,7 +52,7 @@
     {
         "comment": "Bouncy pad on the floor",
         "vertices": [[-50, -10], [50, -10], [50, 10], [-50, 10]],
-        "position": [-50, 180],
+        "position": [-50, 0],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,

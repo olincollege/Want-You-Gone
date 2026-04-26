@@ -14,8 +14,8 @@ def main():
     Run the physics simulator, take player input,
     and display the state of the game to a window.
     """
-    fps = 60
-    dt = 1 / fps
+    FPS = 60
+    DT = 1 / FPS
     max_angular_velocity = 10
     level = Level("level_1/")
     controller = Controller()
@@ -32,19 +32,19 @@ def main():
         roll_torque = controller.roll_torque
         if copysign(1, roll_torque) != copysign(1, level.player.angular_velocity
             ) or abs(level.player.angular_velocity) < max_angular_velocity:
-            level.player.angular_accelerate(roll_torque, dt)
-        level.player.accelerate(Vector(-1, 0).scale(roll_torque), dt)
-        controller.update(dt)
-        level.update(dt)
+            level.player.angular_accelerate(roll_torque, DT)
+        level.player.accelerate(Vector(-1, 0).scale(roll_torque), DT)
+        controller.update(DT)
+        level.update(DT)
         level.apply_collisions(controller.is_jumping,
-                               controller.is_bouncing, dt)
+                               controller.is_bouncing, DT)
         if controller.restart:
             level.restart()
 
         # Draw the current state of the level to the window.
-        view.refresh(dt)
+        view.refresh(DT)
         pygame.display.update()
-        clock.tick(fps)
+        clock.tick(FPS)
 
 if __name__ == "__main__":
     main()

@@ -14,12 +14,12 @@ class View():
     Attributes:
         _level: A Level representing the level to display.
         _camera: A Vector representing the position of the camera.
-        _path: A string representing the path of the folder with every sprite.
-        _lerp_speed: A float representing the speed at which the camera
+        _PATH: A string representing the path of the folder with every sprite.
+        _LERP_SPEED: A float representing the speed at which the camera
         follows the player.
         _window: A surface that will have the level drawn on it.
-        _background_texture: A surface representing the background texture to draw.
-        _player_sprite: A surface representing the sprite to draw for the player.
+        _BACKGROUND_TEXTURE: A surface representing the background texture to draw.
+        _PLAYER_SPRITE: A surface representing the sprite to draw for the player.
     """
 
     def __init__(self, level, path):
@@ -31,17 +31,17 @@ class View():
             path: A string representing the path of the folder
             with every sprite.
         """
-        self._window_center = Vector(600, 450)
+        self._WINDOW_CENTER = Vector(600, 450)
         self._level = level
-        self._camera = Vector.diff(level.player.position, self._window_center)
-        self._path = path
-        self._lerp_speed = 0.999
+        self._camera = Vector.diff(level.player.position, self._WINDOW_CENTER)
+        self._PATH = path
+        self._LERP_SPEED = 0.97
         self._window = pygame.display.set_mode((1200, 900))
         pygame.display.set_caption('Want You Gone')
-        self._background_texture = pygame.image.load(
-            self._path + "night_sky.png").convert_alpha()
-        self._player_sprite = pygame.image.load(
-            self._path + "wheatley.png").convert_alpha()
+        self._BACKGROUND_TEXTURE = pygame.image.load(
+            self._PATH + "night_sky.png").convert_alpha()
+        self._PLAYER_SPRITE = pygame.image.load(
+            self._PATH + "wheatley.png").convert_alpha()
         self.refresh(0)
 
     def refresh(self, dt):
@@ -65,25 +65,25 @@ class View():
         Draws the background texture on the window in the shape of the border.
 
         Args:
-            texture_path: A string representing the file path
+            texture_PATH: A string representing the file path
             of the background texture.
         """
-        texture = pygame.transform.scale_by(self._background_texture, 1.25)
+        texture = pygame.transform.scale_by(self._BACKGROUND_TEXTURE, 1.25)
         texture_rect = texture.get_rect()
-        texture_rect.center = self._window_center.get_tuple()
+        texture_rect.center = self._WINDOW_CENTER.get_tuple()
         mask = pygame.Surface((texture_rect.width, texture_rect.height))
         mask.fill(self._level.border.color)
         vertices = [Vector.sum(vertex, self._camera).get_tuple() for vertex in self._level.border.world_vertices()]
         pygame.draw.polygon(mask, (0, 0, 0), vertices)
         mask_rect = mask.get_rect()
-        mask_rect.center = self._window_center.get_tuple()
+        mask_rect.center = self._WINDOW_CENTER.get_tuple()
 
         tmp_image = texture.copy() # make a copy of the texture to keep it unchanged for future usage
         mask.set_colorkey((0, 0, 0)) # we want the black colored parts of the mask to be transparent
         tmp_image.blit(mask, (0, 0)) # blit the mask to the texture. the black parts are transparent so we see the pixels of the texture there
 
         tmp_rect = tmp_image.get_rect()
-        tmp_rect.center = self._window_center.get_tuple()
+        tmp_rect.center = self._WINDOW_CENTER.get_tuple()
         tmp_image.set_colorkey(self._level.border.color)
         self._window.blit(texture, texture_rect)
         self._window.blit(mask, mask_rect)
@@ -99,7 +99,7 @@ class View():
             path: A string representing the file path of the sprite to display.
         """
         # Get image and rotate it.
-        sprite = pygame.transform.scale_by(self._player_sprite, 0.47)
+        sprite = pygame.transform.scale_by(self._PLAYER_SPRITE, 0.47)
         rotated_sprite = pygame.transform.rotate(sprite, degrees(shape.angle))
         position = Vector.sum(shape.position, self._camera) 
         position = position.get_tuple()
@@ -157,7 +157,7 @@ class View():
             dt: A float representing the time since the last refresh.
         """
         self._camera.lerp(Vector.diff(self._level.player.position,
-                    self._window_center), self._lerp_speed * dt)
+                    self._WINDOW_CENTER), self._LERP_SPEED * dt)
 
     def check_cull(self, shape):
         """
