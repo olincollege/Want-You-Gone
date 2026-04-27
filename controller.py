@@ -19,6 +19,7 @@ class Controller:
         _roll_torque: A float representing the torque applied per second
                       when rolling.
     """
+
     ROLL_TORQUE = 100.0  # tweak to taste
 
     def __init__(self):
@@ -93,4 +94,3 @@ class Controller:
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             direction -= 1
         return direction * self.ROLL_TORQUE
-

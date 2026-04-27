@@ -32,8 +32,10 @@ class Vector:
         Returns:
             A string representing the vector in row vector format
         """
+
         def _fmt(v):
             return int(v) if v == int(v) else v
+
         return f"({_fmt(self._x)}, {_fmt(self._y)})"
 
     def get_tuple(self):
@@ -141,7 +143,7 @@ class Vector:
             when observed facing in the positive direction.
             line2: A Vector representing the left end of the line
             when observed facing in the positive direction.
-        
+
         Returns:
             A float representing the signed distance between self and the line
             segment between line1 and line2. The distance is positive when
@@ -231,7 +233,7 @@ class Vector:
             A Vector representing vec1 + vec2
         """
         return Vector(vec1.x + vec2.x, vec1.y + vec2.y)
-    
+
     @classmethod
     def sum_all(cls, vectors):
         """

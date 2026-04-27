@@ -5,9 +5,11 @@ Contains the View class.
 from math import ceil, degrees
 import pygame
 from vector import Vector
+
 pygame.init()
 
-class View():
+
+class View:
     """
     Displays the state of a level to a graphical window.
 
@@ -37,11 +39,13 @@ class View():
         self._PATH = path
         self._LERP_SPEED = 3
         self._window = pygame.display.set_mode((1200, 900))
-        pygame.display.set_caption('Want You Gone')
+        pygame.display.set_caption("Want You Gone")
         self._BACKGROUND_TEXTURE = pygame.image.load(
-            self._PATH + "night_sky.png").convert_alpha()
+            self._PATH + "night_sky.png"
+        ).convert_alpha()
         self._PLAYER_SPRITE = pygame.image.load(
-            self._PATH + "wheatley.png").convert_alpha()
+            self._PATH + "wheatley.png"
+        ).convert_alpha()
         self.refresh(0)
 
     def refresh(self, dt):
@@ -57,7 +61,7 @@ class View():
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
         self.draw_player(self._level.player)
-        #self.draw_circle(self._level.player)
+        # self.draw_circle(self._level.player)
         pygame.display.flip()
 
     def draw_background(self):
@@ -73,14 +77,23 @@ class View():
         texture_rect.center = self._WINDOW_CENTER.get_tuple()
         mask = pygame.Surface((texture_rect.width, texture_rect.height))
         mask.fill(self._level.border.color)
-        vertices = [Vector.sum(vertex, self._camera).get_tuple() for vertex in self._level.border.world_vertices()]
+        vertices = [
+            Vector.sum(vertex, self._camera).get_tuple()
+            for vertex in self._level.border.world_vertices()
+        ]
         pygame.draw.polygon(mask, (0, 0, 0), vertices)
         mask_rect = mask.get_rect()
         mask_rect.center = self._WINDOW_CENTER.get_tuple()
 
-        tmp_image = texture.copy() # make a copy of the texture to keep it unchanged for future usage
-        mask.set_colorkey((0, 0, 0)) # we want the black colored parts of the mask to be transparent
-        tmp_image.blit(mask, (0, 0)) # blit the mask to the texture. the black parts are transparent so we see the pixels of the texture there
+        tmp_image = (
+            texture.copy()
+        )  # make a copy of the texture to keep it unchanged for future usage
+        mask.set_colorkey(
+            (0, 0, 0)
+        )  # we want the black colored parts of the mask to be transparent
+        tmp_image.blit(
+            mask, (0, 0)
+        )  # blit the mask to the texture. the black parts are transparent so we see the pixels of the texture there
 
         tmp_rect = tmp_image.get_rect()
         tmp_rect.center = self._WINDOW_CENTER.get_tuple()
@@ -101,9 +114,9 @@ class View():
         # Get image and rotate it.
         sprite = pygame.transform.scale_by(self._PLAYER_SPRITE, 0.47)
         rotated_sprite = pygame.transform.rotate(sprite, degrees(shape.angle))
-        position = Vector.sum(shape.position, self._camera) 
+        position = Vector.sum(shape.position, self._camera)
         position = position.get_tuple()
-        sprite_rect = rotated_sprite.get_rect(center = position)
+        sprite_rect = rotated_sprite.get_rect(center=position)
         self._window.blit(rotated_sprite, sprite_rect)
 
     def draw_circle(self, circle):
@@ -140,9 +153,7 @@ class View():
         polygon_surface = pygame.Surface((r * 2, r * 2), pygame.SRCALPHA)
         # Rotated vertices are relative to the polygon center.
         # Offset them to the center of the surface so they draw correctly.
-        local_verts = [
-            (v.x + r, v.y + r) for v in polygon.rotated_vertices()
-        ]
+        local_verts = [(v.x + r, v.y + r) for v in polygon.rotated_vertices()]
         pygame.draw.polygon(polygon_surface, polygon.color, local_verts)
         # World -> screen: screen_pos = world_pos + camera.
         screen_pos = Vector.sum(polygon.position, self._camera)
@@ -156,8 +167,10 @@ class View():
         Args:
             dt: A float representing the time since the last refresh.
         """
-        self._camera.lerp(Vector.diff(self._level.player.position,
-                    self._WINDOW_CENTER), self._LERP_SPEED * dt)
+        self._camera.lerp(
+            Vector.diff(self._level.player.position, self._WINDOW_CENTER),
+            self._LERP_SPEED * dt,
+        )
 
     def check_cull(self, shape):
         """
@@ -165,7 +178,7 @@ class View():
 
         Args:
             shape: A Circle or Polygon representing the shape to check.
-        
+
         Returns:
             A boolean representing whether or not to
             cull (not display) the shape.

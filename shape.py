@@ -221,15 +221,19 @@ class Shape:
             relative to the center of mass.
             relative_velocity: A Vector representing the velocity of the contact
             projected onto the impulse direction.
-        
+
         Returns:
             A Vector representing the momentum at the contact point.
         """
         inverse_translational = 1 / self.mass
-        inverse_rotational = Vector.det(contact_point, direction
-                                        ) ** 2 / self._MOMENT
-        return 1 / abs(inverse_translational + inverse_rotational) if (
-            inverse_translational + inverse_rotational) != 0 else 0
+        inverse_rotational = (
+            Vector.det(contact_point, direction) ** 2 / self._MOMENT
+        )
+        return (
+            1 / abs(inverse_translational + inverse_rotational)
+            if (inverse_translational + inverse_rotational) != 0
+            else 0
+        )
 
 
 class Circle(Shape):

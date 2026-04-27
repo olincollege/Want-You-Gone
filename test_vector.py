@@ -2,6 +2,7 @@ import pytest
 import math
 from vector import Vector
 
+
 def test_vector_initialization():
     """
     Tests the Vector class/object initialization
@@ -22,6 +23,7 @@ def test_vector_initialization():
     assert v4.x == 0
     assert v4.y == 0
 
+
 def test_vector_repr():
     """
     Tests the Vector class printing systems
@@ -38,6 +40,7 @@ def test_vector_repr():
     v4 = Vector(0, 0)
     assert repr(v4) == "(0, 0)"
 
+
 def test_vector_get_tuple():
     """
     Test Vector retrieval in tuple format
@@ -53,6 +56,7 @@ def test_vector_get_tuple():
 
     v4 = Vector(0, 0)
     assert v4.get_tuple() == (0, 0)
+
 
 def test_vector_add():
     """
@@ -73,6 +77,7 @@ def test_vector_add():
     v5.add(v6)
     assert v5.get_tuple() == (0, -1)
 
+
 def test_vector_lerp():
     """
     Test Vector linear interpolation
@@ -82,6 +87,7 @@ def test_vector_lerp():
     v1.lerp(v2, 0.5)
     assert v1.get_tuple() == (5.0, 5.0)
 
+
 def test_vector_rotate():
     """
     Test Vector rotation
@@ -90,6 +96,7 @@ def test_vector_rotate():
     rotated = v.rotate(math.pi / 2)
     assert rotated.x == pytest.approx(0.0)
     assert rotated.y == pytest.approx(1.0)
+
 
 def test_vector_scale():
     """
@@ -103,6 +110,7 @@ def test_vector_scale():
     scaled2 = v2.scale(-2)
     assert scaled2.get_tuple() == (-20.0, -20.0)
 
+
 def test_vector_normal():
     """
     Test Vector normal calculation
@@ -112,6 +120,7 @@ def test_vector_normal():
     assert norm.x == pytest.approx(0.6)
     assert norm.y == pytest.approx(0.8)
 
+
 def test_vector_normal_zero_vector():
     """
     Test Vector nomral with zero-vectors
@@ -120,6 +129,7 @@ def test_vector_normal_zero_vector():
     norm = v.normal()
     assert norm.get_tuple() == (0.0, 0.0)
 
+
 def test_vector_dot():
     """
     Test Vector dot products
@@ -127,6 +137,7 @@ def test_vector_dot():
     v1 = Vector(1, 2)
     v2 = Vector(3, 4)
     assert Vector.dot(v1, v2) == 11.0
+
 
 def test_vector_diff():
     """
@@ -137,6 +148,7 @@ def test_vector_diff():
     diff = Vector.diff(tail, head)
     assert diff.get_tuple() == (3.0, 4.0)
 
+
 def test_vector_det():
     """
     Test Vector summation length(?)
@@ -144,6 +156,7 @@ def test_vector_det():
     v1 = Vector(1, 0)
     v2 = Vector(0, 1)
     assert Vector.det(v1, v2) == 1.0
+
 
 def test_vector_sum():
     v1 = Vector(1, -1)
