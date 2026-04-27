@@ -31,12 +31,92 @@
     },
     {
         "comment": "up ramp1",
-        "vertices": [[0,0], [-300,0], [0,-200]],
-        "position": [-200, 1000],
+        "vertices": [[0,0], [-300,0], [0,-100]],
+        "position": [0, 1000],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
         "color": [191, 69, 90]
+    },
+    {
+        "comment": "second up ramp1",
+        "vertices": [[0,0], [-200,0], [0,-200]],
+        "position": [100, 1000],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "up ramp1 redo ramp",
+        "vertices": [[0,0], [200,0], [0,-200]],
+        "position": [100, 1000],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "swoop ramp1",
+        "vertices": [[0,0], [50,0], [150,-150], [150,-250],[50,-400], [0, -400], [100,-250],[100,-150]],
+        "position": [500, 575],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "swoop ramp1 landing platform",
+        "vertices": [[0,0], [600, 0], [600,-10], [0, -10]],
+        "position": [-350,300],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "small platform 1",
+        "vertices": [[0,0], [100, 0], [100,-10], [0, -10]],
+        "position": [-550,300],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "small platform 2",
+        "vertices": [[0,0], [100, 0], [100,-10], [0, -10]],
+        "position": [-850,300],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "large platform 1",
+        "vertices": [[0,0], [800,0],[800,-50],[400, -50],[400,-800],[0,-800]],
+        "position": [-1900,300],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "color": [191, 69, 90]
+    },
+    {
+        "comment": "spring 1",
+        "vertices": [[0,0], [400, 0], [400,-10], [0, -10]],
+        "position": [-1500,250],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": true,
+        "color": [191, 69, 0]
     }
 ]

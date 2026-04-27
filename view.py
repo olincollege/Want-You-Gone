@@ -35,7 +35,7 @@ class View():
         self._level = level
         self._camera = Vector.diff(level.player.position, self._WINDOW_CENTER)
         self._PATH = path
-        self._LERP_SPEED = 0.97
+        self._LERP_SPEED = 3
         self._window = pygame.display.set_mode((1200, 900))
         pygame.display.set_caption('Want You Gone')
         self._BACKGROUND_TEXTURE = pygame.image.load(

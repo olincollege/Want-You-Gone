@@ -40,6 +40,7 @@ def main():
                                controller.is_bouncing, DT)
         if controller.restart:
             level.restart()
+            print(level.player.position)
 
         # Draw the current state of the level to the window.
         view.refresh(DT)
