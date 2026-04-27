@@ -101,7 +101,7 @@
     },
     {
         "comment": "large platform 1",
-        "vertices": [[0,0], [800,0],[800,-50],[400, -50],[400,-800],[0,-800]],
+        "vertices": [[0,0], [800,0],[800,-50],[300, -50],[300,-800],[0,-800]],
         "position": [-1900,300],
         "velocity": [0, 0],
         "angle": 0,
@@ -111,12 +111,22 @@
     },
     {
         "comment": "spring 1",
-        "vertices": [[0,0], [400, 0], [400,-10], [0, -10]],
-        "position": [-1500,250],
+        "vertices": [[0,0], [500, 0], [500,-10], [0, -10]],
+        "position": [-1600,250],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": true,
         "color": [191, 69, 0]
-    }
+    },
+    {
+        "comment": "spring platform 2",
+        "vertices": [[0,0], [300, 0], [300,-10], [0, -10]],
+        "position": [-2500,-580],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": true,
+        "color": [191, 69, 0]
+    } 
 ]

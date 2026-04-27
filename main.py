@@ -26,6 +26,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                print(level.player.position)
                 exit()
 
         # Update the level with the current state of the controller.
@@ -40,8 +41,6 @@ def main():
                                controller.is_bouncing, DT)
         if controller.restart:
             level.restart()
-            print(level.player.position)
-
         # Draw the current state of the level to the window.
         view.refresh(DT)
         pygame.display.update()
