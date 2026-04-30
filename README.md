@@ -32,6 +32,11 @@ Rolling is subject to how an object behaves in the real world with rotational ve
 
 "Down" simply refers to the ability to prevent bouncing on surfaces, especially on the dedicated bouncing surfaces. It is helpful to hold down when going downhill or wanting to gain speed.
 
+## Video
+[File Download](Want_You_Gone__SoftDes_Final_Video.mp4)
+
+[![SoftDes Video](Want_You_Gone__SoftDes_Final_Video.mp4)](Want_You_Gone__SoftDes_Final_Video.mp4)
+
 ## Links
 The GitHub page for this project can be found [here](https://github.com/olincollege/Want-You-Gone).
 
