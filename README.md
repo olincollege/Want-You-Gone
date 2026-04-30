@@ -9,21 +9,37 @@ This is a video game designed using the `pygame-ce` library. It uses a custom 2D
 ## Lore
 After getting jettisoned by Chell in Chapter 9 "Finale" of Portal 2, Wheatley is now floating in space with nothing to do. He eventually crash lands on an alien planet with a multitude of structures, and he, not having anything better to do, performs the parkour.
 
+## Unique Features
+- Fully custom 2D Physics Engine
+- Concave polygon Collision Support
+- Level design using cutomizable JSON files
+- On-Demand Bouncy Platform Physics on red platforms
+- Wheatley
+
 ## How to Play
 The player controls a simple character, shaped like a ball, and traverses a level via interacting with objects to proceed.
 
 Keyboard Inputs:
 - __W/Up__ - Jump
-- __S/Down__ - Down / Avoid Bounce
+- __S/Down__ - Avoid Bounce
 - __A/Left__ - Roll Reft
 - __D/Right__ - Roll Right
 - __R__ - Reset to Beginning
 
-Jumping will not directly go up, but rather will apply a force to push the player away from whatever the character sits/hits.
+Jumping will not directly go up, but rather will apply a force to push the player away from whatever the character sits/hits. It is recommended to hold jump instead of click it when you want to jump, as the current collisions sometimes make jumping on demand difficult.
 
 Rolling is subject to how an object behaves in the real world with rotational velocities. Left and Right will not immediately grant left and right movement.
 
-"Down" simply refers to the ability to prevent bouncing on surfaces, especially on the dedicated bouncing surfaces.
+"Down" simply refers to the ability to prevent bouncing on surfaces, especially on the dedicated bouncing surfaces. It is helpful to hold down when going downhill or wanting to gain speed.
+
+## Links
+The GitHub page for this project can be found [here](https://github.com/olincollege/Want-You-Gone).
+
+The GitHub code can be directly downloaded [here](https://github.com/olincollege/Want-You-Gone/archive/refs/heads/main.zip).
+
+The project website can be found [here](https://effective-adventure-zgq6qjg.pages.github.io/).
+
+The latest pre-built releases can be found [here](https://github.com/olincollege/Want-You-Gone/releases/latest) for Windows and macOS (Apple Silicon).
 
 ## Pre-requisites
 __[WARN]__ Your computer should not be on "Efficiency" or "Battery Saver" mode for ideal results
