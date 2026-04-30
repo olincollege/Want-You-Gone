@@ -40,7 +40,7 @@ The GitHub page for this project can be found [here](https://github.com/olincoll
 
 The GitHub code can be directly downloaded [here](https://github.com/olincollege/Want-You-Gone/archive/refs/heads/main.zip).
 
-The project website can be found [here](https://effective-adventure-zgq6qjg.pages.github.io/).
+The project website can be found [here](https://olincollege.github.io/Want-You-Gone/).
 
 The latest pre-built releases can be found [here](https://github.com/olincollege/Want-You-Gone/releases/latest) for Windows and macOS (Apple Silicon).
 
