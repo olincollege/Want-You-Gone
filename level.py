@@ -225,7 +225,8 @@ class Level:
             # If the player is not colliding with the polygon, skip it.
             if (
                 shortest_distance is None
-                or shortest_distance > self._player.radius
+                or (shortest_distance > self._player.radius and not is_jumping)
+                or (shortest_distance > self._player.radius + 1 and is_jumping)
             ):
                 continue
 
