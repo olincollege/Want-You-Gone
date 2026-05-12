@@ -43,18 +43,16 @@ def main():
         # Apply the effects of the roll control from the player.
         roll_torque, roll_force = controller.roll
         if (
-            copysign(1, roll_torque)
-            != copysign(1, level.player.angular_velocity)
+            roll_torque * level.player.angular_velocity < 0
             or abs(level.player.angular_velocity) < max_angular_velocity
         ):
             level.player.angular_accelerate(roll_torque, dt)
         if (
-            copysign(1, roll_force)
-            != copysign(1, level.player.velocity.x)
+            roll_force * level.player.velocity.x < 0
             or abs(level.player.velocity.x) < max_translational_velocity
         ):
             level.player.accelerate(Vector(roll_force, 0), dt)
-        
+
         # Update the controller and level.
         controller.update(dt)
         level.update(dt)
