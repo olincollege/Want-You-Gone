@@ -45,7 +45,7 @@ class Vector:
         Returns:
             A tuple holding the values of _x and _y in that order
         """
-        return (self._x, self._y)
+        return (self._x, self._y + 0.5)
 
     @property
     def x(self):
