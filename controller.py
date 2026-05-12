@@ -2,6 +2,8 @@
 Contains the Controller class.
 """
 
+import json
+
 import pygame
 
 
@@ -16,14 +18,25 @@ class Controller:
         touchdown so the player doesn't bounce.
 
     Attributes:
-        _roll_torque: A float representing the torque applied per second
-                      when rolling.
+        _roll_torque: A float representing the angular acceleration
+        applied per second when rolling.
+        _roll_force: A float representing the horizontal acceleration
+        applied per second when rolling.       
     """
 
-    ROLL_TORQUE = 100.0  # tweak to taste
+    def __init__(self, constants_path):
+        """
+        Initialise all constants.
 
-    def __init__(self):
-        """Initialise all input-state bookkeeping."""
+        Args:
+            constants_path: A string representing the path to the json file
+            with all constants.
+        """
+        with open(constants_path, "r", encoding="utf-8") as file:
+            constants = json.load(file)
+
+        self.ROLL_TORQUE = constants["roll_torque"]
+        self.ROLL_FORCE = constants["roll_force"]
 
     def update(self, dt_seconds):
         """
@@ -56,7 +69,7 @@ class Controller:
         Pressing W or up arrow triggers a jump.
 
         Returns:
-            A bool.
+            A boolean.
         """
         keys = pygame.key.get_pressed()
         return keys[pygame.K_w] or keys[pygame.K_UP]
@@ -70,22 +83,22 @@ class Controller:
         which tells Level.calculate_impulse to use e = 0.
 
         Returns:
-            A bool.
+            A boolean.
         """
         keys = pygame.key.get_pressed()
         return not (keys[pygame.K_s] or keys[pygame.K_DOWN])
 
     @property
-    def roll_torque(self):
+    def roll(self):
         """
-        The net torque to apply to the player this frame for rolling.
+        The net torque and force to apply to the player this frame for rolling.
 
         Left (A / left arrow) gives negative torque (clockwise in standard
         pygame coordinates where y increases downward).
         Right (D / right arrow) gives positive torque.
 
         Returns:
-            A float. Zero when no roll key is held.
+            A float and a Vector. Zero when no roll key is held.
         """
         keys = pygame.key.get_pressed()
         direction = 0
@@ -93,4 +106,4 @@ class Controller:
             direction += 1
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             direction -= 1
-        return direction * self.ROLL_TORQUE
+        return direction * self.ROLL_TORQUE, -direction * self.ROLL_FORCE

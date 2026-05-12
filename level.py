@@ -14,6 +14,12 @@ class Level:
 
     Attributes:
         _GRAVITY: A Vector representing the gravity on the level.
+        _JUMP_STRENGTH: A float representing the strength of the jump.
+        _DEFAULT_COR: A float representing the
+        default coefficient of restitution.
+        _BOUNCY_COR: A float representing the coefficient
+        of restitution for bouncy objects.
+        _FRICTION_COEFFICIENT: A float representing the friction coefficient.
         self._path: A string representing the path to the folder
         with all the starting data for the level.
         self._player: A Circle representing the player character.
@@ -29,25 +35,36 @@ class Level:
         moving polygons on the level.
     """
 
-    _GRAVITY = Vector(0, 200)
-    _JUMP_STRENGTH = 200
-    _DEFAULT_COR = 0.3
-    _BOUNCY_COR = 0.9
-    _FRICTION_COEFFICIENT = 1
-
-    def __init__(self, path):
+    def __init__(self, shapes_path, constants_path):
         """
-        Initialize all attributes from the files in a folder.
+        Initialize all attributes from the files in a folder. 
 
         Args:
-            path: A string representing the path of the folder.
+            shapes_path: A string representing the path of the folder
+            containing the attributes of all shapes on the level.
+            constants_path: A string representing the path of the folder
+            containing the constants for the level.
         """
-        self._path = path
+        
+
+        # Read the file for constants.
+        with open(constants_path, "r", encoding="utf-8") as file:
+            constants = json.load(file)
+        
+        # Set all constants and the path for the level.
+        self._GRAVITY = self.make_vector(constants["gravity"])
+        self._JUMP_STRENGTH = constants["jump_strength"]
+        self._DEFAULT_COR = constants["default_cor"]
+        self._BOUNCY_COR = constants["bouncy_cor"]
+        self._FRICTION_COEFFICIENT = constants["friction_coefficient"]
+        self._path = shapes_path
+
+        # Initialize all shapes on the level.
         self.restart()
 
     def restart(self):
         """
-        Set all attributes to their default values.
+        Set all shape attributes to their default values.
         """
         # Read the file for player.
         with open(self._path + "player.json", "r", encoding="utf-8") as file:
