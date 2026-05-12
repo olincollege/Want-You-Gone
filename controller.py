@@ -2,8 +2,6 @@
 Contains the Controller class.
 """
 
-import json
-
 import pygame
 
 
@@ -18,35 +16,51 @@ class Controller:
         touchdown so the player doesn't bounce.
 
     Attributes:
-        _roll_torque: A float representing the angular acceleration
+        _ROLL_TORQUE: A float representing the angular acceleration
         applied per second when rolling.
-        _roll_force: A float representing the horizontal acceleration
-        applied per second when rolling.       
+        _ROLL_FORCE: A float representing the horizontal acceleration
+        applied per second when rolling.
+        _JUMP_BUFFER: A float representing the number of seconds after pressing
+        the jump button a jump can activate.
+        _keys: A dictionary representing the keys currently being pressed.
+        _jump_timer: a float representing the number of seconds
+        since the last jump.
+        _released_jump: A boolean representing if the player has released the
+        jump button since the last time they pressed it.
     """
 
-    def __init__(self, constants_path):
+    def __init__(self, constants):
         """
         Initialise all constants.
 
         Args:
-            constants_path: A string representing the path to the json file
-            with all constants.
+            constants: A dictionary representing all the constants.
         """
-        with open(constants_path, "r", encoding="utf-8") as file:
-            constants = json.load(file)
+        self._ROLL_TORQUE = constants["roll_torque"]
+        self._ROLL_FORCE = constants["roll_force"]
+        self._JUMP_BUFFER = constants["jump_buffer"]
+        self._jump_timer = self._JUMP_BUFFER
+        self._jump_released = True
+        self.update(0)
 
-        self.ROLL_TORQUE = constants["roll_torque"]
-        self.ROLL_FORCE = constants["roll_force"]
-
-    def update(self, dt_seconds):
+    def update(self, dt):
         """
-        Tick the controller forward by one frame.
+        Tick the jump timer forward by one frame and record the key inputs.
 
-        Call this once per frame *before* reading is_jumping / is_rolling.
+        Call this once per frame *before* reading any properties.
 
         Args:
-            dt_seconds: A float representing the frame duration in seconds.
+            dt: A float representing the frame duration in seconds.
         """
+        self._keys = pygame.key.get_pressed()
+        self._jump_timer += dt
+        jumping = self._keys[pygame.K_w] or self._keys[pygame.K_UP]
+        if jumping:
+            if self._jump_released:
+                self._jump_timer = 0
+            self._jump_released = False
+        else:
+            self._jump_released = True
 
     @property
     def restart(self):
@@ -58,21 +72,19 @@ class Controller:
         Returns:
             A bool.
         """
-        keys = pygame.key.get_pressed()
-        return keys[pygame.K_r]
+        return self._keys[pygame.K_r]
 
     @property
     def is_jumping(self):
         """
-        True when the player is pressing the jump key right now.
+        True when the jump timer is above zero.
 
         Pressing W or up arrow triggers a jump.
 
         Returns:
             A boolean.
         """
-        keys = pygame.key.get_pressed()
-        return keys[pygame.K_w] or keys[pygame.K_UP]
+        return self._jump_timer < self._JUMP_BUFFER
 
     @property
     def is_bouncing(self):
@@ -85,8 +97,7 @@ class Controller:
         Returns:
             A boolean.
         """
-        keys = pygame.key.get_pressed()
-        return not (keys[pygame.K_s] or keys[pygame.K_DOWN])
+        return not (self._keys[pygame.K_s] or self._keys[pygame.K_DOWN])
 
     @property
     def roll(self):
@@ -100,10 +111,9 @@ class Controller:
         Returns:
             A float and a Vector. Zero when no roll key is held.
         """
-        keys = pygame.key.get_pressed()
         direction = 0
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+        if self._keys[pygame.K_a] or self._keys[pygame.K_LEFT]:
             direction += 1
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        if self._keys[pygame.K_d] or self._keys[pygame.K_RIGHT]:
             direction -= 1
-        return direction * self.ROLL_TORQUE, -direction * self.ROLL_FORCE
+        return direction * self._ROLL_TORQUE, -direction * self._ROLL_FORCE

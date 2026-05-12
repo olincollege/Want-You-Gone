@@ -19,15 +19,14 @@ def main():
     # Set all constants.
     fps = 60
     dt = 1 / fps
-    constants_path = "constants/normal_mode.json"
-    with open(constants_path, "r", encoding="utf-8") as file:
+    with open("constants/hard_mode.json", "r", encoding="utf-8") as file:
         constants = json.load(file)
     max_angular_velocity = constants["max_angular_velocity"]
     max_translational_velocity = constants["max_translational_velocity"]
 
     # Initialize the level, controller, view, and clock.
-    level = Level("level_1/", constants_path)
-    controller = Controller(constants_path)
+    level = Level("level_1/", constants)
+    controller = Controller(constants)
     view = View(level, "sprites/")
     clock = pygame.time.Clock()
 

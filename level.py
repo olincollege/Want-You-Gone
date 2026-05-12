@@ -35,22 +35,15 @@ class Level:
         moving polygons on the level.
     """
 
-    def __init__(self, shapes_path, constants_path):
+    def __init__(self, shapes_path, constants):
         """
         Initialize all attributes from the files in a folder. 
 
         Args:
             shapes_path: A string representing the path of the folder
             containing the attributes of all shapes on the level.
-            constants_path: A string representing the path of the folder
-            containing the constants for the level.
+            constants: A dictionary representing all the constants.
         """
-        
-
-        # Read the file for constants.
-        with open(constants_path, "r", encoding="utf-8") as file:
-            constants = json.load(file)
-        
         # Set all constants and the path for the level.
         self._GRAVITY = self.make_vector(constants["gravity"])
         self._JUMP_STRENGTH = constants["jump_strength"]

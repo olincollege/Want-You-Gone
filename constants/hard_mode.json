@@ -3,6 +3,7 @@
     "max_translational_velocity": 0,
     "roll_torque": 75,
     "roll_force": 0,
+    "jump_buffer": 0.15,
     "gravity": [0, 200],
     "jump_strength": 200,
     "default_cor": 0.3,
