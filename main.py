@@ -19,7 +19,7 @@ def main():
     # Set all constants.
     fps = 60
     dt = 1 / fps
-    constants_path = "constants/hard_mode.json"
+    constants_path = "constants/normal_mode.json"
     with open(constants_path, "r", encoding="utf-8") as file:
         constants = json.load(file)
     max_angular_velocity = constants["max_angular_velocity"]
