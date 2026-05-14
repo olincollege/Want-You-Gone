@@ -44,7 +44,7 @@ class View:
             self._PATH + "night_sky.png"
         ).convert_alpha()
         self._PLAYER_SPRITE = pygame.image.load(
-            self._PATH + "wheatley.png"
+            self._PATH + "wheatley_2.png"
         ).convert_alpha()
         self.refresh(0)
 
