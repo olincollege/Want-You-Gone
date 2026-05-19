@@ -24,7 +24,7 @@ class View:
         _PLAYER_SPRITE: A surface representing the sprite to draw for the player.
     """
 
-    def __init__(self, level, path):
+    def __init__(self, level, path, constants):
         """
         Initialize level, camera, path, lerp_speed, and window.
 
@@ -37,7 +37,7 @@ class View:
         self._level = level
         self._camera = Vector.diff(level.player.position, self._WINDOW_CENTER)
         self._PATH = path
-        self._LERP_SPEED = 3
+        self._LERP_SPEED = constants["lerp_speed"]
         self._window = pygame.display.set_mode((1200, 900))
         pygame.display.set_caption("Want You Gone")
         self._BACKGROUND_TEXTURE = pygame.image.load(

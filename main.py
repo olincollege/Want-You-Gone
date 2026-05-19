@@ -26,7 +26,7 @@ def main():
     # Initialize the level, controller, view, and clock.
     level = Level("level_1/", constants)
     controller = Controller(constants)
-    view = View(level, "sprites/")
+    view = View(level, "sprites/", constants)
     clock = pygame.time.Clock()
 
     # Run the game until the window is closed.
