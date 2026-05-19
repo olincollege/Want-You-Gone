@@ -235,6 +235,24 @@ class Shape:
             else 0
         )
 
+    def impulse_at(self, impulse, contact_point):
+        """
+        Apply an impulse at a contact point, producing both linear and
+        angular velocity changes.
+
+        Args:
+            impulse: A Vector representing the impulse.
+            contact_point: A Vector representing the contact point
+                           relative to the center of mass.
+        """
+        if not self._CAN_MOVE:
+            return
+        self._velocity.add(impulse.scale(1 / self._MASS))
+        # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
+        self._angular_velocity += (
+            Vector.det(impulse, contact_point)
+        ) / self._MOMENT
+
 
 class Circle(Shape):
     """
@@ -291,24 +309,6 @@ class Circle(Shape):
             color,
         )
 
-    def impulse_at(self, impulse, contact_point):
-        """
-        Apply an impulse at a contact point, producing both linear and
-        angular velocity changes.
-
-        Args:
-            impulse: A Vector representing the impulse.
-            contact_point: A Vector representing the contact point
-                           relative to the center of mass.
-        """
-        if not self._CAN_MOVE:
-            return
-        self._velocity.add(impulse.scale(1 / self._MASS))
-        # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
-        self._angular_velocity += (
-            Vector.det(impulse, contact_point)
-        ) / self._MOMENT
-
 
 class Polygon(Shape):
     """
@@ -319,7 +319,8 @@ class Polygon(Shape):
     Attributes:
         _LOCAL_VERTICES: A list of Vectors representing vertex positions
                          relative to the center of mass at angle = 0.
-        All other attributes are inherited from Shape. I think.
+        _WORLD_VERTICES: A list of Vectors representing vertex positions.
+        All other attributes are inherited from Shape.
     """
 
     def __init__(
@@ -383,11 +384,11 @@ class Polygon(Shape):
             (vertices[i - 1].y + vertices[i].y) * segment_areas[i]
             for i in range(n)
         ) / (6 * mass if signed_area > 0 else -6 * mass)
-        center_of_MASS = Vector(x_com, y_com)
+        center_of_mass = Vector(x_com, y_com)
 
         # Re-center vertices so local (0, 0) is the center of mass
-        local_vertices = [Vector.diff(center_of_MASS, v) for v in vertices]
-        position = Vector.sum(position, center_of_MASS)
+        local_vertices = [Vector.diff(center_of_mass, v) for v in vertices]
+        position = Vector.sum(position, center_of_mass)
 
         # Moment of inertia for a polygon about its centroid
         moment_num = 0.0
@@ -411,6 +412,10 @@ class Polygon(Shape):
         )
 
         self._LOCAL_VERTICES = local_vertices
+        self._WORLD_VERTICES = [
+            Vector.sum(position, v.rotate(angle))
+            for v in self._LOCAL_VERTICES
+            ]
         super().__init__(
             position,
             velocity,
@@ -431,6 +436,17 @@ class Polygon(Shape):
         Vertex positions relative to the center of mass at angle = 0.
         """
         return self._LOCAL_VERTICES
+    
+    @property
+    def world_vertices(self):
+        """
+        Compute the current world-space vertex positions by rotating local
+        vertices by _angle and then translating by _position.
+
+        Returns:
+            A list of Vectors representing the current world-space vertices.
+        """
+        return self._WORLD_VERTICES
 
     def rotated_vertices(self):
         """
@@ -441,34 +457,3 @@ class Polygon(Shape):
             rotated by self._angle.
         """
         return [v.rotate(self._angle) for v in self._LOCAL_VERTICES]
-
-    def world_vertices(self):
-        """
-        Compute the current world-space vertex positions by rotating local
-        vertices by _angle and then translating by _position.
-
-        Returns:
-            A list of Vectors representing the current world-space vertices.
-        """
-        return [
-            Vector.sum(self._position, v.rotate(self._angle))
-            for v in self._LOCAL_VERTICES
-        ]
-
-    def impulse(self, impulse, contact_point=None):
-        """
-        Apply an instantaneous impulse, with optional off-center torque.
-
-        Args:
-            impulse: A Vector representing the impulse to apply.
-            contact_point: A Vector representing the contact point relative
-                           to the center of mass (None for pure linear).
-        """
-        if not self._CAN_MOVE:
-            return
-        self._velocity.add(impulse.scale(1 / self._MASS))
-        if contact_point is not None:
-            # Delta w = r × J / I
-            self._angular_velocity += (
-                Vector.det(contact_point, impulse)
-            ) / self._MOMENT

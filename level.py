@@ -199,7 +199,7 @@ class Level:
             shortest_distance = None
             closest_line = None
             closest_vertex = None
-            vertices = polygon.world_vertices()
+            vertices = polygon.world_vertices
             for i, vertex in enumerate(vertices):
                 # Find the distance between the player and the line segment
                 # between vertices i - 1 and i and update
@@ -455,7 +455,7 @@ class Level:
             A Vector representing the impulse vector for the collision.
         """
         # Find the normal vector for the collision.
-        normal = Vector.diff(polygon.world_vertices()[vertex], circle.position)
+        normal = Vector.diff(polygon.world_vertices[vertex], circle.position)
         normal = normal.normal()
 
         return self.calculate_impulse(
@@ -483,7 +483,7 @@ class Level:
         """
         # Find the normal vector for the collision.
         tangent = Vector.diff(
-            polygon.world_vertices()[line], polygon.world_vertices()[line - 1]
+            polygon.world_vertices[line], polygon.world_vertices[line - 1]
         ).normal()
         normal = Vector(tangent.y, -tangent.x)
         normal = normal.normal()

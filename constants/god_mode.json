@@ -1,0 +1,12 @@
+{
+    "max_angular_velocity": 25,
+    "max_translational_velocity": 10000,
+    "roll_torque": 100,
+    "roll_force": 1000,
+    "jump_buffer": 0.15,
+    "gravity": [0, 500],
+    "jump_strength": 1000,
+    "default_cor": 0.3,
+    "bouncy_cor": 0.9,
+    "friction_coefficient": 1
+}

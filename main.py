@@ -3,7 +3,6 @@ Contains the Main class.
 """
 
 import json
-from math import copysign
 import pygame
 from controller import Controller
 from vector import Vector
@@ -19,7 +18,7 @@ def main():
     # Set all constants.
     fps = 60
     dt = 1 / fps
-    with open("constants/normal_mode.json", "r", encoding="utf-8") as file:
+    with open("constants/god_mode.json", "r", encoding="utf-8") as file:
         constants = json.load(file)
     max_angular_velocity = constants["max_angular_velocity"]
     max_translational_velocity = constants["max_translational_velocity"]

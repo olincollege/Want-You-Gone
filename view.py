@@ -79,7 +79,7 @@ class View:
         mask.fill(self._level.border.color)
         vertices = [
             Vector.sum(vertex, self._camera).get_tuple()
-            for vertex in self._level.border.world_vertices()
+            for vertex in self._level.border.world_vertices
         ]
         pygame.draw.polygon(mask, (0, 0, 0), vertices)
         mask_rect = mask.get_rect()
