@@ -4,7 +4,7 @@ Contains the Level class.
 
 from math import sqrt, copysign
 import json
-from shape import Circle, Polygon
+from shape import Polygon, DynamicCircle#, DynamicPolygon
 from vector import Vector
 
 
@@ -64,14 +64,12 @@ class Level:
             player_attributes = json.load(file)
 
         # Initialize player.
-        self._player = Circle(
+        self._player = DynamicCircle(
             player_attributes["radius"],
             self.make_vector(player_attributes["position"]),
             self.make_vector(player_attributes["velocity"]),
             player_attributes["angle"],
             player_attributes["angular_velocity"],
-            True,
-            False,
             player_attributes["is_bouncy"],
             tuple(player_attributes["color"]),
         )
@@ -89,7 +87,6 @@ class Level:
             self.make_vector(border_attributes["velocity"]),
             border_attributes["angle"],
             border_attributes["angular_velocity"],
-            False,
             True,
             border_attributes["is_bouncy"],
             tuple(border_attributes["color"]),
@@ -109,7 +106,6 @@ class Level:
                 self.make_vector(polygon_attributes["velocity"]),
                 polygon_attributes["angle"],
                 polygon_attributes["angular_velocity"],
-                False,
                 False,
                 polygon_attributes["is_bouncy"],
                 tuple(polygon_attributes["color"]),
@@ -158,16 +154,10 @@ class Level:
         """
         # Update the velocity of all shapes by adding gravity to them.
         self._player.accelerate(self._GRAVITY, dt)
-        self._border.accelerate(self._GRAVITY, dt)
-        for polygon in self._polygons:
-            polygon.accelerate(self._GRAVITY, dt)
 
         # Update the positions and angles of all shapes by adding
         # their velocity and angular velocity to them.
         self._player.update_position(dt)
-        self._border.update_position(dt)
-        for polygon in self._polygons:
-            polygon.update_position(dt)
 
     def apply_collisions(self, is_jumping, is_bouncing, dt):
         """
@@ -486,8 +476,8 @@ class Level:
             polygon.world_vertices[line], polygon.world_vertices[line - 1]
         ).normal()
         normal = Vector(tangent.y, -tangent.x)
-        normal = normal.normal()
 
+        # Calculate and return the impulse
         return self.calculate_impulse(
             circle, polygon, normal, is_jumping, is_bouncing
         )

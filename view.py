@@ -153,7 +153,7 @@ class View:
         polygon_surface = pygame.Surface((r * 2, r * 2), pygame.SRCALPHA)
         # Rotated vertices are relative to the polygon center.
         # Offset them to the center of the surface so they draw correctly.
-        local_verts = [(v.x + r, v.y + r) for v in polygon.rotated_vertices()]
+        local_verts = [(v.x + r, v.y + r) for v in polygon.rotated_vertices]
         pygame.draw.polygon(polygon_surface, polygon.color, local_verts)
         # World -> screen: screen_pos = world_pos + camera.
         screen_pos = Vector.sum(polygon.position, self._camera)

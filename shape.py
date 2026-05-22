@@ -16,9 +16,6 @@ class Shape:
         _angle: A float representing the angular displacement
                 of the shape (radians).
         _angular_velocity: A float representing the angular velocity (rad/s).
-        _CAN_MOVE: A boolean representing if the shape can move.
-        _IS_INVERTED: A boolean representing if the mass
-                      of the shape is outside it.
         _IS_BOUNCY: A boolean representing if the shape is
                     bouncier than usual.
         _MOMENT: A float representing the moment of inertia.
@@ -34,8 +31,6 @@ class Shape:
         velocity,
         angle,
         angular_velocity,
-        can_move,
-        is_inverted,
         is_bouncy,
         moment,
         mass,
@@ -50,9 +45,6 @@ class Shape:
             velocity: A Vector representing the velocity of the shape.
             angle: A float representing the angular displacement (radians).
             angular_velocity: A float representing the angular velocity (rad/s).
-            can_move: A boolean representing if the shape can move.
-            is_inverted: A boolean representing if the mass is
-                         outside the shape.
             is_bouncy: A boolean representing if the shape is
                        bouncier than usual.
             moment: A float representing the moment of inertia.
@@ -64,8 +56,6 @@ class Shape:
         self._velocity = velocity
         self._angle = angle
         self._angular_velocity = angular_velocity
-        self._CAN_MOVE = can_move
-        self._IS_INVERTED = is_inverted
         self._IS_BOUNCY = is_bouncy
         self._MOMENT = moment
         self._MASS = mass
@@ -96,16 +86,6 @@ class Shape:
         return self._angular_velocity
 
     @property
-    def can_move(self):
-        """Get can_move"""
-        return self._CAN_MOVE
-
-    @property
-    def is_inverted(self):
-        """Get is_inverted"""
-        return self._IS_INVERTED
-
-    @property
     def moment(self):
         """Get moment"""
         return self._MOMENT
@@ -129,66 +109,6 @@ class Shape:
     def is_bouncy(self):
         """Get is_bouncy"""
         return self._IS_BOUNCY
-
-    def update_position(self, dt):
-        """
-        Integrate velocity and angular velocity forward by dt seconds.
-
-        Args:
-            dt: A float representing the timestep in seconds.
-        """
-        if not self._CAN_MOVE:
-            return
-        self._position.add(self._velocity.scale(dt))
-        self._angle += self._angular_velocity * dt
-
-    def accelerate(self, acceleration, dt):
-        """
-        Apply a continuous acceleration for one timestep.
-
-        Args:
-            acceleration: A Vector representing the acceleration to apply.
-            dt: A float representing the timestep in seconds.
-        """
-        if not self._CAN_MOVE:
-            return
-        self._velocity.add(acceleration.scale(dt))
-
-    def angular_accelerate(self, angular_acceleration, dt):
-        """
-        Apply a continuous angular acceleration for one timestep.
-
-        Args:
-            angular_acceleration: A float representing
-            the angular acceleration to apply.
-            dt: A float representing the timestep in seconds.
-        """
-        if not self._CAN_MOVE:
-            return
-        self._angular_velocity += angular_acceleration * dt
-
-    def impulse(self, impulse):
-        """
-        Apply an instantaneous linear impulse (Δv = J / m).
-
-        Args:
-            impulse: A Vector representing the impulse to apply.
-        """
-        if not self._CAN_MOVE:
-            return
-        self._velocity.add(impulse.scale(1 / self._MASS))
-
-    def nudge(self, nudge):
-        """
-        Apply an instantaneous nudge, which is a very small position change
-        used to prevent shapes from getting stuck together.
-
-        Args:
-            nudge: A Vector representing the nudge to apply.
-        """
-        if not self._CAN_MOVE:
-            return
-        self._position.add(nudge)
 
     def get_energy(self):
         """
@@ -235,6 +155,61 @@ class Shape:
             else 0
         )
 
+
+class DynamicShape(Shape):
+    """
+    Stores and updates the physical state of a 2D shape in space.
+    """
+    def update_position(self, dt):
+        """
+        Integrate velocity and angular velocity forward by dt seconds.
+
+        Args:
+            dt: A float representing the timestep in seconds.
+        """
+        self._position.add(self._velocity.scale(dt))
+        self._angle += self._angular_velocity * dt
+
+    def accelerate(self, acceleration, dt):
+        """
+        Apply a continuous acceleration for one timestep.
+
+        Args:
+            acceleration: A Vector representing the acceleration to apply.
+            dt: A float representing the timestep in seconds.
+        """
+        self._velocity.add(acceleration.scale(dt))
+
+    def angular_accelerate(self, angular_acceleration, dt):
+        """
+        Apply a continuous angular acceleration for one timestep.
+
+        Args:
+            angular_acceleration: A float representing
+            the angular acceleration to apply.
+            dt: A float representing the timestep in seconds.
+        """
+        self._angular_velocity += angular_acceleration * dt
+
+    def impulse(self, impulse):
+        """
+        Apply an instantaneous linear impulse (Δv = J / m).
+
+        Args:
+            impulse: A Vector representing the impulse to apply.
+        """
+        self._velocity.add(impulse.scale(1 / self._MASS))
+
+    def nudge(self, nudge):
+        """
+        Apply an instantaneous nudge, which is a very small position change
+        used to prevent shapes from getting stuck together.
+
+        Args:
+            nudge: A Vector representing the nudge to apply.
+        """
+        self._position.add(nudge)
+
     def impulse_at(self, impulse, contact_point):
         """
         Apply an impulse at a contact point, producing both linear and
@@ -245,8 +220,6 @@ class Shape:
             contact_point: A Vector representing the contact point
                            relative to the center of mass.
         """
-        if not self._CAN_MOVE:
-            return
         self._velocity.add(impulse.scale(1 / self._MASS))
         # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity += (
@@ -270,8 +243,6 @@ class Circle(Shape):
         velocity,
         angle,
         angular_velocity,
-        can_move,
-        is_inverted,
         is_bouncy,
         color,
     ):
@@ -284,9 +255,6 @@ class Circle(Shape):
             velocity: A Vector representing the velocity.
             angle: A float representing angular displacement in radians.
             angular_velocity: A float representing angular velocity in rad/s.
-            can_move: A boolean representing if the shape can move.
-            is_inverted: A boolean representing if the mass
-                         is outside the shape.
             is_bouncy: A boolean representing if the shape is
                        bouncier than usual.
             color: A tuple representing the RGB values of the shape's color.
@@ -300,8 +268,6 @@ class Circle(Shape):
             velocity,
             angle,
             angular_velocity,
-            can_move,
-            is_inverted,
             is_bouncy,
             moment,
             mass,
@@ -319,7 +285,7 @@ class Polygon(Shape):
     Attributes:
         _LOCAL_VERTICES: A list of Vectors representing vertex positions
                          relative to the center of mass at angle = 0.
-        _WORLD_VERTICES: A list of Vectors representing vertex positions.
+        _world_vertices: A list of Vectors representing vertex positions.
         All other attributes are inherited from Shape.
     """
 
@@ -330,7 +296,6 @@ class Polygon(Shape):
         velocity,
         angle,
         angular_velocity,
-        can_move,
         is_inverted,
         is_bouncy,
         color,
@@ -349,7 +314,6 @@ class Polygon(Shape):
             velocity: A Vector representing the velocity.
             angle: A float representing angular displacement in radians.
             angular_velocity: A float representing angular velocity in rad/s.
-            can_move: A boolean representing if the shape can move.
             is_inverted: A boolean representing if
                          the mass is outside the shape.
             is_bouncy: A boolean representing if the shape
@@ -412,7 +376,9 @@ class Polygon(Shape):
         )
 
         self._LOCAL_VERTICES = local_vertices
-        self._WORLD_VERTICES = [
+        self._rotated_vertices = [
+            v.rotate(angle) for v in self._LOCAL_VERTICES]
+        self._world_vertices = [
             Vector.sum(position, v.rotate(angle))
             for v in self._LOCAL_VERTICES
             ]
@@ -421,8 +387,6 @@ class Polygon(Shape):
             velocity,
             angle,
             angular_velocity,
-            can_move,
-            is_inverted,
             is_bouncy,
             moment,
             mass,
@@ -436,7 +400,7 @@ class Polygon(Shape):
         Vertex positions relative to the center of mass at angle = 0.
         """
         return self._LOCAL_VERTICES
-    
+
     @property
     def world_vertices(self):
         """
@@ -446,8 +410,9 @@ class Polygon(Shape):
         Returns:
             A list of Vectors representing the current world-space vertices.
         """
-        return self._WORLD_VERTICES
+        return self._world_vertices
 
+    @property
     def rotated_vertices(self):
         """
         Find the vertex positions relative to the center of mass at angle.
@@ -456,4 +421,59 @@ class Polygon(Shape):
             A list of Vectors representing the local vertices
             rotated by self._angle.
         """
-        return [v.rotate(self._angle) for v in self._LOCAL_VERTICES]
+        return self._rotated_vertices
+
+
+class DynamicCircle(Circle, DynamicShape):
+    """
+    Store and update the physical state of a circle in 2D space.
+
+    Attributes:
+        All attributes are inherited from Circle and DynamicShape.
+    """
+
+class DynamicPolygon(Polygon, DynamicShape):
+    """
+    Store and update the physical state of a polygon in 2D space.
+
+    Attributes:
+        All attributes are inherited from Polygon and DynamicShape.
+    """
+    def update_rotated_vertices(self):
+        """
+        Update rotated vertices to match the current state of the polygon.
+        """
+        self._rotated_vertices = [
+            v.rotate(self._angle) for v in self._LOCAL_VERTICES]
+  
+    def update_world_vertices(self):
+        """
+        Update world vertices to match the current state of the polygon.
+        """
+        self._world_vertices = [
+            Vector.sum(self._position, v.rotate(self._angle))
+            for v in self._LOCAL_VERTICES]
+
+    def update_position(self, dt):
+        """
+        Integrate velocity, angular velocity forward by dt seconds
+        and update rotated and world vertices.
+
+        Args:
+            dt: A float representing the timestep in seconds.
+        """
+        super().update_position(dt)
+        self.update_world_vertices()
+        self.update_rotated_vertices()
+
+    def nudge(self, nudge):
+        """
+        Apply an instantaneous nudge, which is a very small position change
+        used to prevent shapes from getting stuck together
+        and update world vertices.
+
+        Args:
+            nudge: A Vector representing the nudge to apply.
+        """
+        super().nudge(nudge)
+        self.update_world_vertices()
