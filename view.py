@@ -60,6 +60,8 @@ class View:
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
+        for portal in self._level.portal_entrances + self._level.portal_exits:
+            self.draw_circle(portal)
         self.draw_player(self._level.player)
         # self.draw_circle(self._level.player)
         pygame.display.flip()
@@ -125,7 +127,7 @@ class View:
         of a circle and the position of the camera.
 
         Args:
-            circle: A Circle representing the circle to display.
+            circle: A Circle or Portal representing the circle to display.
         """
         if self.check_cull(circle):
             return
@@ -191,3 +193,12 @@ class View:
             screen_pos.x - r, screen_pos.y - r, r * 2, r * 2
         )
         return not screen_rect.colliderect(shape_rect)
+
+    def move_camera(self, position_change):
+        """
+        Moves the camera by a given position change.
+
+        Args:
+            position_change: A Vector representing how much to move the camera.
+        """
+        self._camera.add(position_change)

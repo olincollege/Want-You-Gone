@@ -110,6 +110,16 @@ class Shape:
         """Get is_bouncy"""
         return self._IS_BOUNCY
 
+    def set_position(self, position):
+        """
+        ONLY FOR USE IN PORTAL TELEPORTATION!
+
+        Args:
+            position: A Vector representing the
+            new position of the center of mass.
+        """
+        self._position = position
+
     def get_energy(self):
         """
         Calculate the total kinetic energy (translational + rotational).
@@ -445,7 +455,7 @@ class DynamicPolygon(Polygon, DynamicShape):
         """
         self._rotated_vertices = [
             v.rotate(self._angle) for v in self._LOCAL_VERTICES]
-  
+
     def update_world_vertices(self):
         """
         Update world vertices to match the current state of the polygon.

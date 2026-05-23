@@ -4,6 +4,7 @@ Contains the Level class.
 
 from math import sqrt, copysign
 import json
+from portal import PortalExit, PortalEntrance
 from shape import Polygon, DynamicCircle#, DynamicPolygon
 from vector import Vector
 
@@ -22,6 +23,8 @@ class Level:
         _FRICTION_COEFFICIENT: A float representing the friction coefficient.
         self._path: A string representing the path to the folder
         with all the starting data for the level.
+        self._portals: A list of dictionaries representing
+        the attributes of all portals.
         self._player: A Circle representing the player character.
         self._border: A Polygon representing the outmost border
         of the space objects can move inside.
@@ -35,13 +38,15 @@ class Level:
         moving polygons on the level.
     """
 
-    def __init__(self, shapes_path, constants):
+    def __init__(self, shapes_path, portals, constants):
         """
         Initialize all attributes from the files in a folder. 
 
         Args:
             shapes_path: A string representing the path of the folder
             containing the attributes of all shapes on the level.
+            portals: A list of dictionaries representing
+            the attributes of all portals.
             constants: A dictionary representing all the constants.
         """
         # Set all constants and the path for the level.
@@ -51,13 +56,14 @@ class Level:
         self._BOUNCY_COR = constants["bouncy_cor"]
         self._FRICTION_COEFFICIENT = constants["friction_coefficient"]
         self._path = shapes_path
+        self._portals = portals
 
         # Initialize all shapes on the level.
         self.restart()
 
     def restart(self):
         """
-        Set all shape attributes to their default values.
+        Set all player,shape and portal attributes to their default values.
         """
         # Read the file for player.
         with open(self._path + "player.json", "r", encoding="utf-8") as file:
@@ -74,8 +80,12 @@ class Level:
             tuple(player_attributes["color"]),
         )
 
-        # ----------------------------------------------------------------------
+        self.reset()
 
+    def reset(self):
+        """
+        Set all shape and portal attributes to their default values.
+        """
         # Read the file for border.
         with open(self._path + "border.json", "r", encoding="utf-8") as file:
             border_attributes = json.load(file)
@@ -112,6 +122,57 @@ class Level:
             )
             for polygon_attributes in polygons_attributes
         ]
+
+        # ----------------------------------------------------------------------
+
+        # Initialize portals.
+        self._portal_entrances = []
+        self._portal_exits = []
+
+        for portal in self._portals:
+            if portal["from_path"] == self._path:
+                position = self.make_vector(portal["from_position"])
+                radius = portal["radius"]
+                to_position = self.make_vector(portal["to_position"])
+                to_path = portal["to_path"]
+                self._portal_entrances.append(
+                    PortalEntrance(position, radius, to_position, to_path))
+
+            if portal["to_path"] == self._path:
+                position = self.make_vector(portal["to_position"])
+                radius = portal["radius"]
+                self._portal_exits.append(PortalExit(position, radius))
+
+    def update_portals(self):
+        """
+        Check if the player is in any portal entrance and if so, move the player
+        to the corresponding portal exit.
+
+        Returns:
+            A Vector representing the change in the player's position.
+            None if the player is not in any portal entrance.
+        """
+        for entrance in self._portal_entrances:
+            if entrance.is_in(self._player.position, self._player.radius):
+                # Record the player's position relative to the portal entrance,
+                # and their velocity, angle, and angular velocity.
+                relative_position = Vector.diff(
+                    entrance.position, self._player.position)
+
+                # Change which level the player is on.
+                self._path = entrance.to_path
+                self.reset()
+
+                # Move the player to the corresponding position
+                # relative to the portal exit.
+                self._player.set_position(Vector.sum(
+                    entrance.to_position, relative_position))
+                
+                # Return the change in the player's position.
+                return Vector.diff(entrance.to_position, entrance.position)
+        
+        # If the player is not in any portal entrance, return None.
+        return None
 
     @classmethod
     def make_vector(cls, json_input):
@@ -535,3 +596,13 @@ class Level:
     def polygons(self):
         """Get border"""
         return self._polygons
+
+    @property
+    def portal_entrances(self):
+        """Get portal entrances"""
+        return self._portal_entrances
+
+    @property
+    def portal_exits(self):
+        """Get portal exits"""
+        return self._portal_exits

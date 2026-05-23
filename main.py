@@ -24,7 +24,9 @@ def main():
     max_translational_velocity = constants["max_translational_velocity"]
 
     # Initialize the level, controller, view, and clock.
-    level = Level("level_1/", constants)
+    with open("portal_configs/test.json", "r", encoding="utf-8") as file:
+        portals = json.load(file)
+    level = Level("example_level/", portals, constants)
     controller = Controller(constants)
     view = View(level, "sprites/", constants)
     clock = pygame.time.Clock()
@@ -35,7 +37,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                print(level.player.position)
+                print(f"final position = {level.player.position}")
                 exit()
 
         # Apply the effects of the roll control from the player.
@@ -57,6 +59,9 @@ def main():
         level.apply_collisions(
             controller.is_jumping, controller.is_bouncing, dt
         )
+        position_change = level.update_portals()
+        if position_change is not None:
+            view.move_camera(position_change)
         if controller.restart:
             level.restart()
 
