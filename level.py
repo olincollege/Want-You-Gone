@@ -135,15 +135,16 @@ class Level:
                 radius = portal["radius"]
                 to_position = self.make_vector(portal["to_position"])
                 to_path = portal["to_path"]
+                max_force = portal["max_force"]
                 self._portal_entrances.append(
-                    PortalEntrance(position, radius, to_position, to_path))
+                    PortalEntrance(position, radius, to_position, to_path, max_force))
 
             if portal["to_path"] == self._path:
                 position = self.make_vector(portal["to_position"])
                 radius = portal["radius"]
                 self._portal_exits.append(PortalExit(position, radius))
 
-    def update_portals(self):
+    def update_portals(self, dt):
         """
         Check if the player is in any portal entrance and if so, move the player
         to the corresponding portal exit.
@@ -152,6 +153,16 @@ class Level:
             A Vector representing the change in the player's position.
             None if the player is not in any portal entrance.
         """
+        # Apply portal forces to the player
+        # if they are touching a portal entrance.
+        for entrance in self._portal_entrances:
+            force = entrance.force(self._player.position, self._player.radius)
+            if force is not None:
+                self._player.accelerate(force, dt)
+                print(force)
+
+        # If the player is in the portal entrance, move them to
+        # the corresponding portal exit and return the change in their position.
         for entrance in self._portal_entrances:
             if entrance.is_in(self._player.position, self._player.radius):
                 # Record the player's position relative to the portal entrance,
@@ -167,10 +178,10 @@ class Level:
                 # relative to the portal exit.
                 self._player.set_position(Vector.sum(
                     entrance.to_position, relative_position))
-                
+
                 # Return the change in the player's position.
                 return Vector.diff(entrance.to_position, entrance.position)
-        
+
         # If the player is not in any portal entrance, return None.
         return None
 

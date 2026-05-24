@@ -69,14 +69,16 @@ class Vector:
 
     def add(self, increment):
         """
-        Increments the vector by another vector.
+        Increments the vector by another vector
+        unless increment is None, in which case self is not changed.
 
         Args:
             increment: A vector representing the amounts to increase
             self._x and self._y by.
         """
-        self._x += increment.x
-        self._y += increment.y
+        if increment is not None:
+            self._x += increment.x
+            self._y += increment.y
 
     def lerp(self, to, increment):
         """

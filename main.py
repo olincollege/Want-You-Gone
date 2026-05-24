@@ -16,12 +16,11 @@ def main():
     and display the state of the game to a window.
     """
     # Set all constants.
-    fps = 60
+    fps = 40
     dt = 1 / fps
-    with open("constants/god_mode.json", "r", encoding="utf-8") as file:
+    with open("constants/normal_mode.json", "r", encoding="utf-8") as file:
         constants = json.load(file)
     max_angular_velocity = constants["max_angular_velocity"]
-    max_translational_velocity = constants["max_translational_velocity"]
 
     # Initialize the level, controller, view, and clock.
     with open("portal_configs/test.json", "r", encoding="utf-8") as file:
@@ -49,7 +48,8 @@ def main():
             level.player.angular_accelerate(roll_torque, dt)
         if (
             roll_force * level.player.velocity.x < 0
-            or abs(level.player.velocity.x) < max_translational_velocity
+            or abs(level.player.velocity.x) <
+            max_angular_velocity * level.player.radius
         ):
             level.player.accelerate(Vector(roll_force, 0), dt)
 
@@ -59,7 +59,7 @@ def main():
         level.apply_collisions(
             controller.is_jumping, controller.is_bouncing, dt
         )
-        position_change = level.update_portals()
+        position_change = level.update_portals(dt)
         if position_change is not None:
             view.move_camera(position_change)
         if controller.restart:

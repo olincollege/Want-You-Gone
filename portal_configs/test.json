@@ -2,15 +2,17 @@
     {
         "from_path": "level_1/",
         "to_path": "example_level/",
-        "from_position": [-1000, -3100],
+        "from_position": [230, 250],
         "to_position": [-100, -250],
-        "radius": 35
+        "radius": 40,
+        "max_force": 1000
     },
     {
         "from_path": "example_level/",
         "to_path": "level_1/",
-        "from_position": [300, 100],
-        "to_position": [-1400, -1800],
-        "radius": 35
+        "from_position": [300, 150],
+        "to_position": [-2950, 800],
+        "radius": 40,
+        "max_force": 1000
     }
 ]

@@ -2,8 +2,8 @@
 Contains the PortalEntrance and PortalExit classes.
 """
 
+from math import sqrt
 from vector import Vector
-
 
 class PortalExit:
     """
@@ -54,10 +54,11 @@ class PortalEntrance(PortalExit):
     """
     color = (255, 94, 0)
 
-    def __init__(self, position, radius, to_position, to_path):
+    def __init__(self, position, radius, to_position, to_path, max_force):
         super().__init__(position, radius)
         self._to_position = to_position
         self._to_path = to_path
+        self._max_force = max_force
 
     def is_in(self, position, radius):
         """
@@ -76,11 +77,37 @@ class PortalEntrance(PortalExit):
         return Vector.diff(position, self.position).magnitude_squared() <= (
             self._radius - radius) ** 2
 
+    def force(self, position, radius):
+        """
+        Return the force that the portal should apply to a circle with the
+        given position and radius.
+
+        Args:
+            position: A Vector representing the position
+            of the center of the circle.
+            radius: A float representing the radius of the circle.
+
+        Returns:
+            A Vector representing the force
+            that the portal should apply to the circle.
+        """
+        difference = Vector.diff(position, self._position)
+        distance = sqrt(difference.magnitude_squared())
+        max_distance = self._radius + radius
+
+        if distance >= max_distance:
+            return None
+        else:
+            return difference.scale(
+                (self._max_force * (max_distance - distance))
+                / (max_distance * distance)
+            )
+
     @property
     def to_position(self):
         """Get to_position"""
         return self._to_position
-    
+
     @property
     def to_path(self):
         """Get to_path"""
