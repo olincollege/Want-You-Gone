@@ -125,6 +125,27 @@ class Level:
 
         # ----------------------------------------------------------------------
 
+        # Read the file for dynamic circles.
+        with open(self._path + "dynamic_circles.json", "r",
+                  encoding="utf-8") as file:
+            dynamic_circles_attributes = json.load(file)
+
+        # Initialize dynamic circles.
+        self._dynamic_circles = [
+            DynamicCircle(
+                circle_attributes["radius"],
+                self.make_vector(circle_attributes["position"]),
+                self.make_vector(circle_attributes["velocity"]),
+                circle_attributes["angle"],
+                circle_attributes["angular_velocity"],
+                circle_attributes["is_bouncy"],
+                tuple(circle_attributes["color"]),
+            )
+            for circle_attributes in dynamic_circles_attributes
+        ]
+
+        # ----------------------------------------------------------------------
+
         # Initialize portals.
         self._portal_entrances = []
         self._portal_exits = []
@@ -226,10 +247,14 @@ class Level:
         """
         # Update the velocity of all shapes by adding gravity to them.
         self._player.accelerate(self._GRAVITY, dt)
+        for circle in self._dynamic_circles:
+            circle.accelerate(self._GRAVITY, dt)
 
         # Update the positions and angles of all shapes by adding
         # their velocity and angular velocity to them.
         self._player.update_position(dt)
+        for circle in self._dynamic_circles:
+            circle.update_position(dt)
 
     def apply_collisions(self, is_jumping, is_bouncing, dt):
         """
@@ -247,6 +272,12 @@ class Level:
         for polygon in self._polygons + [self._border]:
             self.circle_polygon_collision(
                 self._player, polygon, dt, is_jumping, is_bouncing)
+        for circle in self._dynamic_circles:
+            self.circle_circle_collision(
+                self._player, circle, dt, is_jumping, is_bouncing)
+            for polygon in self._polygons + [self._border]:
+                self.circle_polygon_collision(
+                    circle, polygon, dt)
 
     def circle_polygon_collision(
         self, circle, polygon, dt, is_jumping=False, is_bouncing=False
@@ -469,6 +500,41 @@ class Level:
                     dt
                 )
 
+    def circle_circle_collision(
+        self, circle1, circle2, dt, is_jumping=False, is_bouncing=False
+    ):
+        """
+        Detect and apply a collision between two circles.
+
+        Args:
+            circle1: A Circle representing the first circle in the collision.
+            circle2: A Circle representing the second circle in the collision.
+            is_jumping: A boolean representing whether or not the player is
+            jumping in the collision.
+            is_bouncing: A boolean representing whether or not the player is
+            bouncing in the collision.
+            dt: A float representing the timestep.
+        """
+        # If the circles are not colliding, skip them.
+        if (Vector.diff(circle1.position, circle2.position).magnitude_squared()
+            > (circle1.radius + circle2.radius) ** 2):
+            return
+
+        # Otherwise, resolve the collision.
+        normal = Vector.diff(circle2.position, circle1.position).normal()
+        contact_point = Vector.sum(
+            normal.scale(-circle1.radius), circle1.position
+        )
+        self.apply_collision(
+            circle1,
+            circle2,
+            normal,
+            contact_point,
+            is_jumping,
+            is_bouncing,
+            dt
+        )
+
     def apply_collision(
         self,
         shape1,
@@ -644,3 +710,8 @@ class Level:
     def portal_exits(self):
         """Get portal exits"""
         return self._portal_exits
+
+    @property
+    def dynamic_circles(self):
+        """Get dynamic circles"""
+        return self._dynamic_circles

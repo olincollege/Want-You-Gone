@@ -62,6 +62,8 @@ class View:
             self.draw_polygon(polygon)
         for portal in self._level.portal_entrances + self._level.portal_exits:
             self.draw_circle(portal)
+        for circle in self._level.dynamic_circles:
+            self.draw_player(circle)
         self.draw_player(self._level.player)
         # self.draw_circle(self._level.player)
         pygame.display.flip()
