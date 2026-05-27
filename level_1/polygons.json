@@ -7,6 +7,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -17,6 +18,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -27,6 +29,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -37,6 +40,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -47,6 +51,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -57,6 +62,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -67,6 +73,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -77,6 +84,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -87,6 +95,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -97,6 +106,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -107,6 +117,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -117,6 +128,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": true,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -127,6 +139,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": true,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -137,6 +150,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": true,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -147,6 +161,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": true,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -157,6 +172,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": true,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -167,6 +183,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [111,  135,  209]
     },
     {
@@ -177,6 +194,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -187,6 +205,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [217,  35,  87]
     },
     {
@@ -197,6 +216,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [217,  199,  35]
     },
     {
@@ -207,6 +227,7 @@
         "angle": 0,
         "angular_velocity": 0,
         "is_bouncy": false,
+        "is_slippery": false,
         "color": [217,  199,  35]
     } 
 ]

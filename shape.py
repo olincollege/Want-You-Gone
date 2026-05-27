@@ -18,6 +18,8 @@ class Shape:
         _angular_velocity: A float representing the angular velocity (rad/s).
         _IS_BOUNCY: A boolean representing if the shape is
                     bouncier than usual.
+        _IS_SLIPPERY: A boolean representing
+        if the shape is slipperier than usual.
         _MOMENT: A float representing the moment of inertia.
         _MASS: A float representing the mass.
         _RADIUS: A float representing the bounding radius
@@ -32,6 +34,7 @@ class Shape:
         angle,
         angular_velocity,
         is_bouncy,
+        is_slippery,
         moment,
         mass,
         radius,
@@ -47,6 +50,8 @@ class Shape:
             angular_velocity: A float representing the angular velocity (rad/s).
             is_bouncy: A boolean representing if the shape is
                        bouncier than usual.
+            is_slippery: A boolean representing if the shape is
+                            slipperier than usual.
             moment: A float representing the moment of inertia.
             mass: A float representing the mass.
             radius: A float representing the bounding radius.
@@ -57,6 +62,7 @@ class Shape:
         self._angle = angle
         self._angular_velocity = angular_velocity
         self._IS_BOUNCY = is_bouncy
+        self._IS_SLIPPERY = is_slippery
         self._MOMENT = moment
         self._MASS = mass
         self._RADIUS = radius
@@ -109,6 +115,11 @@ class Shape:
     def is_bouncy(self):
         """Get is_bouncy"""
         return self._IS_BOUNCY
+
+    @property
+    def is_slippery(self):
+        """Get is_slippery"""
+        return self._IS_SLIPPERY
 
     def set_position(self, position):
         """
@@ -292,6 +303,7 @@ class Circle(Shape):
         angle,
         angular_velocity,
         is_bouncy,
+        is_slippery,
         color,
     ):
         """
@@ -305,6 +317,8 @@ class Circle(Shape):
             angular_velocity: A float representing angular velocity in rad/s.
             is_bouncy: A boolean representing if the shape is
                        bouncier than usual.
+            is_slippery: A boolean representing if the shape is
+                            slipperier than usual.
             color: A tuple representing the RGB values of the shape's color.
         """
         # Derive mass and moment of inertia from radius (uniform density disc)
@@ -317,6 +331,7 @@ class Circle(Shape):
             angle,
             angular_velocity,
             is_bouncy,
+            is_slippery,
             moment,
             mass,
             radius,
@@ -346,6 +361,7 @@ class Polygon(Shape):
         angular_velocity,
         is_inverted,
         is_bouncy,
+        is_slippery,
         color,
     ):
         """
@@ -366,6 +382,8 @@ class Polygon(Shape):
                          the mass is outside the shape.
             is_bouncy: A boolean representing if the shape
                        is bouncier than usual.
+            is_slippery: A boolean representing if the shape is
+                            slipperier than usual.
             color: A tuple representing the RGB values of the shape's color.
         """
         n = len(vertices)
@@ -436,6 +454,7 @@ class Polygon(Shape):
             angle,
             angular_velocity,
             is_bouncy,
+            is_slippery,
             moment,
             mass,
             bounding_radius,

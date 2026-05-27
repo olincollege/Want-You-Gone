@@ -7,6 +7,7 @@
     "jump_strength": 1000,
     "default_cor": 0.3,
     "bouncy_cor": 0.9,
-    "friction_coefficient": 1,
+    "default_friction": 1,
+    "slippery_friction": 0.5,
     "lerp_speed": 5
 }

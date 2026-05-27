@@ -54,7 +54,8 @@ class Level:
         self._JUMP_STRENGTH = constants["jump_strength"]
         self._DEFAULT_COR = constants["default_cor"]
         self._BOUNCY_COR = constants["bouncy_cor"]
-        self._FRICTION_COEFFICIENT = constants["friction_coefficient"]
+        self._DEFAULT_FRICTION = constants["default_friction"]
+        self._SLIPPERY_FRICTION = constants["slippery_friction"]
         self._path = shapes_path
         self._portals = portals
 
@@ -77,6 +78,7 @@ class Level:
             player_attributes["angle"],
             player_attributes["angular_velocity"],
             player_attributes["is_bouncy"],
+            player_attributes["is_slippery"],
             tuple(player_attributes["color"]),
         )
 
@@ -99,6 +101,7 @@ class Level:
             border_attributes["angular_velocity"],
             True,
             border_attributes["is_bouncy"],
+            border_attributes["is_slippery"],
             tuple(border_attributes["color"]),
         )
 
@@ -118,6 +121,7 @@ class Level:
                 polygon_attributes["angular_velocity"],
                 False,
                 polygon_attributes["is_bouncy"],
+                polygon_attributes["is_slippery"],
                 tuple(polygon_attributes["color"]),
             )
             for polygon_attributes in polygons_attributes
@@ -139,6 +143,7 @@ class Level:
                 circle_attributes["angle"],
                 circle_attributes["angular_velocity"],
                 circle_attributes["is_bouncy"],
+                circle_attributes["is_slippery"],
                 tuple(circle_attributes["color"]),
             )
             for circle_attributes in dynamic_circles_attributes
@@ -599,8 +604,11 @@ class Level:
         friction_magnitude = abs(
             Vector.dot(relative_velocity, tangent) * effective_mass_tangent
         )
+        friction_coefficient = self._DEFAULT_FRICTION
+        if shape1.is_slippery or shape2.is_slippery:
+            friction_coefficient = self._SLIPPERY_FRICTION
         friction_magnitude = max(friction_magnitude, 0)
-        max_friction = self._FRICTION_COEFFICIENT * sqrt(
+        max_friction = friction_coefficient * sqrt(
             impulse.magnitude_squared()
         )
         friction_magnitude = min(friction_magnitude, max_friction)
