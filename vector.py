@@ -69,16 +69,14 @@ class Vector:
 
     def add(self, increment):
         """
-        Increments the vector by another vector
-        unless increment is None, in which case self is not changed.
+        Increments the vector by another vector.
 
         Args:
             increment: A vector representing the amounts to increase
             self._x and self._y by.
         """
-        if increment is not None:
-            self._x += increment.x
-            self._y += increment.y
+        self._x += increment.x
+        self._y += increment.y
 
     def lerp(self, to, increment):
         """
@@ -135,38 +133,38 @@ class Vector:
 
         return self.scale(1 / magnitude)
 
-    def line_point_distance(self, line1, line2):
+    def edge_point_distance(self, edge1, edge2):
         """
-        Find the signed distance between a point and a line segment.
+        Find the signed distance between a point and a edge segment.
 
         Args:
             self: A Vector representing the point.
-            line1: A Vector representing the right end of the line
+            edge1: A Vector representing the right end of the edge
             when observed facing in the positive direction.
-            line2: A Vector representing the left end of the line
+            edge2: A Vector representing the left end of the edge
             when observed facing in the positive direction.
 
         Returns:
-            A float representing the signed distance between self and the line
-            segment between line1 and line2. The distance is positive when
-            the point is on the right side of the line when observed from
-            the perspective of line1, facing line2.
-            None: If the point on the line segment
-            that self is closest to is line1 or line2.
+            A float representing the signed distance between self and the edge
+            segment between edge1 and edge2. The distance is positive when
+            the point is on the right side of the edge when observed from
+            the perspective of edge1, facing edge2.
+            None: If the point on the edge segment
+            that self is closest to is edge1 or edge2.
         """
-        tangent = Vector.diff(line1, line2).normal()
+        tangent = Vector.diff(edge1, edge2).normal()
 
-        # If the point is behind line1 return None.
-        if Vector.dot(tangent, Vector.diff(line1, self)) < 0:
+        # If the point is behind edge1 return None.
+        if Vector.dot(tangent, Vector.diff(edge1, self)) < 0:
             return None
 
-        # If the point is past line2 return None.
-        if Vector.dot(tangent, Vector.diff(line2, self)) > 0:
+        # If the point is past edge2 return None.
+        if Vector.dot(tangent, Vector.diff(edge2, self)) > 0:
             return None
 
         # Otherwise return the determinant of the matrix
-        # [self - line1 | tangent]
-        return Vector.det(Vector.diff(self, line1), tangent)
+        # [self - edge1 | tangent]
+        return Vector.det(Vector.diff(self, edge1), tangent)
 
     def magnitude_squared(self):
         """

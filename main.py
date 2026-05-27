@@ -16,7 +16,7 @@ def main():
     and display the state of the game to a window.
     """
     # Set all constants.
-    fps = 40
+    fps = 60
     dt = 1 / fps
     with open("constants/normal_mode.json", "r", encoding="utf-8") as file:
         constants = json.load(file)

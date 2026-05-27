@@ -141,29 +141,45 @@ class Shape:
         """
         return self._velocity.scale(self._MASS)
 
-    def get_effective_mass(self, contact_point, direction):
+    def velocity_at(self, point):
         """
-        Calculate the effective mass at a point, which is the linear mass
-        plus the contribution from angular mass.
+        Calculate the velocity at a point in world space, which is the
+        center of mass velocity plus the tangential velocity from rotation.
 
         Args:
-            contact_point: A Vector representing the point
-            relative to the center of mass.
-            relative_velocity: A Vector representing the velocity of the contact
-            projected onto the impulse direction.
+            point: A Vector representing the point in world space.
 
         Returns:
-            A Vector representing the momentum at the contact point.
+            A Vector representing the velocity at the given point.
         """
-        inverse_translational = 1 / self.mass
-        inverse_rotational = (
-            Vector.det(contact_point, direction) ** 2 / self._MOMENT
-        )
-        return (
-            1 / abs(inverse_translational + inverse_rotational)
-            if (inverse_translational + inverse_rotational) != 0
-            else 0
-        )
+        r = Vector.diff(self._position, point)
+        tangential = Vector(r.y, -r.x).scale(self._angular_velocity)
+        return Vector.sum(self._velocity, tangential)
+
+    def inv_effective_mass(self, contact_point, direction):
+        """
+        Effective mass is infinite for static shapes,
+        so inverse effective mass is zero.
+
+        Returns:
+            Zero.
+        """
+        return 0
+
+    def nudge(self, nudge):
+        """
+        Non-dynamic shapes cannot be nudged.
+        """
+
+    def impulse(self, impulse):
+        """
+        Non-dynamic shapes cannot be impulsed.
+        """
+
+    def impulse_at(self, impulse, contact_point):
+        """
+        Non-dynamic shapes cannot be impulsed.
+        """
 
 
 class DynamicShape(Shape):
@@ -227,14 +243,36 @@ class DynamicShape(Shape):
 
         Args:
             impulse: A Vector representing the impulse.
-            contact_point: A Vector representing the contact point
-                           relative to the center of mass.
+            contact_point: A Vector representing
+            the contact point in world space.
         """
+        contact_vector = Vector.diff(self._position, contact_point)
         self._velocity.add(impulse.scale(1 / self._MASS))
         # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity += (
-            Vector.det(impulse, contact_point)
+            Vector.det(impulse, contact_vector)
         ) / self._MOMENT
+
+    def inv_effective_mass(self, contact_point, direction):
+        """
+        Calculate the inverse effective mass at a point, which is 
+        one divided by the linear mass plus the contribution from angular mass.
+
+        Args:
+            contact_point: A Vector representing the point in world space.
+            direction: A Vector with a magnitude of 1
+            representing the direction of the impulse.
+
+        Returns:
+            A float representing the inverse effective mass
+            at the contact point.
+        """
+        contact_vector = Vector.diff(self._position, contact_point)
+        inverse_translational = 1 / self._MASS
+        inverse_rotational = (
+            Vector.det(contact_vector, direction) ** 2 / self._MOMENT
+        )
+        return inverse_translational + abs(inverse_rotational)
 
 
 class Circle(Shape):
@@ -461,8 +499,8 @@ class DynamicPolygon(Polygon, DynamicShape):
         Update world vertices to match the current state of the polygon.
         """
         self._world_vertices = [
-            Vector.sum(self._position, v.rotate(self._angle))
-            for v in self._LOCAL_VERTICES]
+            Vector.sum(self._position, v)
+            for v in self._rotated_vertices]
 
     def update_position(self, dt):
         """
@@ -473,8 +511,8 @@ class DynamicPolygon(Polygon, DynamicShape):
             dt: A float representing the timestep in seconds.
         """
         super().update_position(dt)
-        self.update_world_vertices()
         self.update_rotated_vertices()
+        self.update_world_vertices()
 
     def nudge(self, nudge):
         """
