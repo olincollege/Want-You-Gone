@@ -113,7 +113,7 @@ class Controller:
         """
         direction = 0
         if self._keys[pygame.K_a] or self._keys[pygame.K_LEFT]:
-            direction += 1
-        if self._keys[pygame.K_d] or self._keys[pygame.K_RIGHT]:
             direction -= 1
-        return direction * self._ROLL_TORQUE, -direction * self._ROLL_FORCE
+        if self._keys[pygame.K_d] or self._keys[pygame.K_RIGHT]:
+            direction += 1
+        return direction * self._ROLL_TORQUE, direction * self._ROLL_FORCE

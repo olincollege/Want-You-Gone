@@ -164,7 +164,7 @@ class Shape:
             A Vector representing the velocity at the given point.
         """
         r = Vector.diff(self._position, point)
-        tangential = Vector(r.y, -r.x).scale(self._angular_velocity)
+        tangential = Vector(-r.y, r.x).scale(self._angular_velocity)
         return Vector.sum(self._velocity, tangential)
 
     def inv_effective_mass(self, contact_point, direction):
@@ -260,7 +260,7 @@ class DynamicShape(Shape):
         contact_vector = Vector.diff(self._position, contact_point)
         self._velocity.add(impulse.scale(1 / self._MASS))
         # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
-        self._angular_velocity += (
+        self._angular_velocity -= (
             Vector.det(impulse, contact_vector)
         ) / self._MOMENT
 

@@ -64,6 +64,8 @@ class View:
             self.draw_circle(portal)
         for circle in self._level.dynamic_circles:
             self.draw_player(circle)
+        for polygon in self._level.dynamic_polygons:
+            self.draw_polygon(polygon)
         self.draw_player(self._level.player)
         # self.draw_circle(self._level.player)
         pygame.display.flip()
@@ -117,7 +119,7 @@ class View:
         """
         # Get image and rotate it.
         sprite = pygame.transform.scale_by(self._PLAYER_SPRITE, 0.47)
-        rotated_sprite = pygame.transform.rotate(sprite, degrees(shape.angle))
+        rotated_sprite = pygame.transform.rotate(sprite, -degrees(shape.angle))
         position = Vector.sum(shape.position, self._camera)
         position = position.get_tuple()
         sprite_rect = rotated_sprite.get_rect(center=position)
@@ -204,3 +206,14 @@ class View:
             position_change: A Vector representing how much to move the camera.
         """
         self._camera.add(position_change)
+
+    def draw_points(self, points):
+        """
+        Draws a set of points on the screen.
+        
+        Args:
+            points: A list of Vectors representing the points to draw.
+        """
+        for point in points:
+            screen_pos = Vector.sum(point, self._camera)
+            pygame.draw.circle(self._window, (255, 0, 0), screen_pos.get_tuple(), 5)

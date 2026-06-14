@@ -1,0 +1,13 @@
+[
+    {
+        "comment": "test",
+        "vertices": [[0, 50],  [25, -50],  [-50, -25]],
+        "position": [-2450, 800],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": -20,
+        "is_bouncy": false,
+        "is_slippery": false,
+        "color": [200, 20, 20]
+    }
+]

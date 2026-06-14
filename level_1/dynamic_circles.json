@@ -1,7 +1,7 @@
 [
     {
         "radius": 25,
-        "position": [-2950, 800],
+        "position": [-2950, 850],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,

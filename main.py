@@ -16,16 +16,16 @@ def main():
     and display the state of the game to a window.
     """
     # Set all constants.
-    fps = 60
+    fps = 40
     dt = 1 / fps
-    with open("constants/hard_mode.json", "r", encoding="utf-8") as file:
+    with open("constants/normal_mode.json", "r", encoding="utf-8") as file:
         constants = json.load(file)
     max_angular_velocity = constants["max_angular_velocity"]
 
     # Initialize the level, controller, view, and clock.
     with open("portal_configs/test.json", "r", encoding="utf-8") as file:
         portals = json.load(file)
-    level = Level("example_level/", portals, constants)
+    level = Level("level_1/", portals, constants)
     controller = Controller(constants)
     view = View(level, "sprites/", constants)
     clock = pygame.time.Clock()

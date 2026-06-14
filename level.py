@@ -4,8 +4,9 @@ Contains the Level class.
 
 from math import sqrt, copysign
 import json
+
 from portal import PortalExit, PortalEntrance
-from shape import Polygon, DynamicCircle#, DynamicPolygon
+from shape import Polygon, DynamicCircle, DynamicPolygon
 from vector import Vector
 
 
@@ -151,6 +152,29 @@ class Level:
 
         # ----------------------------------------------------------------------
 
+        # Read the file for dynamic polygons.
+        with open(self._path + "dynamic_polygons.json", "r",
+                  encoding="utf-8") as file:
+            dynamic_polygons_attributes = json.load(file)
+
+        # Initialize dynamic polygons.
+        self._dynamic_polygons = [
+            DynamicPolygon(
+                self.make_vector(polygon_attributes["vertices"]),
+                self.make_vector(polygon_attributes["position"]),
+                self.make_vector(polygon_attributes["velocity"]),
+                polygon_attributes["angle"],
+                polygon_attributes["angular_velocity"],
+                False,
+                polygon_attributes["is_bouncy"],
+                polygon_attributes["is_slippery"],
+                tuple(polygon_attributes["color"]),
+            )
+            for polygon_attributes in dynamic_polygons_attributes
+        ]
+
+        # ----------------------------------------------------------------------
+
         # Initialize portals.
         self._portal_entrances = []
         self._portal_exits = []
@@ -254,17 +278,21 @@ class Level:
         self._player.accelerate(self._GRAVITY, dt)
         for circle in self._dynamic_circles:
             circle.accelerate(self._GRAVITY, dt)
+        for polygon in self._dynamic_polygons:
+            polygon.accelerate(self._GRAVITY, dt)
 
         # Update the positions and angles of all shapes by adding
         # their velocity and angular velocity to them.
         self._player.update_position(dt)
         for circle in self._dynamic_circles:
             circle.update_position(dt)
+        for polygon in self._dynamic_polygons:
+            polygon.update_position(dt)
 
     def apply_collisions(self, is_jumping, is_bouncing, dt):
         """
-        Calculate and apply the impulses for all collisions between the player
-        and the polygons on the level.
+        Calculate and apply the impulses for all
+        collisions between all shapes on the level.
 
         Args:
             is_jumping: A boolean representing whether or not the player is
@@ -274,15 +302,23 @@ class Level:
             dt: A float representing the amount of time
             to apply the impulses for.
         """
-        for polygon in self._polygons + [self._border]:
-            self.circle_polygon_collision(
-                self._player, polygon, dt, is_jumping, is_bouncing)
         for circle in self._dynamic_circles:
             self.circle_circle_collision(
                 self._player, circle, dt, is_jumping, is_bouncing)
             for polygon in self._polygons + [self._border]:
                 self.circle_polygon_collision(
                     circle, polygon, dt)
+        for polygon in self._dynamic_polygons:
+            for other_polygon in self._polygons + [self._border]:
+                self.polygon_polygon_collision(polygon, other_polygon, dt)
+        for polygon in self._dynamic_polygons:
+            self.circle_polygon_collision(
+                self._player, polygon, dt, is_jumping, is_bouncing)
+            for circle in self._dynamic_circles:
+                self.circle_polygon_collision(circle, polygon, dt)
+        for polygon in self._polygons + [self._border]:
+            self.circle_polygon_collision(
+                self._player, polygon, dt, is_jumping, is_bouncing)
 
     def circle_polygon_collision(
         self, circle, polygon, dt, is_jumping=False, is_bouncing=False
@@ -491,6 +527,7 @@ class Level:
                         is_bouncing,
                         dt
                     )
+                    hit_edge = True
 
             # If the circle is colliding with the closest edge
             # but not either of the edges next to it,
@@ -540,6 +577,108 @@ class Level:
             dt
         )
 
+    def polygon_polygon_collision(self, polygon1, polygon2, dt):
+        """
+        Detect and apply all collisions between two polygons.
+
+        Args:
+            polygon1: A Polygon representing the first polygon in the collision.
+            polygon2: A Polygon, the second polygon in the collision.
+            dt: A float representing the timestep.
+        """
+        # If the polygons are not colliding, skip them.
+        if (Vector.diff(polygon1.position, polygon2.position
+            ).magnitude_squared() > (polygon1.radius + polygon2.radius) ** 2):
+            return
+
+        # Apply the collisions for polygon1 colliding with polygon2
+        # and polygon2 colliding with polygon1.
+        self.polygon_collision(polygon1, polygon2, dt)
+        self.polygon_collision(polygon2, polygon1, dt)
+
+    def polygon_collision(self, polygon1, polygon2, dt):
+        """
+        Detect and apply a collision between two polygons.
+
+        Args:
+            polygon1: A Polygon representing the first polygon in the collision.
+            polygon2: A Polygon, the second polygon in the collision.
+            dt: A float representing the timestep.
+        """
+        for vertex1 in polygon1.world_vertices:
+            # Find the closest point on polygon2
+            # to the vertex and the distance between them.
+            shortest_distance = None
+            closest_edge = None
+            closest_vertex = None
+            vertices2 = polygon2.world_vertices
+            for i, vertex2 in enumerate(vertices2):
+                # Find the distance between vertex1 and the edge
+                # between vertices i - 1 and i and update
+                # shortest_distance if it is shorter.
+                distance = vertex1.edge_point_distance(
+                    vertices2[i - 1], vertex2
+                )
+                if distance is not None and (
+                    shortest_distance is None
+                    or abs(distance) < abs(shortest_distance)
+                ):
+                    shortest_distance = distance
+                    closest_edge = i
+                    closest_vertex = None
+
+                # Find the distance between vertex1 and the vertex
+                # and update shortest_distance if it is shorter.
+                distance = sqrt(
+                    Vector.diff(
+                        vertex1, vertex2
+                    ).magnitude_squared()
+                )
+                if shortest_distance is None or abs(distance) < abs(
+                    shortest_distance
+                ):
+                    shortest_distance = distance
+                    closest_vertex = i
+                    closest_edge = None
+
+            # Determine the type of collision vertex1.
+
+            # If vertex1 is not colliding with polygon2, skip it.
+            # Otherwise, resolve any collisions.
+            if shortest_distance is None or (shortest_distance > 0):
+                continue
+
+            # If vertex1 is colliding with a vertex:
+            if closest_vertex is not None:
+                # Then vertex1 is colliding with the two edges
+                # connected to the closest vertex.
+                self.vertex_edge_impulse(
+                    polygon1,
+                    polygon2,
+                    vertex1,
+                    closest_vertex,
+                    dt
+                )
+                self.vertex_edge_impulse(
+                    polygon1,
+                    polygon2,
+                    vertex1,
+                    (closest_vertex + 1) % len(vertices2),
+                    dt
+                )
+
+
+            # If vertex1 is colliding with an edge:
+            if closest_edge is not None:
+                # Add the impulse for the closest edge.
+                self.vertex_edge_impulse(
+                    polygon1,
+                    polygon2,
+                    vertex1,
+                    closest_edge,
+                    dt
+                )
+
     def apply_collision(
         self,
         shape1,
@@ -587,8 +726,8 @@ class Level:
 
         impulse = normal.scale(collision_scalar)
 
-        shape1.nudge(impulse.scale(dt))
-        shape2.nudge(impulse.scale(-dt))
+        shape1.nudge(impulse.scale(dt/3))
+        shape2.nudge(impulse.scale(-dt/3))
         effective_mass_normal = 1 / (
             shape1.inv_effective_mass(collision_point, normal) +
             shape2.inv_effective_mass(collision_point, normal)
@@ -607,7 +746,6 @@ class Level:
         friction_coefficient = self._DEFAULT_FRICTION
         if shape1.is_slippery or shape2.is_slippery:
             friction_coefficient = self._SLIPPERY_FRICTION
-        friction_magnitude = max(friction_magnitude, 0)
         max_friction = friction_coefficient * sqrt(
             impulse.magnitude_squared()
         )
@@ -624,6 +762,7 @@ class Level:
         shape2.impulse_at(impulse.scale(-1), collision_point)
         shape1.impulse_at(friction_impulse, collision_point)
         shape2.impulse_at(friction_impulse.scale(-1), collision_point)
+        return
 
     def circle_corner_impulse(
         self, circle, polygon, vertex, is_jumping, is_bouncing, dt
@@ -694,6 +833,39 @@ class Level:
             dt
         )
 
+    def vertex_edge_impulse(
+        self, polygon1, polygon2, vertex, edge, dt
+    ):
+        """
+        Apply the impulse for a collision between a vertex and an edge.
+
+        Args:
+            polygon1: A Polygon representing the first polygon in the collision.
+            polygon2: A Polygon, the second polygon in the collision.
+            vertex: A Vector representing the position of the vertex in the
+            collision on polygon1 in world space.
+            edge: A integer representing the index of the edge in the
+            collision on polygon2, between vertices edge - 1 and edge.
+            dt: A float representing the length of the timestep.
+        """
+        # Find the normal vector for the collision.
+        tangent = Vector.diff(
+            polygon2.world_vertices[edge - 1],
+            polygon2.world_vertices[edge]
+        ).normal()
+        normal = Vector(-tangent.y, tangent.x)
+
+        # Calculate and apply the impulse
+        self.apply_collision(
+            polygon1,
+            polygon2,
+            normal,
+            vertex,
+            False,
+            False,
+            dt
+        )
+
     @property
     def player(self):
         """Get player"""
@@ -706,7 +878,7 @@ class Level:
 
     @property
     def polygons(self):
-        """Get border"""
+        """Get polygons"""
         return self._polygons
 
     @property
@@ -723,3 +895,8 @@ class Level:
     def dynamic_circles(self):
         """Get dynamic circles"""
         return self._dynamic_circles
+
+    @property
+    def dynamic_polygons(self):
+        """Get dynamic polygons"""
+        return self._dynamic_polygons
