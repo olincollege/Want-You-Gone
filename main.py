@@ -52,6 +52,10 @@ def main():
             max_angular_velocity * level.player.radius
         ):
             level.player.accelerate(Vector(roll_force, 0), dt)
+        if roll_force > 0:
+            level.move_shape(Vector(100, 0), dt)
+        elif roll_force < 0:
+            level.move_shape(Vector(-100, 0), dt)
 
         # Update the controller and level.
         controller.update(dt)

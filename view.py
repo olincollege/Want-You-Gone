@@ -65,7 +65,7 @@ class View:
         for circle in self._level.dynamic_circles:
             self.draw_player(circle)
         for polygon in self._level.dynamic_polygons:
-            self.draw_polygon(polygon)
+            self.draw_polygon(polygon, True)
         self.draw_player(self._level.player)
         # self.draw_circle(self._level.player)
         pygame.display.flip()
@@ -145,7 +145,7 @@ class View:
         blit_pos = Vector.sum(screen_pos, Vector(-r, -r))
         self._window.blit(circle_surface, blit_pos.get_tuple())
 
-    def draw_polygon(self, polygon):
+    def draw_polygon(self, polygon, border=False):
         """
         Draws a polygon on the window based on the position and rotation
         of a polygon and the position of the camera.
@@ -161,6 +161,8 @@ class View:
         # Offset them to the center of the surface so they draw correctly.
         local_verts = [(v.x + r, v.y + r) for v in polygon.rotated_vertices]
         pygame.draw.polygon(polygon_surface, polygon.color, local_verts)
+        if border:
+            pygame.draw.polygon(polygon_surface, polygon.color, local_verts, 2)
         # World -> screen: screen_pos = world_pos + camera.
         screen_pos = Vector.sum(polygon.position, self._camera)
         blit_pos = Vector.sum(screen_pos, Vector(-r, -r))

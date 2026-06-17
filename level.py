@@ -426,6 +426,7 @@ class Level:
                     circle,
                     polygon,
                     closest_vertex,
+                    shortest_distance,
                     is_jumping,
                     is_bouncing,
                     dt
@@ -434,6 +435,7 @@ class Level:
                     circle,
                     polygon,
                     (closest_vertex + 1) % len(vertices),
+                    shortest_distance,
                     is_jumping,
                     is_bouncing,
                     dt
@@ -471,6 +473,7 @@ class Level:
                     circle,
                     polygon,
                     closest_edge - 1,
+                    shortest_distance,
                     is_jumping,
                     is_bouncing,
                     dt
@@ -479,6 +482,7 @@ class Level:
                     circle,
                     polygon,
                     closest_edge,
+                    shortest_distance,
                     is_jumping,
                     is_bouncing,
                     dt
@@ -514,6 +518,7 @@ class Level:
                     circle,
                     polygon,
                     closest_edge - 1,
+                    shortest_distance,
                     is_jumping,
                     is_bouncing,
                     dt
@@ -523,6 +528,7 @@ class Level:
                         circle,
                         polygon,
                         closest_edge,
+                    shortest_distance,
                         is_jumping,
                         is_bouncing,
                         dt
@@ -537,6 +543,7 @@ class Level:
                     circle,
                     polygon,
                     closest_edge,
+                    shortest_distance,
                     is_jumping,
                     is_bouncing,
                     dt
@@ -563,10 +570,20 @@ class Level:
             return
 
         # Otherwise, resolve the collision.
-        normal = Vector.diff(circle2.position, circle1.position).normal()
+        difference = Vector.diff(circle2.position, circle1.position)
+        normal = difference.normal()
         contact_point = Vector.sum(
             normal.scale(-circle1.radius), circle1.position
         )
+
+        # Nudge the circle and corner away from each other
+        # so they are not colliding anymore.
+        displacement = Vector.diff(
+            difference, normal.scale(circle1.radius + circle2.radius))
+        circle1.nudge(displacement.scale(0.5))
+        circle2.nudge(displacement.scale(-0.5))
+
+        # Apply the collision impulse and friction to the circles.
         self.apply_collision(
             circle1,
             circle2,
@@ -657,6 +674,7 @@ class Level:
                     polygon2,
                     vertex1,
                     closest_vertex,
+                    shortest_distance,
                     dt
                 )
                 self.vertex_edge_impulse(
@@ -664,6 +682,7 @@ class Level:
                     polygon2,
                     vertex1,
                     (closest_vertex + 1) % len(vertices2),
+                    shortest_distance,
                     dt
                 )
 
@@ -676,6 +695,7 @@ class Level:
                     polygon2,
                     vertex1,
                     closest_edge,
+                    shortest_distance,
                     dt
                 )
 
@@ -726,8 +746,6 @@ class Level:
 
         impulse = normal.scale(collision_scalar)
 
-        shape1.nudge(impulse.scale(dt/3))
-        shape2.nudge(impulse.scale(-dt/3))
         effective_mass_normal = 1 / (
             shape1.inv_effective_mass(collision_point, normal) +
             shape2.inv_effective_mass(collision_point, normal)
@@ -782,8 +800,15 @@ class Level:
             dt: A float representing the length of the timestep.
         """
         # Find the normal vector for the collision.
-        normal = Vector.diff(polygon.world_vertices[vertex], circle.position)
-        normal = normal.normal()
+        difference = Vector.diff(
+            polygon.world_vertices[vertex], circle.position)
+        normal = difference.normal()
+
+        # Nudge the circle and corner away from each other
+        # so they are not colliding anymore.
+        displacement = Vector.diff(difference, normal.scale(circle.radius))
+        circle.nudge(displacement.scale(0.5))
+        polygon.nudge(displacement.scale(-0.5))
 
         # Calculate and apply the impulse
         self.apply_collision(
@@ -797,7 +822,7 @@ class Level:
         )
 
     def circle_edge_impulse(
-        self, circle, polygon, edge, is_jumping, is_bouncing, dt
+        self, circle, polygon, edge, distance, is_jumping, is_bouncing, dt
     ):
         """
         Apply the impulse for a collision between a circle and an edge.
@@ -807,6 +832,8 @@ class Level:
             polygon: A Polygon representing the polygon in the collision.
             edge: A integer representing the index of the edge in the
             collision. The edge is between vertices edge - 1 and edge.
+            distance: A float representing the distance between the circle's
+            center and the closest point on the edge to the circle's center.
             is_jumping: A boolean representing whether or not the player is
             jumping in the collision.
             is_bouncing: A boolean representing whether or not the player is
@@ -822,6 +849,12 @@ class Level:
             normal.scale(-circle.radius), circle.position
         )
 
+        # Nudge the circle and corner away from each other
+        # so they are not colliding anymore.
+        displacement = normal.scale(-distance + circle.radius)
+        circle.nudge(displacement.scale(0.5))
+        polygon.nudge(displacement.scale(-0.5))
+
         # Calculate and apply the impulse
         self.apply_collision(
             circle,
@@ -834,7 +867,7 @@ class Level:
         )
 
     def vertex_edge_impulse(
-        self, polygon1, polygon2, vertex, edge, dt
+        self, polygon1, polygon2, vertex, edge, distance, dt
     ):
         """
         Apply the impulse for a collision between a vertex and an edge.
@@ -846,6 +879,8 @@ class Level:
             collision on polygon1 in world space.
             edge: A integer representing the index of the edge in the
             collision on polygon2, between vertices edge - 1 and edge.
+            distance: A float representing the distance between the vertex and
+            the closest point on the edge to the vertex.
             dt: A float representing the length of the timestep.
         """
         # Find the normal vector for the collision.
@@ -854,6 +889,12 @@ class Level:
             polygon2.world_vertices[edge]
         ).normal()
         normal = Vector(-tangent.y, tangent.x)
+
+        # Nudge the circle and corner away from each other
+        # so they are not colliding anymore.
+        displacement = normal.scale(-distance)
+        polygon1.nudge(displacement.scale(0.25))
+        polygon2.nudge(displacement.scale(-0.25))
 
         # Calculate and apply the impulse
         self.apply_collision(
@@ -865,6 +906,14 @@ class Level:
             False,
             dt
         )
+
+    def move_shape(self, movement, dt):
+        """
+        ONLY FOR TESTING PURPOSES. NOT FOR ACTUAL GAMEPLAY.
+        Move a certain shape on the level,
+        which one it is will be rewritten depending on the testing being done.
+        """
+        self._dynamic_polygons[0].nudge(movement.scale(dt))
 
     @property
     def player(self):
