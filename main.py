@@ -64,7 +64,7 @@ def main():
         controller.update(dt)
         level.update(dt)
         level.apply_collisions(
-            controller.is_jumping, controller.is_bouncing, dt
+            controller.is_jumping, controller.is_bouncing
         )
         position_change = level.update_portals(dt)
         if position_change is not None:
