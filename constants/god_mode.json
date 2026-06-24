@@ -9,5 +9,13 @@
     "bouncy_cor": 0.9,
     "default_friction": 1,
     "slippery_friction": 0.5,
-    "lerp_speed": 5
+    "lerp_speed": 5,
+
+    "caption_fade_in": 1.0,
+    "caption_hold": 3.5,
+    "caption_fade_out": 1.0,
+    "caption_color": [255, 255, 255],
+    "caption_font_path": "fonts/univers_67_condensed_bold.otf",
+    "caption_title_size": 48,
+    "caption_subtitle_size": 28
 }

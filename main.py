@@ -30,6 +30,9 @@ def main():
     view = View(level, "sprites/", constants)
     clock = pygame.time.Clock()
 
+    # Chapter Start Text
+    view.text_display.show("Chapter 1", "The Part Where I'm Sorry")
+ 
     # Run the game until the window is closed.
     while True:
         # If the window is closed, quit the game.
