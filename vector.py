@@ -133,9 +133,9 @@ class Vector:
 
         return self.scale(1 / magnitude)
 
-    def edge_point_distance(self, edge1, edge2):
+    def edge_point_distance(self, edge1, edge2, exclude_endpoints=True):
         """
-        Find the signed distance between a point and a edge segment.
+        Find the signed distance between a point and an edge.
 
         Args:
             self: A Vector representing the point.
@@ -143,23 +143,28 @@ class Vector:
             when observed facing in the positive direction.
             edge2: A Vector representing the left end of the edge
             when observed facing in the positive direction.
+            exclude_endpoints: A boolean representing whether or not to return
+            None if the point on the edge that self is closest to is
+            edge1 or edge2.
 
         Returns:
             A float representing the signed distance between self and the edge
-            segment between edge1 and edge2. The distance is positive when
+            between edge1 and edge2. The distance is positive when
             the point is on the right side of the edge when observed from
             the perspective of edge1, facing edge2.
-            None: If the point on the edge segment
-            that self is closest to is edge1 or edge2.
+            None: If the point on the edge that self is closest to is 
+            edge1 or edge2 and exclude_endpoints is True.
         """
         tangent = Vector.diff(edge1, edge2).normal()
 
         # If the point is behind edge1 return None.
-        if Vector.dot(tangent, Vector.diff(edge1, self)) < 0:
+        if Vector.dot(tangent, Vector.diff(edge1, self)
+                      ) < 0 and exclude_endpoints:
             return None
 
         # If the point is past edge2 return None.
-        if Vector.dot(tangent, Vector.diff(edge2, self)) > 0:
+        if Vector.dot(tangent, Vector.diff(edge2, self)
+                      ) > 0 and exclude_endpoints:
             return None
 
         # Otherwise return the determinant of the matrix
@@ -250,3 +255,32 @@ class Vector:
         x_sum = sum(vector.x for vector in vectors)
         y_sum = sum(vector.y for vector in vectors)
         return Vector(x_sum, y_sum)
+
+    @classmethod
+    def edge_intersection(cls, p1, p2, q1, q2):
+        """
+        Check if the line segments between p1 and p2
+        and between q1 and q2 intersect.
+
+        Args:
+            p1: A Vector, the first endpoint of the first line segment.
+            p2: A Vector, the second endpoint of the first line segment.
+            q1: A Vector, the first endpoint of the second line segment.
+            q2: A Vector, the second endpoint of the second line segment.
+
+        Returns:
+            True if the line segments between p1 and p2
+            and between q1 and q2 intersect.
+            False otherwise.
+        """
+        p_diff = cls.diff(p1, p2)
+        q_diff = cls.diff(q1, q2)
+        p_det_1 = cls.det(p_diff, cls.diff(p1, q1))
+        p_det_2 = cls.det(p_diff, cls.diff(p1, q2))
+        q_det_1 = cls.det(q_diff, cls.diff(q1, p1))
+        q_det_2 = cls.det(q_diff, cls.diff(q1, p2))
+
+        # The line segments intersect if
+        # p1 and p2 are on opposite sides of the line through q1 and q2
+        # and q1 and q2 are on opposite sides of the line through p1 and p2.
+        return p_det_1 * p_det_2 < 0 and q_det_1 * q_det_2 < 0

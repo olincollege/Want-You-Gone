@@ -173,6 +173,8 @@ class Level:
             for polygon_attributes in dynamic_polygons_attributes
         ]
 
+        self.previous_dynamic_polygons = self._dynamic_polygons
+
         # ----------------------------------------------------------------------
 
         # Initialize portals.
@@ -289,7 +291,7 @@ class Level:
         for polygon in self._dynamic_polygons:
             polygon.update_position(dt)
 
-    def apply_collisions(self, is_jumping, is_bouncing, dt):
+    def apply_collisions(self, is_jumping, is_bouncing):
         """
         Calculate and apply the impulses for all
         collisions between all shapes on the level.
@@ -299,29 +301,33 @@ class Level:
             jumping in this update.
             is_bouncing: A boolean representing whether or not the player is
             bouncing in this update.
-            dt: A float representing the amount of time
-            to apply the impulses for.
         """
+        # Dynamic circles on player and stationary polygons.
         for circle in self._dynamic_circles:
             self.circle_circle_collision(
-                self._player, circle, dt, is_jumping, is_bouncing)
+                self._player, circle, is_jumping, is_bouncing)
             for polygon in self._polygons + [self._border]:
-                self.circle_polygon_collision(
-                    circle, polygon, dt)
+                self.circle_polygon_collision(circle, polygon)
+    
+        # Dynamic polygons on stationary polygons.
         for polygon in self._dynamic_polygons:
             for other_polygon in self._polygons + [self._border]:
-                self.polygon_polygon_collision(polygon, other_polygon, dt)
+                self.polygon_polygon_collision(polygon, other_polygon)
+
+        # Dynamic polygons on player and dynamic circles.
         for polygon in self._dynamic_polygons:
             self.circle_polygon_collision(
-                self._player, polygon, dt, is_jumping, is_bouncing)
+                self._player, polygon, is_jumping, is_bouncing)
             for circle in self._dynamic_circles:
-                self.circle_polygon_collision(circle, polygon, dt)
+                self.circle_polygon_collision(circle, polygon)
+
+        # Player on stationary polygons.
         for polygon in self._polygons + [self._border]:
             self.circle_polygon_collision(
-                self._player, polygon, dt, is_jumping, is_bouncing)
+                self._player, polygon, is_jumping, is_bouncing)
 
     def circle_polygon_collision(
-        self, circle, polygon, dt, is_jumping=False, is_bouncing=False
+        self, circle, polygon, is_jumping=False, is_bouncing=False
     ):
         """
         Detect and apply a collision between a circle and a polygon.
@@ -333,7 +339,6 @@ class Level:
             jumping in the collision.
             is_bouncing: A boolean representing whether or not the player is
             bouncing in the collision.
-            dt: A float representing the timestep.
         """
 
         # Find the shortest distance between the circle's center and
@@ -418,8 +423,7 @@ class Level:
                     polygon,
                     closest_vertex,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
             else:
                 self.circle_edge_impulse(
@@ -428,8 +432,7 @@ class Level:
                     closest_vertex,
                     shortest_distance,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
                 self.circle_edge_impulse(
                     circle,
@@ -437,8 +440,7 @@ class Level:
                     (closest_vertex + 1) % len(vertices),
                     shortest_distance,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
 
         hit_edge = False
@@ -475,8 +477,7 @@ class Level:
                     closest_edge - 1,
                     shortest_distance,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
                 self.circle_edge_impulse(
                     circle,
@@ -484,8 +485,7 @@ class Level:
                     closest_edge,
                     shortest_distance,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
                 hit_edge = True
 
@@ -520,8 +520,7 @@ class Level:
                     closest_edge - 1,
                     shortest_distance,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
                 if not hit_edge:
                     self.circle_edge_impulse(
@@ -530,8 +529,7 @@ class Level:
                         closest_edge,
                     shortest_distance,
                         is_jumping,
-                        is_bouncing,
-                        dt
+                        is_bouncing
                     )
                     hit_edge = True
 
@@ -545,12 +543,11 @@ class Level:
                     closest_edge,
                     shortest_distance,
                     is_jumping,
-                    is_bouncing,
-                    dt
+                    is_bouncing
                 )
 
     def circle_circle_collision(
-        self, circle1, circle2, dt, is_jumping=False, is_bouncing=False
+        self, circle1, circle2, is_jumping=False, is_bouncing=False
     ):
         """
         Detect and apply a collision between two circles.
@@ -562,7 +559,6 @@ class Level:
             jumping in the collision.
             is_bouncing: A boolean representing whether or not the player is
             bouncing in the collision.
-            dt: A float representing the timestep.
         """
         # If the circles are not colliding, skip them.
         if (Vector.diff(circle1.position, circle2.position).magnitude_squared()
@@ -590,18 +586,17 @@ class Level:
             normal,
             contact_point,
             is_jumping,
-            is_bouncing,
-            dt
+            is_bouncing
         )
 
-    def polygon_polygon_collision(self, polygon1, polygon2, dt):
+    def polygon_polygon_collision(self, polygon1, polygon2):
         """
         Detect and apply all collisions between two polygons.
 
         Args:
             polygon1: A Polygon representing the first polygon in the collision.
+            polygon1_prev: The previous position of polygon1.
             polygon2: A Polygon, the second polygon in the collision.
-            dt: A float representing the timestep.
         """
         # If the polygons are not colliding, skip them.
         if (Vector.diff(polygon1.position, polygon2.position
@@ -610,17 +605,16 @@ class Level:
 
         # Apply the collisions for polygon1 colliding with polygon2
         # and polygon2 colliding with polygon1.
-        self.polygon_collision(polygon1, polygon2, dt)
-        self.polygon_collision(polygon2, polygon1, dt)
+        self.polygon_collision(polygon1, polygon2)
+        self.polygon_collision(polygon2, polygon1)
 
-    def polygon_collision(self, polygon1, polygon2, dt):
+    def polygon_collision(self, polygon1, polygon2):
         """
         Detect and apply a collision between two polygons.
 
         Args:
             polygon1: A Polygon representing the first polygon in the collision.
             polygon2: A Polygon, the second polygon in the collision.
-            dt: A float representing the timestep.
         """
         for vertex1 in polygon1.world_vertices:
             # Find the closest point on polygon2
@@ -674,18 +668,15 @@ class Level:
                     polygon2,
                     vertex1,
                     closest_vertex,
-                    shortest_distance,
-                    dt
+                    shortest_distance
                 )
                 self.vertex_edge_impulse(
                     polygon1,
                     polygon2,
                     vertex1,
                     (closest_vertex + 1) % len(vertices2),
-                    shortest_distance,
-                    dt
+                    shortest_distance
                 )
-
 
             # If vertex1 is colliding with an edge:
             if closest_edge is not None:
@@ -695,8 +686,7 @@ class Level:
                     polygon2,
                     vertex1,
                     closest_edge,
-                    shortest_distance,
-                    dt
+                    shortest_distance
                 )
 
     def apply_collision(
@@ -706,8 +696,7 @@ class Level:
         normal,
         collision_point,
         is_jumping,
-        is_bouncing,
-        dt
+        is_bouncing
     ):
         """
         Apply a collision impulse and friction to two shapes.
@@ -719,7 +708,6 @@ class Level:
             in the direction from shape2 to shape1.
             collision_point: A Vector representing
             the contact point of collision in world space.
-            dt: A float representing the length of the timestep.
         """
         # Find the relative velocity of shape1 with respect to shape2.
         relative_velocity = Vector.diff(
@@ -783,7 +771,7 @@ class Level:
         return
 
     def circle_corner_impulse(
-        self, circle, polygon, vertex, is_jumping, is_bouncing, dt
+        self, circle, polygon, vertex, is_jumping, is_bouncing
     ):
         """
         Apply the impulse for a collision between a circle and a corner.
@@ -797,7 +785,6 @@ class Level:
             jumping in the collision.
             is_bouncing: A boolean representing whether or not the player is
             bouncing in the collision.
-            dt: A float representing the length of the timestep.
         """
         # Find the normal vector for the collision.
         difference = Vector.diff(
@@ -817,12 +804,11 @@ class Level:
             normal,
             polygon.world_vertices[vertex],
             is_jumping,
-            is_bouncing,
-            dt
+            is_bouncing
         )
 
     def circle_edge_impulse(
-        self, circle, polygon, edge, distance, is_jumping, is_bouncing, dt
+        self, circle, polygon, edge, distance, is_jumping, is_bouncing
     ):
         """
         Apply the impulse for a collision between a circle and an edge.
@@ -838,7 +824,6 @@ class Level:
             jumping in the collision.
             is_bouncing: A boolean representing whether or not the player is
             bouncing in the collision.
-            dt: A float representing the length of the timestep.
         """
         # Find the normal vector for the collision.
         tangent = Vector.diff(
@@ -862,12 +847,11 @@ class Level:
             normal,
             contact_point,
             is_jumping,
-            is_bouncing,
-            dt
+            is_bouncing
         )
 
     def vertex_edge_impulse(
-        self, polygon1, polygon2, vertex, edge, distance, dt
+        self, polygon1, polygon2, vertex, edge, distance
     ):
         """
         Apply the impulse for a collision between a vertex and an edge.
@@ -881,7 +865,6 @@ class Level:
             collision on polygon2, between vertices edge - 1 and edge.
             distance: A float representing the distance between the vertex and
             the closest point on the edge to the vertex.
-            dt: A float representing the length of the timestep.
         """
         # Find the normal vector for the collision.
         tangent = Vector.diff(
@@ -903,8 +886,7 @@ class Level:
             normal,
             vertex,
             False,
-            False,
-            dt
+            False
         )
 
     def move_shape(self, movement, dt):
