@@ -63,14 +63,14 @@ def main():
         level.apply_collisions(
             controller.is_jumping, controller.is_bouncing
         )
-        position_change, depth, color = level.update_portals(dt)
+        position_change, depth, portal = level.update_portals(dt)
         if position_change is not None:
             view.move_camera(position_change)
         if controller.restart:
             level.restart()
 
         # Draw the current state of the level to the window.
-        view.refresh(dt, depth, color)
+        view.refresh(dt, depth, portal)
         pygame.display.update()
         clock.tick(fps)
 

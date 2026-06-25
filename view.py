@@ -47,9 +47,9 @@ class View:
         self._PLAYER_SPRITE = pygame.image.load(
             self._PATH + "wheatley_2.png"
         ).convert_alpha()
-        self.refresh(0, 0, (0, 0, 0))
+        self.refresh(0, 0, None)
 
-    def refresh(self, dt, alpha, color):
+    def refresh(self, dt, alpha, portal):
         """
         Refresh the display to show the current state of the level.
 
@@ -61,14 +61,14 @@ class View:
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
-        for portal in self._level.portal_entrances + self._level.portal_exits:
-            self.draw_circle(portal)
         for circle in self._level.dynamic_circles:
             self.draw_player(circle)
         for polygon in self._level.dynamic_polygons:
             self.draw_polygon(polygon, True)
-        if color is not None:
-            self.layer(alpha, color)
+        if portal is not None:
+            self.portal_glow(alpha, portal)
+        for portal in self._level.portal_entrances + self._level.portal_exits:
+            self.draw_circle(portal, 10)
         self.draw_player(self._level.player)
         self._level.caption.draw(self._window)
         pygame.display.flip()
@@ -128,7 +128,7 @@ class View:
         sprite_rect = rotated_sprite.get_rect(center=position)
         self._window.blit(rotated_sprite, sprite_rect)
 
-    def draw_circle(self, circle):
+    def draw_circle(self, circle, width=0):
         """
         Draws a circle on the window based on the position and rotation
         of a circle and the position of the camera.
@@ -138,10 +138,11 @@ class View:
         """
         if self.check_cull(circle):
             return
-        r = ceil(circle.radius)
+        r = ceil(circle.radius) + width
         circle_surface = pygame.Surface((r * 2, r * 2), pygame.SRCALPHA)
         # Draw at the center of the surface, not at world coords.
-        pygame.draw.circle(circle_surface, circle.color, (r, r), circle.radius)
+        pygame.draw.circle(
+            circle_surface, circle.color, (r, r), r, width)
         # World -> screen: screen_pos = world_pos + camera.
         # Blit so the surface center lands on screen_pos.
         screen_pos = Vector.sum(circle.position, self._camera)
@@ -224,14 +225,30 @@ class View:
             pygame.draw.circle(self._window, (255, 0, 0),
                                screen_pos.get_tuple(), 5)
 
-    def layer(self, alpha, color):
+    def portal_glow(self, alpha, portal):
         """
-        Make tinted layer over the window.
+        Make tinted layer over the window around the outside of the portal.
 
         Args:
             alpha: A float between 0 and 1 representing the opacity of the tint.
-            color: A tuple representing the RGB values of the tint.
+            portal: A portal to make the glow around.
         """
         color_mask = pygame.Surface(self._window.get_size(), pygame.SRCALPHA)
-        color_mask.fill(color + (alpha * 255,))
-        self._window.blit(color_mask, (0, 0))
+        color_mask.fill((255, 255, 255))
+        color_mask = pygame.mask.from_surface(color_mask)
+        r = portal.radius
+        portal_surface = pygame.Surface(
+            self._window.get_size(), pygame.SRCALPHA)
+        # World -> screen: screen_pos = world_pos + camera.
+        # Blit so the surface center lands on screen_pos.
+        screen_pos = Vector.sum(portal.position, self._camera)
+        screen_pos = (screen_pos.x, screen_pos.y)
+        pygame.draw.circle(
+            portal_surface, (255, 255, 255), screen_pos, r)
+        portal_mask = pygame.mask.from_surface(portal_surface)
+        portal_mask.invert()
+        subtract_mask = color_mask.overlap_mask(
+            portal_mask, (0, 0))
+        subtract_shape = subtract_mask.to_surface(
+            setcolor=portal.color + (alpha * 255,), unsetcolor=(0, 0, 0, 0))
+        self._window.blit(subtract_shape, (0, 0))
