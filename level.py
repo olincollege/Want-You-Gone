@@ -7,6 +7,7 @@ import json
 
 from portal import PortalExit, PortalEntrance
 from shape import Polygon, DynamicCircle, DynamicPolygon
+from text_display import TextDisplay
 from vector import Vector
 
 
@@ -59,6 +60,7 @@ class Level:
         self._SLIPPERY_FRICTION = constants["slippery_friction"]
         self._path = shapes_path
         self._portals = portals
+        self._caption = TextDisplay(constants)
 
         # Initialize all shapes on the level.
         self.restart()
@@ -89,6 +91,16 @@ class Level:
         """
         Set all shape and portal attributes to their default values.
         """
+        # Read the file for the caption.
+        with open(self._path + "caption.json", "r", encoding="utf-8") as file:
+            caption_attributes = json.load(file)
+
+        # Display the caption for the level.
+        self._caption.show(caption_attributes["title"],
+                           caption_attributes["subtitle"])
+
+        # ----------------------------------------------------------------------
+
         # Read the file for border.
         with open(self._path + "border.json", "r", encoding="utf-8") as file:
             border_attributes = json.load(file)
@@ -276,6 +288,9 @@ class Level:
             is_bouncing: A boolean representing whether or not the player is
             bouncing in this update.
         """
+        # Update text
+        self._caption.update(dt)
+
         # Update the velocity of all shapes by adding gravity to them.
         self._player.accelerate(self._GRAVITY, dt)
         for circle in self._dynamic_circles:
@@ -308,7 +323,7 @@ class Level:
                 self._player, circle, is_jumping, is_bouncing)
             for polygon in self._polygons + [self._border]:
                 self.circle_polygon_collision(circle, polygon)
-    
+
         # Dynamic polygons on stationary polygons.
         for polygon in self._dynamic_polygons:
             for other_polygon in self._polygons + [self._border]:
@@ -931,3 +946,8 @@ class Level:
     def dynamic_polygons(self):
         """Get dynamic polygons"""
         return self._dynamic_polygons
+    
+    @property
+    def caption(self):
+        """Get caption"""
+        return self._caption

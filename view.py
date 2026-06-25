@@ -47,7 +47,6 @@ class View:
         self._PLAYER_SPRITE = pygame.image.load(
             self._PATH + "wheatley_2.png"
         ).convert_alpha()
-        self._text_display = TextDisplay(constants)
         self.refresh(0)
 
     def refresh(self, dt):
@@ -70,8 +69,7 @@ class View:
             self.draw_polygon(polygon, True)
         self.draw_player(self._level.player)
         # self.draw_circle(self._level.player)
-        self._text_display.update(dt)
-        self._text_display.draw(self._window)
+        self._level.caption.draw(self._window)
         pygame.display.flip()
 
     def draw_background(self):
@@ -222,9 +220,5 @@ class View:
         """
         for point in points:
             screen_pos = Vector.sum(point, self._camera)
-            pygame.draw.circle(self._window, (255, 0, 0), screen_pos.get_tuple(), 5)
-
-    @property
-    def text_display(self):
-        """Get text_display"""
-        return self._text_display
+            pygame.draw.circle(self._window, (255, 0, 0),
+                               screen_pos.get_tuple(), 5)
