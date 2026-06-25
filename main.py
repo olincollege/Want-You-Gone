@@ -25,11 +25,11 @@ def main():
     # Initialize the level, controller, view, and clock.
     with open("portal_configs/test.json", "r", encoding="utf-8") as file:
         portals = json.load(file)
-    level = Level("level_1/", portals, constants)
+    level = Level("example_level/", portals, constants)
     controller = Controller(constants)
     view = View(level, "sprites/", constants)
     clock = pygame.time.Clock()
- 
+
     # Run the game until the window is closed.
     while True:
         # If the window is closed, quit the game.

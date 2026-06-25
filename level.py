@@ -218,22 +218,17 @@ class Level:
             A Vector representing the change in the player's position.
             None if the player is not in any portal entrance.
         """
-        # Apply portal forces to the player
-        # if they are touching a portal entrance
-        # and calculate the depth of the player in the portal entrance.
         depth = 0
         color = None
         for entrance in self._portal_entrances:
-            force, calc_depth = entrance.force(
-                self._player.position, self._player.radius)
-            if force is not None:
-                self._player.accelerate(force, dt)
-                depth = calc_depth # recorded depth = calculated depth
-                color = entrance.color
-
-        # If the player is in the portal entrance, move them to
-        # the corresponding portal exit and return the change in their position.
-        for entrance in self._portal_entrances:
+            # If the entrance is too far from the player, skip it.
+            if (entrance.radius + self._player.radius) ** 2 < Vector.diff(
+                entrance.position, self._player.position
+            ).magnitude_squared():
+                continue
+            # If the player is in the portal entrance, move them to
+            # the corresponding portal exit
+            # and return the change in their position.
             if entrance.is_in(self._player.position, self._player.radius):
                 # Record the player's position relative to the portal entrance,
                 # and their velocity, angle, and angular velocity.
@@ -251,7 +246,31 @@ class Level:
 
                 # Return the change in the player's position.
                 return Vector.diff(entrance.to_position, entrance.position
-                                   ), depth, color
+                                   ), 1, (127, 127, 127)
+
+            # Apply portal forces to the player
+            # if they are touching a portal entrance
+            # and calculate the depth of the player in the portal entrance.
+            force, calc_depth = entrance.force(
+                self._player.position, self._player.radius)
+            if force is not None:
+                self._player.accelerate(force, dt)
+                depth = calc_depth # recorded depth = calculated depth
+                color = entrance.color
+
+        for p_exit in self._portal_exits:
+            # If the exit is too far from the player, skip it.
+            if (p_exit.radius + self._player.radius) ** 2 < Vector.diff(
+                p_exit.position, self._player.position
+            ).magnitude_squared():
+                continue
+
+            # Calculate the depth of the player in the portal exit.
+            calc_depth = p_exit.depth(
+                self._player.position, self._player.radius)
+            if calc_depth > 0:
+                depth = calc_depth # recorded depth = calculated depth
+                color = p_exit.color
 
         # If the player is not in any portal entrance, return None.
         return None, depth, color

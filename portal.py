@@ -27,6 +27,28 @@ class PortalExit:
         self._position = position
         self._radius = radius
 
+    def depth(self, position, radius):
+        """
+        Calculate how deep a circle is in the portal.
+
+        Args:
+            position: A Vector representing the position
+            of the center of the circle.
+            radius: A float representing the radius of the circle.
+
+        Returns:
+            A float between 0 and 1 representing
+            how deep the circle is in the portal.
+        """
+        difference = Vector.diff(position, self._position)
+        distance = sqrt(difference.magnitude_squared())
+        max_distance = self._radius + radius
+
+        if distance >= max_distance:
+            return 0
+        else:
+            return (max_distance - distance) / max_distance
+
     @property
     def radius(self):
         """Get radius"""
@@ -81,7 +103,7 @@ class PortalEntrance(PortalExit):
         """
         Return the force that the portal should apply to a circle with the
         given position and radius
-        and the magnitude of the glow the window should get
+        and the magnitude of the glow the window should get.
 
         Args:
             position: A Vector representing the position
@@ -99,7 +121,7 @@ class PortalEntrance(PortalExit):
         max_distance = self._radius + radius
 
         if distance >= max_distance:
-            return None, None
+            return None, 0
         else:
             return difference.scale(
                 (self._max_force * (max_distance - distance))
