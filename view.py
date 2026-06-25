@@ -47,9 +47,9 @@ class View:
         self._PLAYER_SPRITE = pygame.image.load(
             self._PATH + "wheatley_2.png"
         ).convert_alpha()
-        self.refresh(0)
+        self.refresh(0, 0, (0, 0, 0))
 
-    def refresh(self, dt):
+    def refresh(self, dt, alpha, color):
         """
         Refresh the display to show the current state of the level.
 
@@ -57,7 +57,7 @@ class View:
             dt: A float representing the time since the last refresh.
         """
         self.update_lerp(dt)
-        self._window.fill(self._level.border.color)
+        #self._window.fill(self._level.border.color)
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
@@ -67,8 +67,9 @@ class View:
             self.draw_player(circle)
         for polygon in self._level.dynamic_polygons:
             self.draw_polygon(polygon, True)
+        if color is not None:
+            self.layer(alpha, color)
         self.draw_player(self._level.player)
-        # self.draw_circle(self._level.player)
         self._level.caption.draw(self._window)
         pygame.display.flip()
 
@@ -222,3 +223,15 @@ class View:
             screen_pos = Vector.sum(point, self._camera)
             pygame.draw.circle(self._window, (255, 0, 0),
                                screen_pos.get_tuple(), 5)
+
+    def layer(self, alpha, color):
+        """
+        Make tinted layer over the window.
+
+        Args:
+            alpha: A float between 0 and 1 representing the opacity of the tint.
+            color: A tuple representing the RGB values of the tint.
+        """
+        color_mask = pygame.Surface(self._window.get_size(), pygame.SRCALPHA)
+        color_mask.fill(color + (alpha * 255,))
+        self._window.blit(color_mask, (0, 0))

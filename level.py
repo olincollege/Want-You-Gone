@@ -219,11 +219,17 @@ class Level:
             None if the player is not in any portal entrance.
         """
         # Apply portal forces to the player
-        # if they are touching a portal entrance.
+        # if they are touching a portal entrance
+        # and calculate the depth of the player in the portal entrance.
+        depth = 0
+        color = None
         for entrance in self._portal_entrances:
-            force = entrance.force(self._player.position, self._player.radius)
+            force, calc_depth = entrance.force(
+                self._player.position, self._player.radius)
             if force is not None:
                 self._player.accelerate(force, dt)
+                depth = calc_depth # recorded depth = calculated depth
+                color = entrance.color
 
         # If the player is in the portal entrance, move them to
         # the corresponding portal exit and return the change in their position.
@@ -244,10 +250,11 @@ class Level:
                     entrance.to_position, relative_position))
 
                 # Return the change in the player's position.
-                return Vector.diff(entrance.to_position, entrance.position)
+                return Vector.diff(entrance.to_position, entrance.position
+                                   ), depth, color
 
         # If the player is not in any portal entrance, return None.
-        return None
+        return None, depth, color
 
     @classmethod
     def make_vector(cls, json_input):

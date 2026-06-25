@@ -80,7 +80,8 @@ class PortalEntrance(PortalExit):
     def force(self, position, radius):
         """
         Return the force that the portal should apply to a circle with the
-        given position and radius.
+        given position and radius
+        and the magnitude of the glow the window should get
 
         Args:
             position: A Vector representing the position
@@ -90,18 +91,20 @@ class PortalEntrance(PortalExit):
         Returns:
             A Vector representing the force
             that the portal should apply to the circle.
+            A float between 0 and 1 representing
+            how colored the screen should be.
         """
         difference = Vector.diff(position, self._position)
         distance = sqrt(difference.magnitude_squared())
         max_distance = self._radius + radius
 
         if distance >= max_distance:
-            return None
+            return None, None
         else:
             return difference.scale(
                 (self._max_force * (max_distance - distance))
                 / (max_distance * distance)
-            )
+            ), (max_distance - distance) / max_distance
 
     @property
     def to_position(self):

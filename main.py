@@ -52,10 +52,10 @@ def main():
             max_angular_velocity * level.player.radius
         ):
             level.player.accelerate(Vector(roll_force, 0), dt)
-        if roll_force > 0:
-            level.move_shape(Vector(100, 0), dt)
-        elif roll_force < 0:
-            level.move_shape(Vector(-100, 0), dt)
+        #if roll_force > 0:
+            #level.move_shape(Vector(100, 0), dt)
+        #elif roll_force < 0:
+            #level.move_shape(Vector(-100, 0), dt)
 
         # Update the controller and level.
         controller.update(dt)
@@ -63,14 +63,14 @@ def main():
         level.apply_collisions(
             controller.is_jumping, controller.is_bouncing
         )
-        position_change = level.update_portals(dt)
+        position_change, depth, color = level.update_portals(dt)
         if position_change is not None:
             view.move_camera(position_change)
         if controller.restart:
             level.restart()
 
         # Draw the current state of the level to the window.
-        view.refresh(dt)
+        view.refresh(dt, depth, color)
         pygame.display.update()
         clock.tick(fps)
 
