@@ -285,6 +285,17 @@ class DynamicShape(Shape):
         )
         return inverse_translational + abs(inverse_rotational)
 
+    def slow(self, viscosity, dt):
+        """
+        Decelerate the shape by a percentage of its velocity.
+
+        Args:
+            viscosity: A float representing
+            what percentage of the shape's velocity
+            is lost each second.
+        """
+        self.accelerate(self._velocity.scale(-viscosity), dt)
+
 
 class Circle(Shape):
     """

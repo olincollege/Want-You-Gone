@@ -254,6 +254,7 @@ class Level:
             force, calc_depth = entrance.force(
                 self._player.position, self._player.radius)
             if force is not None:
+                self._player.slow(calc_depth * 5, dt)
                 self._player.accelerate(force, dt)
                 depth = calc_depth # recorded depth = calculated depth
                 portal = entrance
