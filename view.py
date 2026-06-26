@@ -5,6 +5,7 @@ Contains the View class.
 from math import ceil, degrees
 import pygame
 from vector import Vector
+from pygame import mixer
 
 pygame.init()
 
@@ -256,3 +257,27 @@ class View:
         subtract_shape = subtract_mask.to_surface(
             setcolor=portal.color + (alpha * 255,), unsetcolor=(0, 0, 0, 0))
         self._window.blit(subtract_shape, (0, 0))
+
+    def play_background_music(self, music_path):
+        """
+        Infintely plays background music from given path.
+
+        Args:
+            music_path: A string representing the file path of the music to play.
+        """
+        #get music and turn it into usable effect
+        mixer.music.load(music_path)
+        #play and loop sound
+        mixer.music.play(-1)
+
+    def play_soundeffect(self, sound_path):
+        """
+        Plays a single sound effect from the given path.
+
+        Args:
+            sound_path: A string representing the file path of the music to play.
+        """
+        #get sound effect and turn it into usable effect.
+        sound_effect = mixer.Sound(sound_path)
+        #play sound effect
+        sound_effect.play
