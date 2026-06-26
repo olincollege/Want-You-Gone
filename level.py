@@ -95,9 +95,12 @@ class Level:
         with open(self._path + "caption.json", "r", encoding="utf-8") as file:
             caption_attributes = json.load(file)
 
+        fixed = caption_attributes.get("fixed_to_screen", True)
+
         # Display the caption for the level.
         self._caption.show(caption_attributes["title"],
-                           caption_attributes["subtitle"])
+                           caption_attributes["subtitle"],
+                           fixed)
 
         # ----------------------------------------------------------------------
 

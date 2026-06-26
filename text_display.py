@@ -62,7 +62,7 @@ class TextDisplay:
         self._title_surface = None
         self._subtitle_surface = None
 
-    def show(self, title, subtitle=None):
+    def show(self, title, subtitle=None, fixed_to_screen=True):
         """
         Start displaying a new caption from the beginning of its fade in.
 
@@ -75,6 +75,8 @@ class TextDisplay:
             display below the title. None for no subtitle.
         """
         self._timer = 0
+        self._fixed_to_screen = fixed_to_screen
+        self._world_anchor = None
         self._title_surface = self._TITLE_FONT.render(
             title, True, self._COLOR
         )
@@ -126,7 +128,7 @@ class TextDisplay:
             return int(255 * (1 - fade_out_timer / self._FADE_OUT))
         return 0
 
-    def draw(self, window):
+    def draw(self, window, camera=None, target_camera=None):
         """
         Draw the current caption onto a window at the current alpha.
 
@@ -136,13 +138,33 @@ class TextDisplay:
 
         Args:
             window: A Surface representing the window to draw onto.
+            camera: A Vector representing the current camera position in
+            world space. Used to offset the caption if it is not fixed to
+            the screen. None if the caption is fixed to the screen.
+            target_camera: A Vector representing the camera position that
+            the caption should be anchored to. Used to keep the caption
+            in the same relative position to the camera if the caption is
+            not fixed to the screen. None if the caption is fixed to the
+            screen, or if the caption has not yet been anchored to a camera
+            due to lerping.
         """
         if not self.is_active:
             return
 
         alpha = self._alpha
-        center_x = window.get_width() // 2
-        baseline_y = window.get_height() - 140
+        default_x = window.get_width() // 2
+        default_y = window.get_height() - 140
+
+        if getattr(self, "_fixed_to_screen", True) or camera is None:
+            center_x = default_x
+            baseline_y = default_y
+        else:
+            if self._world_anchor is None:
+                anchor_cam = target_camera if target_camera is not None else camera
+                self._world_anchor = (default_x - anchor_cam.x, default_y - anchor_cam.y)
+
+            center_x = int(self._world_anchor[0] + camera.x)
+            baseline_y = int(self._world_anchor[1] + camera.y)
 
         self._title_surface.set_alpha(alpha)
         title_rect = self._title_surface.get_rect(
