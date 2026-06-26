@@ -10,6 +10,7 @@
     "default_friction": 1,
     "slippery_friction": 0.5,
     "lerp_speed": 3,
+    "max_portal_force": 1000,
 
     "caption_fade_in": 1.0,
     "caption_hold": 3.5,
@@ -17,5 +18,7 @@
     "caption_color": [255, 255, 255],
     "caption_font_path": "fonts/univers_67_condensed_bold.otf",
     "caption_title_size": 48,
-    "caption_subtitle_size": 28
+    "caption_subtitle_size": 28,
+    "entrance_color": [255, 94, 0],
+    "exit_color": [0, 255, 255]
 }

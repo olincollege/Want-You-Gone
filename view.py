@@ -50,7 +50,7 @@ class View:
         ).convert_alpha()
         self.refresh(0, 0, None)
 
-    def refresh(self, dt, alpha, portal):
+    def refresh(self, dt, alpha, glowing_portal):
         """
         Refresh the display to show the current state of the level.
 
@@ -66,9 +66,9 @@ class View:
             self.draw_player(circle)
         for polygon in self._level.dynamic_polygons:
             self.draw_polygon(polygon, True)
-        if portal is not None:
-            self.portal_glow(alpha, portal)
-        for portal in self._level.portal_entrances + self._level.portal_exits:
+        if glowing_portal is not None:
+            self.portal_glow(alpha, glowing_portal)
+        for portal in self._level.portal_entrances:
             self.draw_circle(portal, 10)
         self.draw_player(self._level.player)
         target_camera = Vector.diff(self._level.player.position, self._WINDOW_CENTER)

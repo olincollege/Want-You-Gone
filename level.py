@@ -61,6 +61,9 @@ class Level:
         self._path = shapes_path
         self._portals = portals
         self._caption = TextDisplay(constants)
+        self._ENTRANCE_COLOR = tuple(constants["entrance_color"])
+        self._EXIT_COLOR = tuple(constants["exit_color"])
+        self._MAX_PORTAL_FORCE = constants["max_portal_force"]
 
         # Initialize all shapes on the level.
         self.restart()
@@ -188,13 +191,10 @@ class Level:
             for polygon_attributes in dynamic_polygons_attributes
         ]
 
-        self.previous_dynamic_polygons = self._dynamic_polygons
-
         # ----------------------------------------------------------------------
 
         # Initialize portals.
         self._portal_entrances = []
-        self._portal_exits = []
 
         for portal in self._portals:
             if portal["from_path"] == self._path:
@@ -202,15 +202,32 @@ class Level:
                 radius = portal["radius"]
                 to_position = self.make_vector(portal["to_position"])
                 to_path = portal["to_path"]
-                max_force = portal["max_force"]
                 self._portal_entrances.append(
                     PortalEntrance(
-                        position, radius, to_position, to_path, max_force))
+                        position,
+                        radius,
+                        to_position,
+                        to_path,
+                        self._MAX_PORTAL_FORCE,
+                        self._ENTRANCE_COLOR
+                    )
+                )
 
             if portal["to_path"] == self._path:
                 position = self.make_vector(portal["to_position"])
                 radius = portal["radius"]
-                self._portal_exits.append(PortalExit(position, radius))
+                from_position = self.make_vector(portal["from_position"])
+                from_path = portal["from_path"]
+                self._portal_entrances.append(
+                    PortalEntrance(
+                        position,
+                        radius,
+                        from_position,
+                        from_path,
+                        self._MAX_PORTAL_FORCE,
+                        self._EXIT_COLOR
+                    )
+                )
 
     def update_portals(self, dt):
         """
@@ -220,64 +237,56 @@ class Level:
         Returns:
             A Vector representing the change in the player's position.
             None if the player is not in any portal entrance.
+            A float representing how deep the player
+            is in the closest portal to them
+            A Portal or None representing the portal the player is in.
         """
         depth = 0
-        portal = None
-        for entrance in self._portal_entrances:
-            # If the entrance is too far from the player, skip it.
-            if (entrance.radius + self._player.radius) ** 2 < Vector.diff(
-                entrance.position, self._player.position
+        the_portal = None
+        for portal in self._portal_entrances:
+            # If the portal is too far from the player, skip it.
+            if (portal.radius + self._player.radius) ** 2 < Vector.diff(
+                portal.position, self._player.position
             ).magnitude_squared():
+                portal.activate()
                 continue
-            # If the player is in the portal entrance, move them to
+            # If the player is in the portal, move them to
             # the corresponding portal exit
             # and return the change in their position.
-            if entrance.is_in(self._player.position, self._player.radius):
-                # Record the player's position relative to the portal entrance,
+            if portal.is_in(self._player.position, self._player.radius):
+                # Record the player's position relative to the portal,
                 # and their velocity, angle, and angular velocity.
                 relative_position = Vector.diff(
-                    entrance.position, self._player.position)
+                    portal.position, self._player.position)
 
                 # Change which level the player is on.
-                self._path = entrance.to_path
+                self._path = portal.to_path
                 self.reset()
 
                 # Move the player to the corresponding position
                 # relative to the portal exit.
                 self._player.set_position(Vector.sum(
-                    entrance.to_position, relative_position))
+                    portal.to_position, relative_position))
 
                 # Return the change in the player's position.
-                return Vector.diff(entrance.to_position, entrance.position
+                return Vector.diff(portal.to_position, portal.position
                                    ), depth, portal
 
             # Apply portal forces to the player
-            # if they are touching a portal entrance
-            # and calculate the depth of the player in the portal entrance.
-            force, calc_depth = entrance.force(
+            # if they are touching a portal
+            # and calculate the depth of the player in the portal.
+            force = portal.force(
+                self._player.position, self._player.radius)
+            calc_depth = portal.depth(
                 self._player.position, self._player.radius)
             if force is not None:
-                self._player.slow(calc_depth * 5, dt)
                 self._player.accelerate(force, dt)
+                self._player.slow(calc_depth * 5, dt)
                 depth = calc_depth # recorded depth = calculated depth
-                portal = entrance
+                the_portal = portal
 
-        for p_exit in self._portal_exits:
-            # If the exit is too far from the player, skip it.
-            if (p_exit.radius + self._player.radius) ** 2 < Vector.diff(
-                p_exit.position, self._player.position
-            ).magnitude_squared():
-                continue
-
-            # Calculate the depth of the player in the portal exit.
-            calc_depth = p_exit.depth(
-                self._player.position, self._player.radius)
-            if calc_depth > 0:
-                depth = calc_depth # recorded depth = calculated depth
-                portal = p_exit
-
-        # If the player is not in any portal entrance, return None.
-        return None, depth, portal
+        # If the player is not in any portal, return None.
+        return None, depth, the_portal
 
     @classmethod
     def make_vector(cls, json_input):
@@ -963,11 +972,6 @@ class Level:
         return self._portal_entrances
 
     @property
-    def portal_exits(self):
-        """Get portal exits"""
-        return self._portal_exits
-
-    @property
     def dynamic_circles(self):
         """Get dynamic circles"""
         return self._dynamic_circles
@@ -976,7 +980,7 @@ class Level:
     def dynamic_polygons(self):
         """Get dynamic polygons"""
         return self._dynamic_polygons
-    
+
     @property
     def caption(self):
         """Get caption"""
