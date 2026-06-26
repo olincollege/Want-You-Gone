@@ -160,8 +160,10 @@ class TextDisplay:
             baseline_y = default_y
         else:
             if self._world_anchor is None:
-                anchor_cam = target_camera if target_camera is not None else camera
-                self._world_anchor = (default_x - anchor_cam.x, default_y - anchor_cam.y)
+                anchor_cam = target_camera.get_tuple() if(
+                    target_camera is not None) else camera
+                self._world_anchor = (
+                    default_x - anchor_cam[0], default_y - anchor_cam[1])
 
             center_x = int(self._world_anchor[0] + camera.x)
             baseline_y = int(self._world_anchor[1] + camera.y)

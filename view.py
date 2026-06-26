@@ -72,7 +72,8 @@ class View:
         for portal in self._level.portal_entrances:
             self.draw_circle(portal, 10)
         self.draw_player(self._level.player)
-        target_camera = Vector.diff(self._level.player.position, self._WINDOW_CENTER)
+        target_camera = Vector.diff(
+            self._level.player.position, self._WINDOW_CENTER)
         self._level.caption.draw(self._window, self._camera, target_camera)
         pygame.display.flip()
 
