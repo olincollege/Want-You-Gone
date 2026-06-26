@@ -23,7 +23,7 @@ def main():
     max_angular_velocity = constants["max_angular_velocity"]
 
     # Initialize the level, controller, view, and clock.
-    with open("portal_configs/test.json", "r", encoding="utf-8") as file:
+    with open("portal_configs/close.json", "r", encoding="utf-8") as file:
         portals = json.load(file)
     level = Level("example_level/", portals, constants)
     controller = Controller(constants)

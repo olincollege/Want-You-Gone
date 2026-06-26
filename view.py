@@ -4,7 +4,6 @@ Contains the View class.
 
 from math import ceil, degrees
 import pygame
-from text_display import TextDisplay
 from vector import Vector
 
 pygame.init()
@@ -21,8 +20,10 @@ class View:
         _LERP_SPEED: A float representing the speed at which the camera
         follows the player.
         _window: A surface that will have the level drawn on it.
-        _BACKGROUND_TEXTURE: A surface representing the background texture to draw.
-        _PLAYER_SPRITE: A surface representing the sprite to draw for the player.
+        _BACKGROUND_TEXTURE: A surface representing
+        the background texture to draw.
+        _PLAYER_SPRITE: A surface representing
+        the sprite to draw for the player.
     """
 
     def __init__(self, level, path, constants):
@@ -96,13 +97,15 @@ class View:
 
         tmp_image = (
             texture.copy()
-        )  # make a copy of the texture to keep it unchanged for future usage
+        )  # make a copy of the texture to keep it unchanged for future usage.
         mask.set_colorkey(
             (0, 0, 0)
-        )  # we want the black colored parts of the mask to be transparent
+        )  # we want the black colored parts of the mask to be transparent.
         tmp_image.blit(
             mask, (0, 0)
-        )  # blit the mask to the texture. the black parts are transparent so we see the pixels of the texture there
+        )  # blit the mask to the texture.
+           # The black parts are transparent
+           # so we see the pixels of the texture there.
 
         tmp_rect = tmp_image.get_rect()
         tmp_rect.center = self._WINDOW_CENTER.get_tuple()
