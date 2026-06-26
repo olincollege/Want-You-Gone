@@ -263,21 +263,23 @@ class View:
         Infintely plays background music from given path.
 
         Args:
-            music_path: A string representing the file path of the music to play.
+            music_path: A string representing
+            the file path of the music to play.
         """
-        #get music and turn it into usable effect
-        mixer.music.load(music_path)
-        #play and loop sound
+        # Get music and turn it into usable effect
+        mixer.music.load(f"soundeffects_music/{music_path}.mp3")
+        # Play and loop sound
         mixer.music.play(-1)
 
-    def play_soundeffect(self, sound_path):
+    def play_sound_effect(self, sound_path):
         """
         Plays a single sound effect from the given path.
 
         Args:
-            sound_path: A string representing the file path of the music to play.
+            sound_path: A string representing
+            the file path of the sound to play.
         """
-        #get sound effect and turn it into usable effect.
-        sound_effect = mixer.Sound(sound_path)
-        #play sound effect
-        sound_effect.play
+        # Get sound effect and turn it into usable effect.
+        sound_effect = mixer.Sound(f"soundeffects_music/{sound_path}.mp3")
+        # Play sound effect
+        sound_effect.play()

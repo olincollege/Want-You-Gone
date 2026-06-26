@@ -51,6 +51,9 @@ class Controller:
 
         Args:
             dt: A float representing the frame duration in seconds.
+        
+        Returns:
+            A boolean representing if the player just pressed the jump key.
         """
         self._keys = pygame.key.get_pressed()
         self._jump_timer += dt
@@ -58,9 +61,12 @@ class Controller:
         if jumping:
             if self._jump_released:
                 self._jump_timer = 0
-            self._jump_released = False
+                self._jump_released = False
+                return True
+
         else:
             self._jump_released = True
+        return False
 
     @property
     def restart(self):

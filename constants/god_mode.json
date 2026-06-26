@@ -20,5 +20,6 @@
     "caption_title_size": 48,
     "caption_subtitle_size": 28,
     "entrance_color": [255, 94, 0],
-    "exit_color": [0, 255, 255]
+    "exit_color": [0, 255, 255],
+    "jump_sound": "important_soundeffect"
 }

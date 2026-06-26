@@ -63,7 +63,9 @@ def main():
             #level.move_shape(Vector(-100, 0), dt)
 
         # Update the controller and level.
-        controller.update(dt)
+        play_jump = controller.update(dt)
+        if play_jump:
+            view.play_sound_effect(constants["jump_sound"])
         level.update(dt)
         level.apply_collisions(
             controller.is_jumping, controller.is_bouncing
