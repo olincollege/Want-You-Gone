@@ -268,7 +268,7 @@ class View:
             the file path of the music to play.
         """
         # Get music and turn it into usable effect
-        mixer.music.load(f"sound_effects_music/{music_path}.mp3")
+        mixer.music.load(f"sound_effects_music/{music_path}.wav")
         # Play and loop sound
         mixer.music.play(-1)
 
