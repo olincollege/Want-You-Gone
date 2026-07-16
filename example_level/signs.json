@@ -1,0 +1,10 @@
+[
+    {
+        "comment": "test sign",
+        "text": "metal_pipe_sound_effect.wav",
+        "subtitle": null,
+        "position": [100, 100],
+        "size": 28,
+        "color": [255, 255, 255]
+    }
+]

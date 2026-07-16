@@ -63,6 +63,8 @@ class View:
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
+        for sign in self._level.signs:
+            self.draw_sign(sign)
         for circle in self._level.dynamic_circles:
             self.draw_player(circle)
         for polygon in self._level.dynamic_polygons:
@@ -177,6 +179,17 @@ class View:
         screen_pos = Vector.sum(polygon.position, self._camera)
         blit_pos = Vector.sum(screen_pos, Vector(-r, -r))
         self._window.blit(polygon_surface, blit_pos.get_tuple())
+    
+    def draw_sign(self, sign): # should I call it sign or text? idk
+        """
+        Draws a piece of static world text based on its position
+        and the position of the camera.
+        """
+        if self.check_cull(sign):
+            return
+        screen_pos = Vector.sum(sign.position, self._camera)
+        rect = sign.surface.get_rect(center=screen_pos.get_tuple())
+        self._window.blit(sign.surface, rect)
 
     def update_lerp(self, dt):
         """
