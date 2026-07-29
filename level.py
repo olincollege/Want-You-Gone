@@ -9,6 +9,7 @@ from collections import namedtuple
 from portal import PortalEntrance
 from shape import DynamicShape, Polygon, DynamicCircle, DynamicPolygon
 from text_display import TextDisplay
+from world_text import WorldText
 from vector import Vector
 
 
@@ -115,6 +116,21 @@ class Level:
         self._caption.show(caption_attributes["title"],
                            caption_attributes["subtitle"],
                            fixed)
+        
+        # ---------------------------------------------------------------------
+        
+        with open(self._path + "signs.json", "r", encoding="utf-8") as file:
+            signs_attributes = json.load(file)
+
+        self._signs = [
+            WorldText(
+                sign["text"],
+                self.make_vector(sign["position"]),
+                sign["size"],
+                sign["color"],
+            )
+            for sign in signs_attributes
+        ]
 
         # ----------------------------------------------------------------------
 
@@ -1205,6 +1221,11 @@ class Level:
     def caption(self):
         """Get caption"""
         return self._caption
+    
+    @property
+    def signs(self):
+        """Get signs"""
+        return self._signs
 
     @property
     def debug_points(self):
