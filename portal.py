@@ -13,10 +13,11 @@ class PortalExit:
         _position: A Vector representing the position of the portal.
         _radius: A float representing the radius of the portal.
         _color: A tuple representing the color to draw the portal as.
+        _can_glow: A boolean representing if the portal can glow.
     """
     def __init__(self, position, radius, color):
         """
-        Initialize position, radius, and color
+        Initialize all attributes.
 
         Args:
             position: A Vector representing the position of the portal.
@@ -27,6 +28,7 @@ class PortalExit:
         self._position = position
         self._radius = radius
         self._color = color
+        self._can_glow = True
 
     def depth(self, position, radius):
         """
@@ -49,6 +51,19 @@ class PortalExit:
             return 0
         else:
             return (max_distance - distance) / max_distance
+
+    def pause_glow(self):
+        """Set can_glow to False"""
+        self._can_glow = False
+
+    def unpause_glow(self):
+        """Set can_glow to True"""
+        self._can_glow = True
+
+    @property
+    def can_glow(self):
+        """Get can_glow"""
+        return self._can_glow
 
     @property
     def radius(self):
@@ -80,11 +95,12 @@ class PortalEntrance(PortalExit):
         _max_force: A float representing the magnitude of
         the maximum force the portal can exert on the player.
         _color: A tuple representing the color to draw the portal as.
+        _can_glow: A boolean representing if the portal can glow.
     """
     def __init__(
             self, position, radius, to_position, to_path, max_force, color):
         """
-        Initialize position, radius, to_position, to_path, max_force, and color.
+        Initialize all attributes.
 
         Args:
             position: A Vector representing the position of the portal.

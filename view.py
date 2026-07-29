@@ -67,14 +67,15 @@ class View:
             self.draw_player(circle)
         for polygon in self._level.dynamic_polygons:
             self.draw_polygon(polygon, True)
-        if glowing_portal is not None:
-            self.portal_glow(alpha, glowing_portal)
         for portal in self._level.portal_entrances:
             self.draw_circle(portal, 10)
+        if glowing_portal is not None and glowing_portal.can_glow:
+            self.portal_glow(alpha, glowing_portal)
         self.draw_player(self._level.player)
         target_camera = Vector.diff(
             self._level.player.position, self._WINDOW_CENTER)
         self._level.caption.draw(self._window, self._camera, target_camera)
+        #self.draw_points(self._level.debug_points)
         pygame.display.flip()
 
     def draw_background(self):
@@ -228,7 +229,7 @@ class View:
         """
         for point in points:
             screen_pos = Vector.sum(point, self._camera)
-            pygame.draw.circle(self._window, (255, 0, 0),
+            pygame.draw.circle(self._window, (0, 255, 0),
                                screen_pos.get_tuple(), 5)
 
     def portal_glow(self, alpha, portal):

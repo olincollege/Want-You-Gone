@@ -8,7 +8,7 @@
     "default_cor": 0.3,
     "bouncy_cor": 0.9,
     "default_friction": 1,
-    "slippery_friction": 0.5,
+    "slippery_friction": 0.3,
     "lerp_speed": 3,
     "max_portal_force": 1000,
 

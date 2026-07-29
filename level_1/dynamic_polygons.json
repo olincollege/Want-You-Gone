@@ -1,8 +1,19 @@
 [
     {
-        "comment": "test",
-        "vertices": [[0, 50],  [25, -50],  [-50, -25]],
-        "position": [-2450, 800],
+        "comment": "test square",
+        "vertices": [[-25, 0], [0, -25], [25, 0], [0, 25]],
+        "position": [-1500, 700],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "is_slippery": true,
+        "color": [200, 20, 20]
+    },
+    {
+        "comment": "test triangle",
+        "vertices": [[-100, 0], [75, -50], [-50, 50]],
+        "position": [-1500, 500],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,

@@ -76,7 +76,7 @@ class Controller:
         Pressing R triggers this, which tells main.py to reload the level.
 
         Returns:
-            A bool.
+            A boolean.
         """
         return self._keys[pygame.K_r]
 

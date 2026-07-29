@@ -1,7 +1,19 @@
 [
     {
+        "comment": "test",
         "radius": 25,
         "position": [205, -135],
+        "velocity": [0, 0],
+        "angle": 0,
+        "angular_velocity": 0,
+        "is_bouncy": false,
+        "is_slippery": true,
+        "color": [220, 20, 20]
+    },
+    {
+        "comment": "test 2",
+        "radius": 25,
+        "position": [230, -160],
         "velocity": [0, 0],
         "angle": 0,
         "angular_velocity": 0,

@@ -1,5 +1,5 @@
 """
-Contains the Vector class.
+Contains the Vector and Intersection classes.
 """
 
 from math import sin, cos, sqrt
@@ -182,6 +182,21 @@ class Vector:
         if abs(magnitude_squared) < 0.1:
             return 0
         return magnitude_squared
+
+    def snap_cardinal(self, max_distance):
+        """
+        If the Vector is close to pointing in a cardinal direction,
+        make it point in that direction.
+
+        Args:
+            max_distance: A float or int representing the maximum,
+            distance from a cardinal direction the Vector can be
+            and still get snapped to it.
+        """
+        if abs(self._x) < max_distance:
+            self._x = 0
+        if abs(self._y) < max_distance:
+            self._y = 0
 
     @classmethod
     def dot(cls, vec1, vec2):

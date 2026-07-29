@@ -22,9 +22,12 @@ class Shape:
         if the shape is slipperier than usual.
         _MOMENT: A float representing the moment of inertia.
         _MASS: A float representing the mass.
+        _INV_MOMENT: A float representing the inverse moment of inertia.
+        _INV_MASS: A float representing the inverse mass.
         _RADIUS: A float representing the bounding radius
                  (used for broad-phase collision).
         _COLOR: A tuple representing the RGB values of the shape's color.
+        _NAME: The string representation of the shape.
     """
 
     def __init__(
@@ -39,6 +42,7 @@ class Shape:
         mass,
         radius,
         color,
+        name,
     ):
         """
         Initializes all Shape attributes.
@@ -56,6 +60,7 @@ class Shape:
             mass: A float representing the mass.
             radius: A float representing the bounding radius.
             color: A tuple representing the RGB values of the shape's color.
+            name: The string representation of the shape.
         """
         self._position = position
         self._velocity = velocity
@@ -65,8 +70,20 @@ class Shape:
         self._IS_SLIPPERY = is_slippery
         self._MOMENT = moment
         self._MASS = mass
+        self._INV_MOMENT = 1 / moment if moment != 0 else 0
+        self._INV_MASS = 1 / mass if mass != 0 else 0
         self._RADIUS = radius
         self._COLOR = color
+        self._NAME = name
+
+    def __repr__(self):
+        """
+        String representation of the shape.
+
+        Returns:
+            The name of the shape.
+        """
+        return self._NAME
 
     # We do not need all of these, but for now just leave them as is.
     # We can remove what we do not need later.
@@ -100,6 +117,16 @@ class Shape:
     def mass(self):
         """Get mass"""
         return self._MASS
+
+    @property
+    def inv_moment(self):
+        """Get inverse moment"""
+        return self._INV_MOMENT
+
+    @property
+    def inv_mass(self):
+        """Get inverse mass"""
+        return self._INV_MASS
 
     @property
     def radius(self):
@@ -204,6 +231,7 @@ class DynamicShape(Shape):
         Args:
             dt: A float representing the timestep in seconds.
         """
+        self._velocity.snap_cardinal(4)
         self._position.add(self._velocity.scale(dt))
         self._angle += self._angular_velocity * dt
 
@@ -235,7 +263,7 @@ class DynamicShape(Shape):
         Args:
             impulse: A Vector representing the impulse to apply.
         """
-        self._velocity.add(impulse.scale(1 / self._MASS))
+        self._velocity.add(impulse.scale(self._INV_MASS))
 
     def nudge(self, nudge):
         """
@@ -245,7 +273,7 @@ class DynamicShape(Shape):
         Args:
             nudge: A Vector representing the nudge to apply.
         """
-        self._position.add(nudge)
+        self.position.add(nudge)
 
     def impulse_at(self, impulse, contact_point):
         """
@@ -257,12 +285,14 @@ class DynamicShape(Shape):
             contact_point: A Vector representing
             the contact point in world space.
         """
+        #if impulse.magnitude_squared() < 1:
+            #return
         contact_vector = Vector.diff(self._position, contact_point)
-        self._velocity.add(impulse.scale(1 / self._MASS))
+        self._velocity.add(impulse.scale(self._INV_MASS))
         # Delta w = r × J / I  (2D cross product: rx*Jy - ry*Jx)
         self._angular_velocity -= (
             Vector.det(impulse, contact_vector)
-        ) / self._MOMENT
+        ) * self._INV_MOMENT
 
     def inv_effective_mass(self, contact_point, direction):
         """
@@ -279,9 +309,9 @@ class DynamicShape(Shape):
             at the contact point.
         """
         contact_vector = Vector.diff(self._position, contact_point)
-        inverse_translational = 1 / self._MASS
+        inverse_translational = self._INV_MASS
         inverse_rotational = (
-            Vector.det(contact_vector, direction) ** 2 / self._MOMENT
+            Vector.det(contact_vector, direction) ** 2 * self._INV_MOMENT
         )
         return inverse_translational + abs(inverse_rotational)
 
@@ -316,6 +346,7 @@ class Circle(Shape):
         is_bouncy,
         is_slippery,
         color,
+        name
     ):
         """
         Initialize a Circle. Mass and moment are derived from radius.
@@ -331,6 +362,7 @@ class Circle(Shape):
             is_slippery: A boolean representing if the shape is
                             slipperier than usual.
             color: A tuple representing the RGB values of the shape's color.
+            name: The string representation of the shape.
         """
         # Derive mass and moment of inertia from radius (uniform density disc)
         mass = pi * radius * radius
@@ -347,6 +379,7 @@ class Circle(Shape):
             mass,
             radius,
             color,
+            name
         )
 
 
@@ -374,6 +407,7 @@ class Polygon(Shape):
         is_bouncy,
         is_slippery,
         color,
+        name
     ):
         """
         Initialize a Polygon from a list of world-space vertices.
@@ -396,6 +430,7 @@ class Polygon(Shape):
             is_slippery: A boolean representing if the shape is
                             slipperier than usual.
             color: A tuple representing the RGB values of the shape's color.
+            name: The string representation of the shape.
         """
         n = len(vertices)
 
@@ -470,6 +505,7 @@ class Polygon(Shape):
             mass,
             bounding_radius,
             color,
+            name
         )
 
     @property
