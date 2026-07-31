@@ -1,5 +1,5 @@
 """
-Contains the Level class.
+Contains the Level and LELevel classes.
 """
 
 from math import ceil, floor, sqrt, copysign
@@ -40,6 +40,10 @@ class Level:
         moving circles on the level.
         self._moving_polygons: A list of Polygons representing the
         moving polygons on the level.
+        self._portal_depth: A float representing how deep
+        the player is in the closest portal to them
+        self._current_portal: A portal representing the closest portal
+        to the player, None if they aren't inside a portal.
     """
 
     def __init__(self, shapes_path, portals, constants):
@@ -68,10 +72,20 @@ class Level:
         self._MAX_PORTAL_FORCE = constants["max_portal_force"]
 
         # Initialize all shapes and portals on the level.
+        self._signs = None
+        self._border = None
+        self._polygons = None
+        self._dynamic_circles = None
+        self._dynamic_polygons = None
+        self._portal_entrances = None
         self.restart()
 
         # Initialize an empty list of debug points to draw on the level.
         self._debug_points = []
+
+        # Initialize portal travel related variables.
+        self._portal_depth = 0
+        self._current_portal = None
 
     def restart(self):
         """
@@ -116,9 +130,9 @@ class Level:
         self._caption.show(caption_attributes["title"],
                            caption_attributes["subtitle"],
                            fixed)
-        
+
         # ---------------------------------------------------------------------
-        
+
         with open(self._path + "signs.json", "r", encoding="utf-8") as file:
             signs_attributes = json.load(file)
 
@@ -262,15 +276,13 @@ class Level:
 
     def update_portals(self, dt):
         """
-        Check if the player is in any portal entrance and if so, move the player
+        Update the portal travel attributes,
+        check if the player is in any portal entrance and if so, move the player
         to the corresponding portal exit.
 
         Returns:
-            A Vector representing the change in the player's position.
-            None if the player is not in any portal entrance.
-            A float representing how deep the player
-            is in the closest portal to them
-            A Portal or None representing the portal the player is in.
+            A Vector representing by how much the player was teleported.
+            None if the the player wasn't teleported.
         """
         depth = 0
         the_portal = None
@@ -283,6 +295,21 @@ class Level:
                 portal.activate()
                 portal.unpause_glow()
                 continue
+
+            # Apply portal forces to the player
+            # if they are touching a portal
+            # and calculate the depth of the player in the portal.
+            force = portal.force(
+                self._player.position, self._player.radius)
+            calc_depth = portal.depth(
+                self._player.position, self._player.radius)
+            if force is not None:
+                self._player.accelerate(force, dt)
+                self._player.slow(calc_depth * 5, dt)
+            if calc_depth > depth:
+                depth = calc_depth # recorded depth = calculated depth
+                the_portal = portal
+
             # If the player is in the portal, move them to
             # the corresponding portal exit
             # and return the change in their position.
@@ -301,26 +328,20 @@ class Level:
                 self._player.set_position(Vector.sum(
                     portal.to_position, relative_position))
 
-                # Return the change in the player's position.
-                return Vector.diff(portal.to_position, portal.position
-                                   ), depth, portal
+                # Set the portal travel attributes.
+                self._portal_depth = depth
+                self._current_portal = portal.to_portal
 
-            # Apply portal forces to the player
-            # if they are touching a portal
-            # and calculate the depth of the player in the portal.
-            force = portal.force(
-                self._player.position, self._player.radius)
-            calc_depth = portal.depth(
-                self._player.position, self._player.radius)
-            if force is not None:
-                self._player.accelerate(force, dt)
-                self._player.slow(calc_depth * 5, dt)
-            if calc_depth > depth:
-                depth = calc_depth # recorded depth = calculated depth
-                the_portal = portal
+                # Return the player's displacement due to the portal travel.
+                return Vector.diff(portal.to_position, portal.position)
 
-        # If the player is not in any portal, return None.
-        return None, depth, the_portal
+        # Set the portal travel attributes
+        # even if the player is not fully in the closest portal.
+        self._portal_depth = depth
+        self._current_portal = the_portal
+
+        # The player didn't teleport so return None.
+        return None
 
     @classmethod
     def make_vector(cls, json_input):
@@ -1221,7 +1242,7 @@ class Level:
     def caption(self):
         """Get caption"""
         return self._caption
-    
+
     @property
     def signs(self):
         """Get signs"""
@@ -1231,3 +1252,18 @@ class Level:
     def debug_points(self):
         """Get debug points"""
         return self._debug_points
+
+    @property
+    def portal_depth(self):
+        """Get portal depth"""
+        return self._portal_depth
+
+    @property
+    def current_portal(self):
+        """Get current portal"""
+        return self._current_portal
+
+class LELevel(Level):
+    """
+    Same as Level but for use in a level editor.
+    """

@@ -46,11 +46,15 @@ class PortalExit:
         difference = Vector.diff(position, self._position)
         distance = sqrt(difference.magnitude_squared())
         max_distance = self._radius + radius
+        min_distance = self._radius - radius
 
         if distance >= max_distance:
             return 0
         else:
-            return (max_distance - distance) / max_distance
+            return min(
+                1,
+                (max_distance - distance + min_distance) / max_distance
+            )
 
     def pause_glow(self):
         """Set can_glow to False"""
@@ -165,12 +169,35 @@ class PortalEntrance(PortalExit):
                 (self._max_force * (max_distance - distance))
                 / (max_distance * distance)
             )
-        
+
     def activate(self):
         """
         Make the portal active.
         """
         self._is_active = True
+
+    @property
+    def to_portal(self):
+        """
+        Make a preview of what the other side of the portal should look like.
+
+        Returns:
+            copy: A PortalEntrance representing a copy of the portal but at the
+            position of its other side.
+        """
+        copy = PortalEntrance(
+            self._to_position,
+            self._radius,
+            self._position,
+            self._to_path,
+            self._max_force,
+            self._color
+        )
+        if self._is_active:
+            copy.activate()
+        if not self._can_glow:
+            copy.pause_glow()
+        return copy
 
     @property
     def to_position(self):

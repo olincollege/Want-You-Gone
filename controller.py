@@ -1,5 +1,5 @@
 """
-Contains the Controller class.
+Contains the Controller and LEController classes.
 """
 
 import pygame
@@ -27,11 +27,13 @@ class Controller:
         since the last jump.
         _released_jump: A boolean representing if the player has released the
         jump button since the last time they pressed it.
+        _play_jump: A boolean representing if the jump button has been pressed
+        in the most recent timestep.
     """
 
     def __init__(self, constants):
         """
-        Initialise all constants.
+        Initialise all constants and readable attributes.
 
         Args:
             constants: A dictionary representing all the constants.
@@ -41,6 +43,7 @@ class Controller:
         self._JUMP_BUFFER = constants["jump_buffer"]
         self._jump_timer = self._JUMP_BUFFER
         self._jump_released = True
+        self._play_jump = False
         self.update(0)
 
     def update(self, dt):
@@ -51,9 +54,6 @@ class Controller:
 
         Args:
             dt: A float representing the frame duration in seconds.
-        
-        Returns:
-            A boolean representing if the player just pressed the jump key.
         """
         self._keys = pygame.key.get_pressed()
         self._jump_timer += dt
@@ -62,11 +62,11 @@ class Controller:
             if self._jump_released:
                 self._jump_timer = 0
                 self._jump_released = False
-                return True
-
+                self._play_jump = True
+                return
         else:
             self._jump_released = True
-        return False
+        self._play_jump = False
 
     @property
     def restart(self):
@@ -123,3 +123,60 @@ class Controller:
         if self._keys[pygame.K_d] or self._keys[pygame.K_RIGHT]:
             direction += 1
         return direction * self._ROLL_TORQUE, direction * self._ROLL_FORCE
+
+    @property
+    def play_jump(self):
+        """
+        True when the player has jumped in the most recent timestep
+        and the jump sound should be played.
+
+        Returns:
+            A boolean.
+        """
+        return self._play_jump
+
+
+class LEController(Controller):
+    """
+    Same as Controller but with extra level editor input options.
+
+    Attributes:
+        _pause_released: A boolean representing if the pause key
+        was released on the last frame.
+        _is_paused: A boolean representing
+        if gameplay is currently paused.
+        All other attributes are inherited from Controller.
+    """
+    def __init__(self, constants):
+        """
+        Initialise all constants and readable attributes.
+
+        Args:
+            constants: A dictionary representing all the constants.
+        """
+        super().__init__(constants)
+        self._pause_released = True
+        self._is_paused = False
+
+    def update(self, dt):
+        """
+        Tick the jump timer forward by one frame and record the key inputs.
+
+        Call this once per frame *before* reading any properties.
+
+        Args:
+            dt: A float representing the frame duration in seconds.
+        """
+        super().update(dt)
+        pausing = self._keys[pygame.K_SPACE]
+        if pausing:
+            if self._pause_released:
+                self._is_paused = not self._is_paused
+            self._pause_released = False
+        else:
+            self._pause_released = True
+
+    @property
+    def is_paused(self):
+        """Get is paused"""
+        return self._is_paused

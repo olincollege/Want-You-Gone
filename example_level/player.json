@@ -1,6 +1,6 @@
 {
     "radius": 25,
-    "position": [-200, -200],
+    "position": [-150, 100],
     "velocity": [0, 0],
     "angle": 0,
     "angular_velocity": 0,

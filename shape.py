@@ -231,7 +231,6 @@ class DynamicShape(Shape):
         Args:
             dt: A float representing the timestep in seconds.
         """
-        self._velocity.snap_cardinal(4)
         self._position.add(self._velocity.scale(dt))
         self._angle += self._angular_velocity * dt
 
@@ -576,6 +575,7 @@ class DynamicPolygon(Polygon, DynamicShape):
         Args:
             dt: A float representing the timestep in seconds.
         """
+        self._velocity.snap_cardinal(4)
         super().update_position(dt)
         self.update_rotated_vertices()
         self.update_world_vertices()

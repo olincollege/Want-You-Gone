@@ -1,5 +1,5 @@
 """
-Contains the View class.
+Contains the View and LEView classes.
 """
 
 from math import ceil, degrees
@@ -49,9 +49,9 @@ class View:
         self._PLAYER_SPRITE = pygame.image.load(
             self._PATH + "wheatley_2.png"
         ).convert_alpha()
-        self.refresh(0, 0, None)
+        self.refresh(0)
 
-    def refresh(self, dt, alpha, glowing_portal):
+    def refresh(self, dt):
         """
         Refresh the display to show the current state of the level.
 
@@ -59,7 +59,6 @@ class View:
             dt: A float representing the time since the last refresh.
         """
         self.update_lerp(dt)
-        #self._window.fill(self._level.border.color)
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
@@ -71,8 +70,9 @@ class View:
             self.draw_polygon(polygon, True)
         for portal in self._level.portal_entrances:
             self.draw_circle(portal, 10)
+        glowing_portal = self._level.current_portal
         if glowing_portal is not None and glowing_portal.can_glow:
-            self.portal_glow(alpha, glowing_portal)
+            self.portal_glow(self._level.portal_depth, glowing_portal)
         self.draw_player(self._level.player)
         target_camera = Vector.diff(
             self._level.player.position, self._WINDOW_CENTER)
@@ -180,7 +180,7 @@ class View:
         screen_pos = Vector.sum(polygon.position, self._camera)
         blit_pos = Vector.sum(screen_pos, Vector(-r, -r))
         self._window.blit(polygon_surface, blit_pos.get_tuple())
-    
+
     def draw_sign(self, sign): # should I call it sign or text? idk
         """
         Draws a piece of static world text based on its position
@@ -298,3 +298,38 @@ class View:
         sound_effect = mixer.Sound(f"sound_effects_music/{sound_path}.mp3")
         # Play sound effect
         sound_effect.play()
+
+
+class LEView(View):
+    """
+    The same as view but able to display a level editor level (LELevel).
+    """
+    def refresh(self, dt):
+        """
+        Refresh the display to show the current state of the level.
+        This now includes drawing the shape being edited as an outline.
+    
+        Args:
+            dt: A float representing the time since the last refresh.
+        """
+        self.update_lerp(dt)
+        self.draw_background()
+        for polygon in self._level.polygons:
+            self.draw_polygon(polygon)
+        for sign in self._level.signs:
+            self.draw_sign(sign)
+        for circle in self._level.dynamic_circles:
+            self.draw_player(circle)
+        for polygon in self._level.dynamic_polygons:
+            self.draw_polygon(polygon, True)
+        for portal in self._level.portal_entrances:
+            self.draw_circle(portal, 10)
+        glowing_portal = self._level.current_portal
+        if glowing_portal is not None and glowing_portal.can_glow:
+            self.portal_glow(self._level.portal_depth, glowing_portal)
+        self.draw_player(self._level.player)
+        target_camera = Vector.diff(
+            self._level.player.position, self._WINDOW_CENTER)
+        self._level.caption.draw(self._window, self._camera, target_camera)
+        #self.draw_points(self._level.debug_points)
+        pygame.display.flip()
