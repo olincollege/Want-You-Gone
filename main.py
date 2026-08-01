@@ -54,6 +54,9 @@ def tick(dt, max_angular_velocity, jump_sound, level, controller, view):
     if controller.restart:
         level.restart()
 
+    # Update the camera position based on the player's position.
+    view.update_lerp(dt)
+
 
 def main():
     """
@@ -142,8 +145,13 @@ def level_editor():
         # Update the controller.
         controller.update(dt)
 
-        # Unless the game is paused, tick the Level forward in time.
-        if not controller.is_paused:
+        # If the game is paused, enter level editor mode.
+        if controller.is_paused:
+            camera_displacement = controller.camera_drag_displacement
+            view.move_camera(camera_displacement)
+
+        # Otherwise, tick the Level forward in time.
+        else:
             tick(
                 dt,
                 max_angular_velocity,

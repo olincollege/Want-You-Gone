@@ -4,6 +4,8 @@ Contains the Controller and LEController classes.
 
 import pygame
 
+from vector import Vector
+
 
 class Controller:
     """
@@ -55,7 +57,10 @@ class Controller:
         Args:
             dt: A float representing the frame duration in seconds.
         """
+        # Update the keys currently being pressed.
         self._keys = pygame.key.get_pressed()
+
+        # Update the jump tracker.
         self._jump_timer += dt
         jumping = self._keys[pygame.K_w] or self._keys[pygame.K_UP]
         if jumping:
@@ -146,6 +151,10 @@ class LEController(Controller):
         _is_paused: A boolean representing
         if gameplay is currently paused.
         All other attributes are inherited from Controller.
+        _camera_drag_position: A Vector representing the position of the mouse
+        in the previous frame when dragging the camera.
+        _camera_drag_displacement: A Vector representing the amount
+        to move the camera in the current frame based on mouse dragging.
     """
     def __init__(self, constants):
         """
@@ -157,6 +166,8 @@ class LEController(Controller):
         super().__init__(constants)
         self._pause_released = True
         self._is_paused = False
+        self._camera_drag_position = None
+        self._camera_drag_displacement = Vector(0, 0)
 
     def update(self, dt):
         """
@@ -167,7 +178,10 @@ class LEController(Controller):
         Args:
             dt: A float representing the frame duration in seconds.
         """
+        # Update the keys currently being pressed and the jump tracker.
         super().update(dt)
+
+        # Update the pause tracker.
         pausing = self._keys[pygame.K_SPACE]
         if pausing:
             if self._pause_released:
@@ -176,7 +190,26 @@ class LEController(Controller):
         else:
             self._pause_released = True
 
+        # Update the camera drag tracker.
+        mouse_buttons = pygame.mouse.get_pressed()
+        if mouse_buttons[2]:  # Right mouse button is pressed
+            mouse_position = pygame.mouse.get_pos()
+            mouse_position = Vector(mouse_position[0], mouse_position[1])
+            if self._camera_drag_position is not None:
+                self._camera_drag_displacement = Vector.diff(
+                    self._camera_drag_position, mouse_position
+                )
+            self._camera_drag_position = mouse_position
+        else:
+            self._camera_drag_position = None
+            self._camera_drag_displacement = Vector(0, 0)
+
     @property
     def is_paused(self):
         """Get is paused"""
         return self._is_paused
+
+    @property
+    def camera_drag_displacement(self):
+        """Get camera drag displacement"""
+        return self._camera_drag_displacement

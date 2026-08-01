@@ -58,7 +58,6 @@ class View:
         Args:
             dt: A float representing the time since the last refresh.
         """
-        self.update_lerp(dt)
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
@@ -312,7 +311,6 @@ class LEView(View):
         Args:
             dt: A float representing the time since the last refresh.
         """
-        self.update_lerp(dt)
         self.draw_background()
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
