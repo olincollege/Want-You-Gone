@@ -68,7 +68,7 @@ def main():
     fps = 40
     mode = "normal"
     portals = "close"
-    starting_level = "example_level"
+    starting_level = "level_1"
     # --------------------------------------------------------------------------
     dt = 1 / fps
     with open(f"constants/{mode}_mode.json", "r", encoding="utf-8") as file:
@@ -117,7 +117,7 @@ def level_editor():
     fps = 40
     mode = "normal"
     portals = "close"
-    starting_level = "example_level"
+    starting_level = "level_1"
     # --------------------------------------------------------------------------
     dt = 1 / fps
     with open(f"constants/{mode}_mode.json", "r", encoding="utf-8") as file:
@@ -148,8 +148,30 @@ def level_editor():
 
         # If the game is paused, enter level editor mode.
         if controller.is_paused:
+            # Update the camera position based on mouse dragging.
             camera_displacement = controller.camera_drag_displacement
             view.move_camera(camera_displacement)
+
+            # If the editor is toggling dynamic, toggle dynamic.
+            if controller.toggle_dynamic:
+                level.toggle_dynamic()
+
+            # If the editor presses delete, delete the editing shape.
+            if controller.delete_object:
+                level.delete_editing_shape()
+
+            # If the editor presses enter, finish editing the shape.
+            if controller.finish_editing:
+                level.finish_editing()
+
+            if controller.edit_click:
+                click_position = Vector.diff(
+                    view.camera, controller.editor_position
+                )
+                level.new_editing_circle(
+                    click_position,
+                    25
+                )
 
         # Otherwise, tick the Level forward in time.
         else:

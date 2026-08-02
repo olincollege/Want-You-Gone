@@ -344,7 +344,7 @@ class Level:
                     portal.position, self._player.position)
 
                 # Change which level the player is on.
-                self._path = portal.to_path
+                self.set_path(portal.to_path)
                 self.reset()
 
                 # Move the player to the corresponding position
@@ -1239,6 +1239,16 @@ class Level:
         """
         self._dynamic_polygons[0].nudge(movement.scale(dt))
 
+    def set_path(self, new_path):
+        """
+        Change self._path to be a different level directory.
+
+        Args:
+            new_path: A string representing
+            the path of the new level directory.
+        """
+        self._path = new_path
+
     @property
     def player(self):
         """Get player"""
@@ -1334,6 +1344,13 @@ class LELevel(Level):
         self._editing_circle = None
         self._editing_shape_is_dynamic = True
 
+    def set_path(self, new_path):
+        """
+        Same as in Level but finish editing first.
+        """
+        self.finish_editing()
+        super().set_path(new_path)
+
     def toggle_dynamic(self):
         """
         Toggle whether the shape currently being edited is dynamic or not.
@@ -1398,6 +1415,18 @@ class LELevel(Level):
                 data = data[:i - 9] + data[i:]
                 i -= 9
 
+            # If i is a closing bracket, following 12 spaces
+            # and a newline, and can_edit is True,
+            # remove the newline and spaces.
+            if (
+                data[i] == "]" and
+                i - 13 >= 0 and
+                data[i - 9:i] == "\n            " and
+                can_edit
+            ):
+                data = data[:i - 13] + data[i:]
+                i -= 13
+
             # If i is a quotation mark that is following
             # something other than a colon, then a space,
             # replace the space with a newline and two tabs.
@@ -1420,6 +1449,10 @@ class LELevel(Level):
         Finish editing the current shape and add it to the level
         and corresponding .json file.
         """
+        def reset(self):
+            """
+            Same as in Level but finish editing before 
+            """
         def make_dynamic_polygon(vertices):
             """
             Make a dynamic polygon from a list of vertices.
@@ -1584,7 +1617,8 @@ class LELevel(Level):
 
 
         # If a polygon is being edited, finish editing it.
-        if self._editing_polygon is not None:
+        if self._editing_polygon is not None and len(
+            self._editing_polygon) >= 3:
             if self._editing_shape_is_dynamic:
                 polygon = make_dynamic_polygon(self._editing_polygon)
                 self._dynamic_polygons.append(polygon)
@@ -1606,6 +1640,203 @@ class LELevel(Level):
                 self._circles.append(circle)
                 append_json("circles.json", circle)
             self._editing_circle = None
+
+    def new_editing_polygon(self):
+        """
+        Start editing a new polygon.
+        """
+        self.finish_editing()
+        self._editing_polygon = []
+
+    def new_editing_circle(self, position, radius):
+        """
+        Start editing a new circle.
+
+        Args:
+            position: A Vector representing the position of the circle
+            in world space.
+            radius: A float representing the radius of the circle.
+        """
+        self.finish_editing()
+        self._editing_circle = (position, radius)
+
+    def add_editing_vertex(self, vertex, index=None):
+        """
+        Add a vertex to the polygon currently being edited.
+
+        Args:
+            vertex: A Vector representing the position of the vertex
+            in world space.
+            index: An integer representing the index at which to insert
+            the vertex, or None to append it to the end of the list.
+        """
+        if self._editing_polygon is not None:
+            if index is None:
+                self._editing_polygon.append(vertex)
+            else:
+                self._editing_polygon.insert(index, vertex)
+
+    def remove_editing_vertex(self, index):
+        """
+        Remove a vertex from the polygon currently being edited.
+
+        Args:
+            index: An integer representing the index of the vertex to remove.
+        """
+        if self._editing_polygon is not None:
+            if 0 <= index < len(self._editing_polygon):
+                self._editing_polygon.pop(index)
+
+    def move_editing_vertex(self, index, new_position):
+        """
+        Move a vertex of the polygon currently being edited.
+
+        Args:
+            index: An integer representing the index of the vertex to move.
+            new_position: A Vector representing the new position of the vertex
+            in world space.
+        """
+        if self._editing_polygon is not None:
+            if 0 <= index < len(self._editing_polygon):
+                self._editing_polygon[index] = new_position
+
+    def set_editing_circle_position(self, new_position):
+        """
+        Set the position of the circle currently being edited.
+
+        Args:
+            new_position: A Vector representing the new position of the circle
+            in world space.
+        """
+        if self._editing_circle is not None:
+            self._editing_circle = (new_position, self._editing_circle[1])
+
+    def set_editing_circle_radius(self, new_radius):
+        """
+        Set the radius of the circle currently being edited.
+
+        Args:
+            new_radius: A float representing the new radius of the circle.
+        """
+        if self._editing_circle is not None:
+            self._editing_circle = (self._editing_circle[0], new_radius)
+
+    def delete_editing_shape(self):
+        """
+        Delete the shape currently being edited.
+        """
+        self._editing_polygon = None
+        self._editing_circle = None
+
+    def pop_json(self, path, index):
+        """
+        Remove a shape from the .json file at the given path.
+
+        Args:
+            path: A string representing the path to the .json file.
+            index: An integer representing the index of the shape to remove.
+        """
+        # Load the existing shapes from the .json file.
+        path = self._path + path
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                shapes = json.load(f)
+        except FileNotFoundError:
+            shapes = []
+
+        # Remove the shape at the given index from the list of shapes.
+        if 0 <= index < len(shapes):
+            shapes.pop(index)
+
+        # Write the updated list of shapes to the .json file.
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(shapes, f, indent=4)
+
+        # Reformat the .json file to be more human-readable.
+        self.reformat_json(path)
+
+    def edit_existing_polygon(self, polygon):
+        """
+        Start editing an existing polygon.
+
+        Args:
+            polygon: An integer representing the index of the polygon
+            in self._polygons to edit.
+        
+        Raises:
+            IndexError: If the polygon index is out of range.
+        """
+        self.finish_editing()
+        if not 0 <= polygon < len(self._polygons):
+            raise IndexError("Polygon index out of range.")
+        self._editing_polygon = self._polygons[polygon].world_vertices.copy()
+        self._editing_shape_is_dynamic = False
+        self._polygons.pop(polygon)
+        self.pop_json("polygons.json", polygon)
+
+    def edit_existing_dynamic_polygon(self, polygon):
+        """
+        Start editing an existing dynamic polygon.
+
+        Args:
+            polygon: An integer representing the index of the polygon
+            in self._dynamic_polygons to edit.
+        
+        Raises:
+            IndexError: If the polygon index is out of range.
+        """
+        self.finish_editing()
+        if not 0 <= polygon < len(self._dynamic_polygons):
+            raise IndexError("Polygon index out of range.")
+        self._editing_polygon = self._dynamic_polygons[polygon
+            ].world_vertices.copy()
+        self._editing_shape_is_dynamic = True
+        self._dynamic_polygons.pop(polygon)
+        self.pop_json("dynamic_polygons.json", polygon)
+
+    def edit_existing_circle(self, circle):
+        """
+        Start editing an existing circle.
+
+        Args:
+            circle: An integer representing the index of the circle
+            in self._circles to edit.
+        
+        Raises:
+            IndexError: If the circle index is out of range.
+        """
+        self.finish_editing()
+        if not 0 <= circle < len(self._circles):
+            raise IndexError("Circle index out of range.")
+        self._editing_circle = (
+            self._circles[circle].position,
+            self._circles[circle].radius
+        )
+        self._editing_shape_is_dynamic = False
+        self._circles.pop(circle)
+        self.pop_json("circles.json", circle)
+
+    def edit_existing_dynamic_circle(self, circle):
+        """
+        Start editing an existing dynamic circle.
+
+        Args:
+            circle: An integer representing the index of the circle
+            in self._dynamic_circles to edit.
+        
+        Raises:
+            IndexError: If the circle index is out of range.
+        """
+        self.finish_editing()
+        if not 0 <= circle < len(self._dynamic_circles):
+            raise IndexError("Circle index out of range.")
+        self._editing_circle = (
+            self._dynamic_circles[circle].position,
+            self._dynamic_circles[circle].radius
+        )
+        self._editing_shape_is_dynamic = True
+        self._dynamic_circles.pop(circle)
+        self.pop_json("dynamic_circles.json", circle)
 
     @property
     def editing_color(self):

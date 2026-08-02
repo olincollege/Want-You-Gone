@@ -425,3 +425,8 @@ class LEView(View):
 
         # Draw the vertices of the polygon.
         self.draw_points(vertices)
+
+    @property
+    def camera(self):
+        """Get the position of the camera"""
+        return self._camera

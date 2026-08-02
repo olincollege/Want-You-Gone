@@ -151,10 +151,19 @@ class LEController(Controller):
         _is_paused: A boolean representing
         if gameplay is currently paused.
         All other attributes are inherited from Controller.
+        _mouse_buttons: A tuple representing the state of each mouse button.
         _camera_drag_position: A Vector representing the position of the mouse
         in the previous frame when dragging the camera.
         _camera_drag_displacement: A Vector representing the amount
         to move the camera in the current frame based on mouse dragging.
+        _dynamic_toggle_released: A boolean representing
+        if the dynamic toggle key was released on the last frame.
+        _toggle_dynamic: A boolean representing if the editor wants to toggle
+        the 'dynamic' state of an object in the level editor.
+        _edit_clicking_released: A boolean representing
+        if the edit click button was released in the last frame.
+        _edit_click: A boolean representing if the editor wants to
+        make an edit click.
     """
     def __init__(self, constants):
         """
@@ -168,6 +177,10 @@ class LEController(Controller):
         self._is_paused = False
         self._camera_drag_position = None
         self._camera_drag_displacement = Vector(0, 0)
+        self._dynamic_toggle_released = True
+        self._toggle_dynamic = False
+        self._edit_click_released = True
+        self._edit_click = False
 
     def update(self, dt):
         """
@@ -190,19 +203,92 @@ class LEController(Controller):
         else:
             self._pause_released = True
 
+        # Update the dynamic toggle tracker.
+        dynamic_toggling = self._keys[pygame.K_d]
+        self._toggle_dynamic = False
+        if dynamic_toggling:
+            if self._dynamic_toggle_released:
+                self._toggle_dynamic = True
+            self._dynamic_toggle_released = False
+        else:
+            self._dynamic_toggle_released = True
+
         # Update the camera drag tracker.
-        mouse_buttons = pygame.mouse.get_pressed()
-        if mouse_buttons[2]:  # Right mouse button is pressed
-            mouse_position = pygame.mouse.get_pos()
-            mouse_position = Vector(mouse_position[0], mouse_position[1])
+        self._mouse_buttons = pygame.mouse.get_pressed()
+        mouse_position = pygame.mouse.get_pos()
+        self._mouse_position = Vector(mouse_position[0], mouse_position[1])
+        if self._mouse_buttons[2]:  # Right mouse button is pressed
             if self._camera_drag_position is not None:
                 self._camera_drag_displacement = Vector.diff(
-                    self._camera_drag_position, mouse_position
+                    self._camera_drag_position, self._mouse_position
                 )
-            self._camera_drag_position = mouse_position
+            self._camera_drag_position = self._mouse_position
         else:
             self._camera_drag_position = None
             self._camera_drag_displacement = Vector(0, 0)
+
+        # Update the edit click tracker.
+        edit_clicking = self._mouse_buttons[0]  # Left mouse button is pressed
+        self._edit_click = False
+        if edit_clicking:
+            if self._edit_click_released:
+                self._edit_click = True
+            self._edit_click_released = False
+        else:
+            self._edit_click_released = True
+
+    @property
+    def editor_position(self):
+        """
+        Get the position of the mouse in the level editor.
+
+        Returns:
+            A Vector representing the position of the mouse in the level editor.
+            None if the left mouse button is not pressed.
+        """
+        if not self._mouse_buttons[0]:  # Left mouse button is pressed
+            return None
+        return self._mouse_position
+
+    @property
+    def new_polygon(self):
+        """
+        True when the player wants to create a new polygon in the level editor.
+        This is triggered by pressing P.
+        """
+        return self._keys[pygame.K_p]
+
+    @property
+    def new_circle(self):
+        """
+        True when the player wants to create a new circle in the level editor.
+        This is triggered by pressing C.
+        """
+        return self._keys[pygame.K_c]
+
+    @property
+    def delete_object(self):
+        """
+        True when the player wants to delete an object in the level editor.
+        This is triggered by pressing the backspace or delete key.
+        """
+        return self._keys[pygame.K_BACKSPACE] or self._keys[pygame.K_DELETE]
+
+    @property
+    def toggle_dynamic(self):
+        """
+        True when the player wants to toggle the dynamic state of an object
+        in the level editor. This is triggered by pressing D.
+        """
+        return self._toggle_dynamic
+
+    @property
+    def finish_editing(self):
+        """
+        True when the player wants to finish editing the editing shape.
+        This is triggered by the enter key.
+        """
+        return self._keys[pygame.K_RETURN]
 
     @property
     def is_paused(self):
@@ -213,3 +299,8 @@ class LEController(Controller):
     def camera_drag_displacement(self):
         """Get camera drag displacement"""
         return self._camera_drag_displacement
+
+    @property
+    def edit_click(self):
+        """Get edit click"""
+        return self._edit_click
