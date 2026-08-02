@@ -140,6 +140,7 @@ def level_editor():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 print(f"final position = {level.player.position}")
+                level.finish_editing()
                 exit()
 
         # Update the controller.

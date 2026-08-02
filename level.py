@@ -7,7 +7,7 @@ import json
 from collections import namedtuple
 
 from portal import PortalEntrance
-from shape import DynamicShape, Polygon, DynamicCircle, DynamicPolygon
+from shape import Circle, DynamicShape, Polygon, DynamicCircle, DynamicPolygon
 from text_display import TextDisplay
 from world_text import WorldText
 from vector import Vector
@@ -36,10 +36,10 @@ class Level:
         stationary circles on the level.
         self._polygons: A list of Polygons representing the
         stationary polygons on the level.
-        self._moving_circles: A list of Circles representing the
-        moving circles on the level.
-        self._moving_polygons: A list of Polygons representing the
-        moving polygons on the level.
+        self._dynamic_circles: A list of DynamicCircles representing the
+        dynamic circles on the level.
+        self._dynamic_polygons: A list of DynamicPolygons representing the
+        dynamic polygons on the level.
         self._portal_depth: A float representing how deep
         the player is in the closest portal to them
         self._current_portal: A portal representing the closest portal
@@ -74,6 +74,7 @@ class Level:
         # Initialize all shapes and portals on the level.
         self._signs = None
         self._border = None
+        self._circles = None
         self._polygons = None
         self._dynamic_circles = None
         self._dynamic_polygons = None
@@ -165,6 +166,29 @@ class Level:
             tuple(border_attributes["color"]),
             "border"
         )
+
+        # ----------------------------------------------------------------------
+
+        # Read the file for circles.
+        with open(self._path + "circles.json", "r",
+                  encoding="utf-8") as file:
+            circles_attributes = json.load(file)
+
+        # Initialize circles.
+        self._circles = [
+            Circle(
+                circle_attributes["radius"],
+                self.make_vector(circle_attributes["position"]),
+                self.make_vector(circle_attributes["velocity"]),
+                circle_attributes["angle"],
+                circle_attributes["angular_velocity"],
+                circle_attributes["is_bouncy"],
+                circle_attributes["is_slippery"],
+                tuple(circle_attributes["color"]),
+                circle_attributes["comment"]
+            )
+            for circle_attributes in circles_attributes
+        ]
 
         # ----------------------------------------------------------------------
 
@@ -414,17 +438,21 @@ class Level:
             is_bouncing: A boolean representing whether or not the player is
             bouncing in this update.
         """
-        # Dynamic circles on player and stationary polygons.
+        # Dynamic circles on player and stationary circles & polygons.
         for circle in self._dynamic_circles:
             self.circle_circle_collision(
                 self._player, circle, is_jumping, is_bouncing)
             for polygon in self._polygons + [self._border]:
                 self.circle_polygon_collision(circle, polygon)
+            for other_circle in self._circles:
+                self.circle_circle_collision(circle, other_circle)
 
-        # Dynamic polygons on stationary polygons.
+        # Dynamic polygons on stationary circles & polygons.
         for polygon in self._dynamic_polygons:
             for other_polygon in self._polygons + [self._border]:
                 self.polygon_polygon_collision(polygon, other_polygon)
+            for circle in self._circles:
+                self.circle_polygon_collision(circle, polygon)
 
         # Dynamic polygons on player and dynamic circles.
         for polygon in self._dynamic_polygons:
@@ -433,10 +461,13 @@ class Level:
             for circle in self._dynamic_circles:
                 self.circle_polygon_collision(circle, polygon)
 
-        # Player on stationary polygons.
+        # Player on stationary circles & polygons.
         for polygon in self._polygons + [self._border]:
             self.circle_polygon_collision(
                 self._player, polygon, is_jumping, is_bouncing)
+        for circle in self._circles:
+            self.circle_circle_collision(
+                self._player, circle, is_jumping, is_bouncing)
 
         # Dynamic circles on each other.
         for i, circle in enumerate(self._dynamic_circles):
@@ -1219,6 +1250,11 @@ class Level:
         return self._border
 
     @property
+    def circles(self):
+        """Get circles"""
+        return self._circles
+
+    @property
     def polygons(self):
         """Get polygons"""
         return self._polygons
@@ -1266,4 +1302,333 @@ class Level:
 class LELevel(Level):
     """
     Same as Level but for use in a level editor.
+
+    Attributes:
+        _editing_polygon: A list of Vectors representing
+        the polygon currently being edited, or None.
+        _editing_circle: A length 2 list containing
+        a Vector representing the position of the circle
+        currently being edited and a float representing its radius,
+        or None.
+        _editing_shape_is_dynamic: A boolean representing
+        whether the shape currently being edited is dynamic or not.
+        _DYNAMIC_COLOR: A tuple of 3 integers
+        representing the RGB color of dynamic shapes.
+        _STATIONARY_COLOR: A tuple of 3 integers
+        representing the RGB color of stationary shapes.
+        All other attributes are inherited from Level.
     """
+    # Set the colors for dynamic and stationary shapes.
+    _DYNAMIC_COLOR = (200, 20, 20)
+    _STATIONARY_COLOR = (111, 135, 209)
+
+    def __init__(self, shapes_path, portals, constants):
+        """
+        Initialize a LELevel.
+
+        Args:
+            constants: A Constants object containing the game's constants.
+        """
+        super().__init__(shapes_path, portals, constants)
+        self._editing_polygon = None
+        self._editing_circle = None
+        self._editing_shape_is_dynamic = True
+
+    def toggle_dynamic(self):
+        """
+        Toggle whether the shape currently being edited is dynamic or not.
+        """
+        self._editing_shape_is_dynamic = not self._editing_shape_is_dynamic
+
+    def reformat_json(self, path):
+        """
+        Reformat a .json file, making all arrays except the one containing
+        every object fit in their own lines.
+
+        Args:
+            path: The path to the .json file to reformat.
+        """
+        # Load the data from the .json file.
+        with open(path, 'r', encoding='utf-8') as f:
+            data = f.read()
+
+        # Pass through the data and reformat it.
+        can_edit = False
+        i = 0
+        while i < len(data):
+            # If i is between a pair of brackets it can be edited,
+            # otherwise it cannot and if i is an open bracket,
+            # remove the newline after it.
+            if data[i] == "{":
+                can_edit = True
+                data = data[:i + 1] + data[i + 2:]
+            elif data[i] == "}":
+                can_edit = False
+
+            # If i is a comma or open bracket, followed by a newline,
+            # and can_edit is True,
+            # delete the newline and all subsequent spaces.
+            if (
+                (data[i] == "," or data[i] == "[") and
+                i + 1 < len(data) and
+                data[i + 1] == "\n" and
+                can_edit
+            ):
+                indents = 0
+                for j in range(i + 2, len(data)):
+                    if data[j] == " ":
+                        indents += 1
+                    else:
+                        break
+                data = data[:i + 1] + data[i + 2 + indents:]
+
+                # If i is a comma, add a space after it.
+                if data[i] == ",":
+                    data = data[:i + 1] + " " + data[i + 1:]
+
+            # If i is a closing bracket, following eight spaces
+            # and a newline, and can_edit is True,
+            # remove the newline and spaces.
+            if (
+                data[i] == "]" and
+                i - 9 >= 0 and
+                data[i - 9:i] == "\n        " and
+                can_edit
+            ):
+                data = data[:i - 9] + data[i:]
+                i -= 9
+
+            # If i is a quotation mark that is following
+            # something other than a colon, then a space,
+            # replace the space with a newline and two tabs.
+            if (
+                data[i] == "\"" and
+                i - 1 >= 0 and
+                data[i - 2] != ":" and
+                data[i - 1] == " "
+            ):
+                data = data[:i - 1] + "\n\t\t" + data[i:]
+
+            # Increment i to move to the next character.
+            i += 1
+
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(data)
+
+    def finish_editing(self):
+        """
+        Finish editing the current shape and add it to the level
+        and corresponding .json file.
+        """
+        def make_dynamic_polygon(vertices):
+            """
+            Make a dynamic polygon from a list of vertices.
+
+            Args:
+                vertices: A list of Vectors representing the vertices of the
+                polygon in world space.
+            
+            Returns:
+                A DynamicPolygon representing
+                the polygon with the given vertices.
+            """
+            polygon = DynamicPolygon(
+                vertices,
+                Vector(0, 0),
+                Vector(0, 0),
+                0,
+                0,
+                False,
+                False,
+                True,
+                self._DYNAMIC_COLOR,
+                "Unnamed Dynamic Polygon"
+            )
+            return polygon
+
+
+        def make_polygon(vertices):
+            """
+            Make a polygon from a list of vertices.
+
+            Args:
+                vertices: A list of Vectors representing the vertices of the
+                polygon in world space.
+            
+            Returns:
+                A Polygon representing
+                the polygon with the given vertices.
+            """
+            polygon = Polygon(
+                vertices,
+                Vector(0, 0),
+                Vector(0, 0),
+                0,
+                0,
+                False,
+                False,
+                False,
+                self._STATIONARY_COLOR,
+                "Unnamed Polygon"
+            )
+            return polygon
+
+
+        def make_dynamic_circle(circle):
+            """
+            Make a dynamic circle from a position and radius.
+
+            Args:
+                circle: A tuple of a Vector representing
+                the position of the circle in world space
+                and a float representing the radius of the circle.
+            
+            Returns:
+                A DynamicCircle representing
+                the circle with the given position and radius.
+            """
+            circle = DynamicCircle(
+                circle[1],
+                circle[0],
+                Vector(0, 0),
+                0,
+                0,
+                False,
+                True,
+                self._DYNAMIC_COLOR,
+                "Unnamed Dynamic Circle"
+            )
+            return circle
+
+
+        def make_circle(circle):
+            """
+            Make a circle from a position and radius.
+
+            Args:
+                circle: A tuple of a Vector representing
+                the position of the circle in world space
+                and a float representing the radius of the circle.
+            
+            Returns:
+                A Circle representing
+                the circle with the given position and radius.
+            """
+            circle = Circle(
+                circle[1],
+                circle[0],
+                Vector(0, 0),
+                0,
+                0,
+                False,
+                False,
+                self._STATIONARY_COLOR,
+                "Unnamed Circle"
+            )
+            return circle
+
+
+        def append_json(path, shape):
+            """
+            Append a shape to the .json file at the given path.
+
+            Args:
+                path: The path to the .json file.
+                shape: The shape to append.
+            """
+            # Make a dictionary representing the shape.
+            if issubclass(type(shape), Polygon):
+                shape_dict = {
+                    "comment": shape.__repr__(),
+                    "vertices": [[v.x, v.y] for v in shape.local_vertices],
+                    "position": [shape.position.x, shape.position.y],
+                    "velocity": [shape.velocity.x, shape.velocity.y],
+                    "angle": shape.angle,
+                    "angular_velocity": shape.angular_velocity,
+                    "is_bouncy": shape.is_bouncy,
+                    "is_slippery": shape.is_slippery,
+                    "color": list(shape.color)
+                }
+            elif issubclass(type(shape), Circle):
+                shape_dict = {
+                    "comment": shape.__repr__(),
+                    "radius": shape.radius,
+                    "position": [shape.position.x, shape.position.y],
+                    "velocity": [shape.velocity.x, shape.velocity.y],
+                    "angle": shape.angle,
+                    "angular_velocity": shape.angular_velocity,
+                    "is_bouncy": shape.is_bouncy,
+                    "is_slippery": shape.is_slippery,
+                    "color": list(shape.color)
+                }
+            else:
+                return
+
+            # Load the existing shapes from the .json file.
+            path = self._path + path
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    shapes = json.load(f)
+            except FileNotFoundError:
+                shapes = []
+
+            # Append the new shape to the list of shapes.
+            shapes.append(shape_dict)
+
+            # Write the updated list of shapes to the .json file.
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(shapes, f, indent=4)
+
+            # Reformat the .json file to be more human-readable.
+            self.reformat_json(path)
+
+
+        # If a polygon is being edited, finish editing it.
+        if self._editing_polygon is not None:
+            if self._editing_shape_is_dynamic:
+                polygon = make_dynamic_polygon(self._editing_polygon)
+                self._dynamic_polygons.append(polygon)
+                append_json("dynamic_polygons.json", polygon)
+            else:
+                polygon = make_polygon(self._editing_polygon)
+                self._polygons.append(polygon)
+                append_json("polygons.json", polygon)
+            self._editing_polygon = None
+
+        # If a circle is being edited, finish editing it.
+        if self._editing_circle is not None:
+            if self._editing_shape_is_dynamic:
+                circle = make_dynamic_circle(self._editing_circle)
+                self._dynamic_circles.append(circle)
+                append_json("dynamic_circles.json", circle)
+            else:
+                circle = make_circle(self._editing_circle)
+                self._circles.append(circle)
+                append_json("circles.json", circle)
+            self._editing_circle = None
+
+    @property
+    def editing_color(self):
+        """
+        Get the RGB color of the shape currently being edited
+        based on whether it is dynamic or stationary.
+        """
+        if self._editing_shape_is_dynamic:
+            return self._DYNAMIC_COLOR
+        else:
+            return self._STATIONARY_COLOR
+
+    @property
+    def editing_polygon(self):
+        """Get the polygon currently being edited"""
+        return self._editing_polygon
+
+    @property
+    def editing_circle(self):
+        """Get the circle currently being edited"""
+        return self._editing_circle
+
+    @property
+    def editing_shape_is_dynamic(self):
+        """Get whether the shape currently being edited is dynamic or not"""
+        return self._editing_shape_is_dynamic

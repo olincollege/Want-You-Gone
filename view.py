@@ -4,6 +4,7 @@ Contains the View and LEView classes.
 
 from math import ceil, degrees
 import pygame
+from pygame.gfxdraw import polygon
 from vector import Vector
 from pygame import mixer
 
@@ -59,6 +60,8 @@ class View:
             dt: A float representing the time since the last refresh.
         """
         self.draw_background()
+        for circle in self._level.circles:
+            self.draw_circle(circle)
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
         for sign in self._level.signs:
@@ -129,7 +132,8 @@ class View:
             path: A string representing the file path of the sprite to display.
         """
         # Get image and rotate it.
-        sprite = pygame.transform.scale_by(self._PLAYER_SPRITE, 0.47)
+        sprite = pygame.transform.scale_by(
+            self._PLAYER_SPRITE, 0.0188 * shape.radius)
         rotated_sprite = pygame.transform.rotate(sprite, -degrees(shape.angle))
         position = Vector.sum(shape.position, self._camera)
         position = position.get_tuple()
@@ -311,7 +315,10 @@ class LEView(View):
         Args:
             dt: A float representing the time since the last refresh.
         """
+        # Draw the background and all shapes in the level.
         self.draw_background()
+        for circle in self._level.circles:
+            self.draw_circle(circle)
         for polygon in self._level.polygons:
             self.draw_polygon(polygon)
         for sign in self._level.signs:
@@ -326,8 +333,95 @@ class LEView(View):
         if glowing_portal is not None and glowing_portal.can_glow:
             self.portal_glow(self._level.portal_depth, glowing_portal)
         self.draw_player(self._level.player)
+
+        # Draw the shape being edited if there is one.
+        if self._level.editing_polygon is not None:
+            self.draw_editing_polygon(
+                self._level.editing_polygon,
+                self._level.editing_color,
+                5
+            )
+        if self._level.editing_circle is not None:
+            self.draw_editing_circle(
+                self._level.editing_circle[0],
+                self._level.editing_circle[1],
+                self._level.editing_color,
+                5
+            )
+
+        # Draw the caption and flip the display.
         target_camera = Vector.diff(
             self._level.player.position, self._WINDOW_CENTER)
         self._level.caption.draw(self._window, self._camera, target_camera)
         #self.draw_points(self._level.debug_points)
         pygame.display.flip()
+
+    def draw_editing_circle(self, position, radius, color, stroke_width):
+        """
+        Draw a circle on the window based on position and radius.
+        
+        Args:
+            position: A Vector representing
+            the position of the circle to display.
+            radius: A float representing
+            the radius of the circle to display.
+            color: A tuple representing the RGB color of the circle to display.
+            stroke_width: An integer representing
+            the width of the circle's outline.
+        """
+        # Draw the circle itself.
+        r = ceil(radius) + stroke_width
+        circle_surface = pygame.Surface((r * 2, r * 2), pygame.SRCALPHA)
+        # Draw at the center of the surface, not at world coords.
+        pygame.draw.circle(
+            circle_surface, color, (r, r), r, stroke_width)
+        # World -> screen: screen_pos = world_pos + camera.
+        # Blit so the surface center lands on screen_pos.
+        screen_pos = Vector.sum(position, self._camera)
+        blit_pos = Vector.sum(screen_pos, Vector(-r, -r))
+        self._window.blit(circle_surface, blit_pos.get_tuple())
+
+        # Draw the center point of the circle.
+        self.draw_points([position])
+
+
+    def draw_editing_polygon(self, vertices, color, stroke_width):
+        """
+        Draw a polygon on the window based on vertices.
+        
+        Args:
+            vertices: A list of Vectors representing
+            the vertices of the polygon to display.
+            color: A tuple representing the RGB color of the polygon to display.
+            stroke_width: An integer representing
+            the width of the polygon's outline.
+        """
+        # Draw the polygon itself if it has at least 3 vertices.
+        if len(vertices) >= 3:
+            # Find the bounding box of the polygon
+            # to create a surface that fits it.
+            x_min = min(vertex.x for vertex in vertices)
+            x_max = max(vertex.x for vertex in vertices)
+            y_min = min(vertex.y for vertex in vertices)
+            y_max = max(vertex.y for vertex in vertices)
+            center = Vector((x_min + x_max) * 0.5, (y_min + y_max) * 0.5)
+            local_vertices = [
+                Vector.diff(center, vertex) for vertex in vertices
+            ]
+            width = ceil(x_max - x_min + stroke_width * 2)
+            height = ceil(y_max - y_min + stroke_width * 2)
+            polygon_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+            # Rotated vertices are relative to the polygon center.
+            # Offset them to the center of the surface so they draw correctly.
+            local_vertices = [
+                (v.x + width*0.5, v.y + height*0.5) for v in local_vertices
+            ]
+            pygame.draw.polygon(
+                polygon_surface, color, local_vertices, width=stroke_width)
+            # World -> screen: screen_pos = world_pos + camera.
+            screen_pos = Vector.sum(center, self._camera)
+            blit_pos = Vector.sum(screen_pos, Vector(-width*0.5, -height*0.5))
+            self._window.blit(polygon_surface, blit_pos.get_tuple())
+
+        # Draw the vertices of the polygon.
+        self.draw_points(vertices)
