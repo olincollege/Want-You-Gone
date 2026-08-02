@@ -4,7 +4,6 @@ Contains the View and LEView classes.
 
 from math import ceil, degrees
 import pygame
-from pygame.gfxdraw import polygon
 from vector import Vector
 from pygame import mixer
 
@@ -50,9 +49,9 @@ class View:
         self._PLAYER_SPRITE = pygame.image.load(
             self._PATH + "wheatley_2.png"
         ).convert_alpha()
-        self.refresh(0)
+        self.refresh()
 
-    def refresh(self, dt):
+    def refresh(self):
         """
         Refresh the display to show the current state of the level.
 
@@ -307,7 +306,7 @@ class LEView(View):
     """
     The same as view but able to display a level editor level (LELevel).
     """
-    def refresh(self, dt):
+    def refresh(self):
         """
         Refresh the display to show the current state of the level.
         This now includes drawing the shape being edited as an outline.

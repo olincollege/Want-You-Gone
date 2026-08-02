@@ -1449,10 +1449,7 @@ class LELevel(Level):
         Finish editing the current shape and add it to the level
         and corresponding .json file.
         """
-        def reset(self):
-            """
-            Same as in Level but finish editing before 
-            """
+
         def make_dynamic_polygon(vertices):
             """
             Make a dynamic polygon from a list of vertices.

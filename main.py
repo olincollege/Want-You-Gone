@@ -102,7 +102,7 @@ def main():
         )
 
         # Draw the current state of the level to the window.
-        view.refresh(dt)
+        view.refresh()
         pygame.display.update()
         clock.tick(fps)
 
@@ -185,7 +185,7 @@ def level_editor():
             )
 
         # Draw the current state of the level to the window.
-        view.refresh(dt)
+        view.refresh()
         pygame.display.update()
         clock.tick(fps)
 
