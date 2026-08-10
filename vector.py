@@ -198,6 +198,69 @@ class Vector:
         if abs(self._y) < max_distance:
             self._y = 0
 
+    def snap_grid(self, spacing):
+        """
+        Find the nearest point on a rectilinear grid
+        with a certain distance between points.
+
+        Args:
+            spacing: An integer or float representing
+            the shortest possible distance between two points on the grid.
+            
+        Returns:
+            A Vector that is the closest point on the grid to self.
+        """
+        x = spacing * round(self._x / spacing)
+        y = spacing * round(self._y / spacing)
+        return Vector(x, y)
+
+    def is_in_polygon(self, vertices):
+        """
+        Find out if self is inside a polygon.
+
+        Args:
+            vertices: a list of Vectors representing
+            the vertices of the polygon.
+        
+        Returns:
+            is_in: boolean representing if self is inside the polygon.
+        """
+        # Self is inside the polygon if a ray cast from self to the right
+        # intersects an odd number of edges.
+        is_in = False
+
+        # For each edge of the polygon:
+        for v, vertex in enumerate(vertices):
+            # Set the edge to be a tuple where edge[0] is below edge[1].
+            if vertex.y < vertices[v - 1].y:
+                edge = (vertex, vertices[v - 1])
+            elif vertex.y == vertices[v - 1].y:
+                continue
+            else:
+                edge = (vertices[v - 1], vertex)
+
+            # If self is above or below both endpoints of the edge, continue.
+            if edge[0].y > self._y or edge[1].y <= self._y:
+                continue
+
+            # If self is to the right of both endpoints of the edge, continue.
+            if edge[0].x < self._x > edge[1].x:
+                continue
+
+            # If self is to the left of both endpoints of the edge,
+            # swap the value of is_in.
+            if edge[0].x > self._x < edge[1].x:
+                is_in = not is_in
+
+            # If self is left of the edge, swap the value of is_in.
+            elif Vector.det(
+                Vector.diff(edge[0], edge[1]),
+                Vector.diff(edge[0], self)
+            ) > 0:
+                is_in = not is_in
+
+        return is_in
+
     @classmethod
     def dot(cls, vec1, vec2):
         """

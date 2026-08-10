@@ -2,6 +2,7 @@
 Contains the tick, main, and level_editor functions.
 """
 
+from math import sqrt
 import json
 import pygame
 from vector import Vector
@@ -118,6 +119,8 @@ def level_editor():
     mode = "normal"
     portals = "close"
     starting_level = "level_1"
+    click_distance = 10
+    snap_distance = 25
     # --------------------------------------------------------------------------
     dt = 1 / fps
     with open(f"constants/{mode}_mode.json", "r", encoding="utf-8") as file:
@@ -132,6 +135,7 @@ def level_editor():
     controller = LEController(constants)
     view = LEView(level, "sprites/", constants)
     clock = pygame.time.Clock()
+    editing_index = None
 
     # Run the game until the window is closed.
     while True:
@@ -148,6 +152,12 @@ def level_editor():
 
         # If the game is paused, enter level editor mode.
         if controller.is_paused:
+            # Calculate the position of the editor in world space.
+            editor_position = controller.editor_position
+            if editor_position is not None:
+                editor_position = Vector.diff(
+                    view.camera, editor_position)
+
             # Update the camera position based on mouse dragging.
             camera_displacement = controller.camera_drag_displacement
             view.move_camera(camera_displacement)
@@ -164,14 +174,211 @@ def level_editor():
             if controller.finish_editing:
                 level.finish_editing()
 
-            if controller.edit_click:
-                click_position = Vector.diff(
-                    view.camera, controller.editor_position
-                )
-                level.new_editing_circle(
-                    click_position,
-                    25
-                )
+            # If the editor is editing a circle.
+            if level.editing_circle is not None:
+                if controller.edit_click:
+                    # If the editor clicks on the circle's circumference:
+                    if abs(sqrt(Vector.diff(
+                        editor_position,
+                        level.editing_circle[0]
+                        ).magnitude_squared()) - (
+                        level.editing_circle[1])
+                    ) < click_distance:
+                        # Edit its radius.
+                        editing_index = 1
+
+                    # If the editor clicks on the circle's center:
+                    elif Vector.diff(
+                        editor_position,
+                        level.editing_circle[0]
+                    ).magnitude_squared() < click_distance * click_distance:
+                        # Edit its position
+                        editing_index = 0
+
+                # If the editor is not holding edit,
+                # they aren't editing anything.
+                elif editor_position is None:
+                    editing_index = None
+
+                # If the editor is editing the circle's radius:
+                elif editing_index == 1:
+                    # Find the distance between the circle's center
+                    # and the editing position.
+                    distance = sqrt(Vector.diff(
+                        editor_position,
+                        level.editing_circle[0]
+                    ).magnitude_squared())
+                    # Round up that distance to the nearest multiple
+                    # of the snap distance and set the circle's radius to that.
+                    level.set_editing_circle_radius(
+                        (distance // snap_distance + 1) * snap_distance
+                    )
+
+                # If the editor is editing the circle's position:
+                if editing_index == 0:
+                    # Snap the editor's position
+                    # to the nearest point on the grid.
+                    new_position = editor_position.snap_grid(snap_distance)
+
+                    # Set that as the circle's position.
+                    level.set_editing_circle_position(new_position)
+
+            # If the editor is editing a polygon:
+            elif level.editing_polygon is not None:
+                # If the editor clicks on one of the polygon's vertices:
+                if controller.edit_click:
+                    for v, vertex in enumerate(level.editing_polygon):
+                        if Vector.diff(
+                        editor_position,
+                        vertex
+                    ).magnitude_squared() < click_distance * click_distance:
+                            # Start moving that vertex.
+                            editing_index = v
+                            break
+
+                    # If the editor is not editing a vertex,
+                    # start editing a new vertex.
+                    if editing_index is None:
+                        # Find between which two vertices
+                        # the new vertex should be.
+                        closest_edge = None
+                        closest_vertex = None
+                        shortest_distance = None
+                        # For each index:
+                        for v, vertex in enumerate(level.editing_polygon):
+                            # Find the distance to the edge:
+                            distance = editor_position.edge_point_distance(
+                                vertex,
+                                level.editing_polygon[v - 1]
+                            )
+
+                            # If that is the shortest distance so far,
+                            # record it.
+                            if distance is not None:
+                                distance = abs(distance)
+                                if shortest_distance is None or (
+                                distance < shortest_distance
+                                ):
+                                    shortest_distance = distance
+                                    closest_edge = v
+                                    closest_vertex = None
+
+                            # Find the distance to the vertex.
+                            distance = sqrt(Vector.diff(
+                                editor_position, vertex
+                            ).magnitude_squared())
+
+                            # If that is the shortest distance so far,
+                            # record it.
+                            if shortest_distance is None or (
+                            distance < shortest_distance
+                            ):
+                                shortest_distance = distance
+                                closest_edge = None
+                                closest_vertex = v
+
+                        # If the closest point on the polygon's
+                        # border is on a vertex,
+                        # find which edge is closest.
+                        if closest_edge is None:
+                            direction = Vector.sum(
+                                Vector.diff(
+                                    vertex,
+                                    level.editing_polygon[v - 1]
+                                ).normal(),
+                                Vector.diff(
+                                    vertex,
+                                    level.editing_polygon[(v + 1) %
+                                        len(level.editing_polygon)]
+                                ).normal()
+                            )
+                            side = editor_position.edge_point_distance(
+                                vertex, direction, False
+                            )
+                            if side < 0:
+                                closest_edge = closest_vertex
+                            else:
+                                closest_edge = closest_vertex - 1
+
+                        # Add and start editing the new vertex.
+                        level.add_editing_vertex(
+                            editor_position.snap_grid(snap_distance),
+                            closest_edge
+                        )
+                        editing_index = closest_edge
+
+                # If the editor is not holding edit,
+                # they aren't editing anything.
+                elif editor_position is None:
+                    editing_index = None
+
+                # If the editor is editing a vertex:
+                if editing_index is not None:
+                    # Snap the editor's position
+                    # to the nearest point on the grid.
+                    new_position = editor_position.snap_grid(snap_distance)
+
+                    # Set that as the vertex's position.
+                    level.move_editing_vertex(editing_index, new_position)
+
+            # If the editor is not editing anything:
+            else:
+                # If the editor opens a new circle:
+                if controller.new_circle and controller.edit_click:
+                    # Make a new editing circle and start editing the radius.
+                    level.new_editing_circle(
+                        editor_position.snap_grid(snap_distance),
+                        snap_distance
+                    )
+                    editing_index = 1
+                    continue
+
+                # If the editor opens a new polygon:
+                if controller.new_polygon and controller.edit_click:
+                    # Make a new editing polygon
+                    # and start editing the first vertex.
+                    level.new_editing_polygon(
+                        editor_position.snap_grid(snap_distance)
+                    )
+                    editing_index = 0
+                    continue
+
+                # If the editor clicks on a pre-existing circle:
+                if controller.edit_click:
+                    for c, circle in enumerate(level.circles):
+                        if Vector.diff(
+                            editor_position,
+                            circle.position
+                        ).magnitude_squared() < circle.radius * circle.radius:
+                            # Start editing that circle
+                            level.edit_existing_circle(c)
+                            editing_index = None
+                            continue
+                    for c, circle in enumerate(level.dynamic_circles):
+                        if Vector.diff(
+                            editor_position,
+                            circle.position
+                        ).magnitude_squared() < circle.radius * circle.radius:
+                            # Start editing that circle
+                            level.edit_existing_dynamic_circle(c)
+                            editing_index = None
+                            continue
+
+                    # If the clicks on a pre-existing polygon:
+                    for p, polygon in enumerate(level.polygons):
+                        if editor_position.is_in_polygon(
+                            polygon.world_vertices):
+                            # Start editing that polygon.
+                            level.edit_existing_polygon(p)
+                            editing_index = None
+                            continue
+                    for p, polygon in enumerate(level.dynamic_polygons):
+                        if editor_position.is_in_polygon(
+                            polygon.world_vertices):
+                            # Start editing that polygon.
+                            level.edit_existing_dynamic_polygon(p)
+                            editing_index = None
+                            continue
 
         # Otherwise, tick the Level forward in time.
         else:

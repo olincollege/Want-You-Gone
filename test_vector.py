@@ -163,3 +163,28 @@ def test_vector_sum():
     v2 = Vector(-1, 2)
     result = Vector.sum(v1, v2)
     assert result.get_tuple() == (0.0, 1.0)
+
+def test_is_in_polygon():
+    """
+    Test point is in polygon checker
+    """
+    vertices = [
+        Vector(2, 10),
+        Vector(6, 2),
+        Vector(16, 2),
+        Vector(18, 4),
+        Vector(16.5, 14),
+        Vector(12, 16.5),
+        Vector(6, 18),
+        Vector(2, 16),
+        Vector(10, 8),
+    ]
+    for i in range(21):
+        for j in range(21):
+            if Vector(i, j).is_in_polygon(vertices):
+                print("X", end="")
+            else:
+                print(".", end="")
+        print("")
+
+test_is_in_polygon()

@@ -503,7 +503,7 @@ class Level:
         ).magnitude_squared():
             return
 
-        # Otherwise find the closest point on the polygon
+        # Otherwise, find the closest point on the polygon
         # to the circle and the distance between them.
         shortest_distance = None
         closest_edge = None
@@ -1421,7 +1421,7 @@ class LELevel(Level):
             if (
                 data[i] == "]" and
                 i - 13 >= 0 and
-                data[i - 9:i] == "\n            " and
+                data[i - 13:i] == "\n            " and
                 can_edit
             ):
                 data = data[:i - 13] + data[i:]
@@ -1568,10 +1568,13 @@ class LELevel(Level):
             """
             # Make a dictionary representing the shape.
             if issubclass(type(shape), Polygon):
+                position = shape.position
+                vertices = [[v.x + position.x, v.y + position.y]
+                    for v in shape.local_vertices]
                 shape_dict = {
                     "comment": shape.__repr__(),
-                    "vertices": [[v.x, v.y] for v in shape.local_vertices],
-                    "position": [shape.position.x, shape.position.y],
+                    "vertices": vertices,
+                    "position": [0, 0],
                     "velocity": [shape.velocity.x, shape.velocity.y],
                     "angle": shape.angle,
                     "angular_velocity": shape.angular_velocity,
@@ -1612,7 +1615,6 @@ class LELevel(Level):
             # Reformat the .json file to be more human-readable.
             self.reformat_json(path)
 
-
         # If a polygon is being edited, finish editing it.
         if self._editing_polygon is not None and len(
             self._editing_polygon) >= 3:
@@ -1638,12 +1640,15 @@ class LELevel(Level):
                 append_json("circles.json", circle)
             self._editing_circle = None
 
-    def new_editing_polygon(self):
+    def new_editing_polygon(self, vertex):
         """
         Start editing a new polygon.
+
+        Args:
+            vertex: a Vector representing the first vertex of the polygon.
         """
         self.finish_editing()
-        self._editing_polygon = []
+        self._editing_polygon = [vertex]
 
     def new_editing_circle(self, position, radius):
         """
@@ -1655,7 +1660,7 @@ class LELevel(Level):
             radius: A float representing the radius of the circle.
         """
         self.finish_editing()
-        self._editing_circle = (position, radius)
+        self._editing_circle = [position, radius]
 
     def add_editing_vertex(self, vertex, index=None):
         """
@@ -1706,7 +1711,7 @@ class LELevel(Level):
             in world space.
         """
         if self._editing_circle is not None:
-            self._editing_circle = (new_position, self._editing_circle[1])
+            self._editing_circle[0] = new_position
 
     def set_editing_circle_radius(self, new_radius):
         """
@@ -1716,7 +1721,7 @@ class LELevel(Level):
             new_radius: A float representing the new radius of the circle.
         """
         if self._editing_circle is not None:
-            self._editing_circle = (self._editing_circle[0], new_radius)
+            self._editing_circle[1] = new_radius
 
     def delete_editing_shape(self):
         """
@@ -1805,10 +1810,10 @@ class LELevel(Level):
         self.finish_editing()
         if not 0 <= circle < len(self._circles):
             raise IndexError("Circle index out of range.")
-        self._editing_circle = (
+        self._editing_circle = [
             self._circles[circle].position,
             self._circles[circle].radius
-        )
+        ]
         self._editing_shape_is_dynamic = False
         self._circles.pop(circle)
         self.pop_json("circles.json", circle)
@@ -1827,10 +1832,10 @@ class LELevel(Level):
         self.finish_editing()
         if not 0 <= circle < len(self._dynamic_circles):
             raise IndexError("Circle index out of range.")
-        self._editing_circle = (
+        self._editing_circle = [
             self._dynamic_circles[circle].position,
             self._dynamic_circles[circle].radius
-        )
+        ]
         self._editing_shape_is_dynamic = True
         self._dynamic_circles.pop(circle)
         self.pop_json("dynamic_circles.json", circle)
