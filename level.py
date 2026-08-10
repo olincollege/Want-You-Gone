@@ -1688,6 +1688,8 @@ class LELevel(Level):
         if self._editing_polygon is not None:
             if 0 <= index < len(self._editing_polygon):
                 self._editing_polygon.pop(index)
+            if len(self._editing_polygon) == 0:
+                self._editing_polygon = None
 
     def move_editing_vertex(self, index, new_position):
         """

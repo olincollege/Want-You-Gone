@@ -166,9 +166,14 @@ def level_editor():
             if controller.toggle_dynamic:
                 level.toggle_dynamic()
 
-            # If the editor presses delete, delete the editing shape.
-            if controller.delete_object:
-                level.delete_editing_shape()
+            # If the editor presses delete, delete the editing vertex or shape.
+            if controller.delete:
+                if(level.editing_polygon is not None and
+                    editing_index is not None):
+                    level.remove_editing_vertex(editing_index)
+                    editing_index = None
+                else:
+                    level.delete_editing_shape()
 
             # If the editor presses enter, finish editing the shape.
             if controller.finish_editing:

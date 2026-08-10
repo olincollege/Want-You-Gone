@@ -164,6 +164,10 @@ class LEController(Controller):
         if the edit click button was released in the last frame.
         _edit_click: A boolean representing if the editor wants to
         make an edit click.
+        _delete_clicking_released: A boolean representing
+        if the delete button was released in the last frame.
+        _delete_click: A boolean representing if the editor wants to
+        make a deletion.
     """
     def __init__(self, constants):
         """
@@ -181,6 +185,8 @@ class LEController(Controller):
         self._toggle_dynamic = False
         self._edit_click_released = True
         self._edit_click = False
+        self._delete_click_released = True
+        self._delete_click = False
 
     def update(self, dt):
         """
@@ -237,6 +243,16 @@ class LEController(Controller):
         else:
             self._edit_click_released = True
 
+        # Update the delete click tracker.
+        deleting = self._keys[pygame.K_BACKSPACE] or self._keys[pygame.K_DELETE]
+        self._delete_click = False
+        if deleting:
+            if self._delete_click_released:
+                self._delete_click = True
+            self._delete_click_released = False
+        else:
+            self._delete_click_released = True
+
     @property
     def editor_position(self):
         """
@@ -267,12 +283,12 @@ class LEController(Controller):
         return self._keys[pygame.K_c]
 
     @property
-    def delete_object(self):
+    def delete(self):
         """
-        True when the player wants to delete an object in the level editor.
+        True when the player wants to delete something in the level editor.
         This is triggered by pressing the backspace or delete key.
         """
-        return self._keys[pygame.K_BACKSPACE] or self._keys[pygame.K_DELETE]
+        return self._delete_click
 
     @property
     def toggle_dynamic(self):
