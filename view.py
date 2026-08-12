@@ -62,7 +62,7 @@ class View:
         for circle in self._level.circles:
             self.draw_circle(circle)
         for polygon in self._level.polygons:
-            self.draw_polygon(polygon)
+            self.draw_polygon(polygon, True)
         for sign in self._level.signs:
             self.draw_sign(sign)
         for circle in self._level.dynamic_circles:
@@ -319,7 +319,7 @@ class LEView(View):
         for circle in self._level.circles:
             self.draw_circle(circle)
         for polygon in self._level.polygons:
-            self.draw_polygon(polygon)
+            self.draw_polygon(polygon, True)
         for sign in self._level.signs:
             self.draw_sign(sign)
         for circle in self._level.dynamic_circles:

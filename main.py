@@ -118,7 +118,7 @@ def level_editor():
     fps = 40
     mode = "normal"
     portals = "close"
-    starting_level = "level_1"
+    starting_level = "austin_1"
     click_distance = 10
     snap_distance = 25
     # --------------------------------------------------------------------------
@@ -136,6 +136,8 @@ def level_editor():
     view = LEView(level, "sprites/", constants)
     clock = pygame.time.Clock()
     editing_index = None
+    dragging_player = False
+    last_player_position = None
 
     # Run the game until the window is closed.
     while True:
@@ -178,6 +180,19 @@ def level_editor():
             # If the editor presses enter, finish editing the shape.
             if controller.finish_editing:
                 level.finish_editing()
+
+            # If the editor is dragging the player:
+            if dragging_player:
+                if editor_position is not None:
+                    level.drag_player(
+                        Vector.diff(
+                            last_player_position,
+                            editor_position
+                        )
+                    )
+                    last_player_position = level.player.position
+                else:
+                    dragging_player = False
 
             # If the editor is editing a circle.
             if level.editing_circle is not None:
@@ -346,6 +361,17 @@ def level_editor():
                         editor_position.snap_grid(snap_distance)
                     )
                     editing_index = 0
+                    continue
+
+                # If the editor clicks on the player:
+                if controller.edit_click and Vector.diff(
+                    editor_position,
+                    level.player.position
+                ).magnitude_squared() < (
+                level.player.radius * level.player.radius):
+                    # Start dragging the player
+                    dragging_player = True
+                    last_player_position = level.player.position
                     continue
 
                 # If the editor clicks on a pre-existing circle:

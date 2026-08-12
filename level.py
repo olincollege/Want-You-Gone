@@ -1842,6 +1842,16 @@ class LELevel(Level):
         self._dynamic_circles.pop(circle)
         self.pop_json("dynamic_circles.json", circle)
 
+    def drag_player(self, displacement):
+        """
+        Move the player by a given displacement.
+
+        Args:
+            displacement: A Vector representing how much
+            and in what direction to move the player.
+        """
+        self._player.nudge(displacement)
+
     @property
     def editing_color(self):
         """

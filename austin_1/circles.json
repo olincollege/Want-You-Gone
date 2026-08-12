@@ -1,0 +1,101 @@
+[
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 50.0,
+		"position": [300.0, 250.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 75.0,
+		"position": [75.0, 25.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 75.0,
+		"position": [-250.0, -25.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 50.0,
+		"position": [150.0, 300.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 50.0,
+		"position": [400.0, 150.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 25.0,
+		"position": [-75.0, -375.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 25.0,
+		"position": [25.0, -375.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 25.0,
+		"position": [125.0, -375.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 25.0,
+		"position": [225.0, -375.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    }
+]
