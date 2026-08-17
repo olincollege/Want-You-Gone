@@ -178,11 +178,13 @@ class LEController(Controller):
         """
         super().__init__(constants)
         self._pause_released = True
-        self._is_paused = False
+        self._is_paused = True
         self._camera_drag_position = None
         self._camera_drag_displacement = Vector(0, 0)
         self._dynamic_toggle_released = True
         self._toggle_dynamic = False
+        self._bouncy_toggle_released = True
+        self._toggle_bouncy = False
         self._edit_click_released = True
         self._edit_click = False
         self._delete_click_released = True
@@ -218,6 +220,16 @@ class LEController(Controller):
             self._dynamic_toggle_released = False
         else:
             self._dynamic_toggle_released = True
+
+        # Update the bouncy toggle tracker.
+        bouncy_toggling = self._keys[pygame.K_b]
+        self._toggle_bouncy = False
+        if bouncy_toggling:
+            if self._bouncy_toggle_released:
+                self._toggle_bouncy = True
+            self._bouncy_toggle_released = False
+        else:
+            self._bouncy_toggle_released = True
 
         # Update the camera drag tracker.
         self._mouse_buttons = pygame.mouse.get_pressed()
@@ -297,6 +309,14 @@ class LEController(Controller):
         in the level editor. This is triggered by pressing D.
         """
         return self._toggle_dynamic
+
+    @property
+    def toggle_bouncy(self):
+        """
+        True when the player wants to toggle the bouncy state of an object
+        in the level editor. This is triggered by pressing B
+        """
+        return self._toggle_bouncy
 
     @property
     def finish_editing(self):

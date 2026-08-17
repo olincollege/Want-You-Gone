@@ -1,13 +1,24 @@
 [
-    {
-        "comment": "test",
-        "vertices": [[-25, -25], [25, -25], [25, 25], [-25, 25]],
-        "position": [-350, -200],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": false,
-        "is_slippery": true,
-        "color": [200, 20, 20]
+    {       
+		"comment": "test",
+		"vertices": [[-25, -25], [25, -25], [25, 25], [-25, 25]],
+		"position": [-350, -200],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": true,
+		"color": [200, 20, 20]
+    },
+    {       
+		"comment": "Unnamed Dynamic Polygon",
+		"vertices": [[50.0, -275.0], [50.0, -225.0], [100.0, -225.0], [100.0, -275.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": true,
+		"color": [200, 20, 20]
     }
 ]

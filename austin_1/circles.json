@@ -35,17 +35,6 @@
     {       
 		"comment": "Unnamed Circle",
 		"radius": 50.0,
-		"position": [150.0, 300.0],
-		"velocity": [0.0, 0.0],
-		"angle": 0,
-		"angular_velocity": 0,
-		"is_bouncy": false,
-		"is_slippery": false,
-		"color": [111, 135, 209]
-    },
-    {       
-		"comment": "Unnamed Circle",
-		"radius": 50.0,
 		"position": [400.0, 150.0],
 		"velocity": [0.0, 0.0],
 		"angle": 0,
@@ -91,6 +80,17 @@
 		"comment": "Unnamed Circle",
 		"radius": 25.0,
 		"position": [225.0, -375.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Circle",
+		"radius": 50.0,
+		"position": [150.0, 325.0],
 		"velocity": [0.0, 0.0],
 		"angle": 0,
 		"angular_velocity": 0,

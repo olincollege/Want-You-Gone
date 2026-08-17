@@ -1,79 +1,101 @@
 [
-    {
-        "comment": "Floor",
-        "vertices": [[-450, -10], [450, -10], [450, 10], [-450, 10]],
-        "position": [0, 200],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": false,
-        "is_slippery": false,
-        "color": [80, 80, 100]
+    {       
+		"comment": "Floor",
+		"vertices": [[-450, -10], [450, -10], [450, 10], [-450, 10]],
+		"position": [0, 200],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [80, 80, 100]
     },
-    {
-        "comment": "Low left platform",
-        "vertices": [[-90, -10], [90, -10], [90, 10], [-90, 10]],
-        "position": [-200, 50],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": false,
-        "is_slippery": false,
-        "color": [80, 80, 100]
+    {       
+		"comment": "Low left platform",
+		"vertices": [[-90, -10], [90, -10], [90, 10], [-90, 10]],
+		"position": [-200, 50],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [80, 80, 100]
     },
-    {
-        "comment": "Right platform",
-        "vertices": [[-90, -10], [90, -10], [90, 10], [-90, 10]],
-        "position": [220, -80],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": false,
-        "is_slippery": false,
-        "color": [80, 80, 100]
+    {       
+		"comment": "Right platform",
+		"vertices": [[-90, -10], [90, -10], [90, 10], [-90, 10]],
+		"position": [220, -80],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [80, 80, 100]
     },
-    {
-        "comment": "High left platform",
-        "vertices": [[-70, -10], [70, -10], [70, 10], [-70, 10]],
-        "position": [-100, -200],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": false,
-        "is_slippery": false,
-        "color": [80, 80, 100]
+    {       
+		"comment": "High left platform",
+		"vertices": [[-70, -10], [70, -10], [70, 10], [-70, 10]],
+		"position": [-100, -200],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [80, 80, 100]
     },
-    {
-        "comment": "Ramp - triangle from floor up to right platform height",
-        "vertices": [[-150.0, 80.0], [100.0, 80.0], [100.0, -120.0]],
-        "position": [60, 120],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": false,
-        "is_slippery": false,
-        "color": [100, 90, 80]
+    {       
+		"comment": "Ramp - triangle from floor up to right platform height",
+		"vertices": [[-150.0, 80.0], [100.0, 80.0], [100.0, -120.0]],
+		"position": [60, 120],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [100, 90, 80]
     },
-    {
-        "comment": "Bouncy pad on the floor",
-        "vertices": [[-50, -10], [50, -10], [50, 10], [-50, 10]],
-        "position": [-50, 0],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": true,
-        "is_slippery": false,
-        "color": [60, 180, 100]
+    {       
+		"comment": "Bouncy pad on the floor",
+		"vertices": [[-50, -10], [50, -10], [50, 10], [-50, 10]],
+		"position": [-50, 0],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": true,
+		"is_slippery": false,
+		"color": [60, 180, 100]
     },
-    {
-        "comment": "Bowl",
-        "vertices": [[-75, 0], [75, 0], [75, -100], [0, -25], [-75, -100]],
-        "position": [-350, -50],
-        "velocity": [0, 0],
-        "angle": 0,
-        "angular_velocity": 0,
-        "is_bouncy": true,
-        "is_slippery": false,
-        "color": [100, 90, 80]
+    {       
+		"comment": "Bowl",
+		"vertices": [[-75, 0], [75, 0], [75, -100], [0, -25], [-75, -100]],
+		"position": [-350, -50],
+		"velocity": [0, 0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": true,
+		"is_slippery": false,
+		"color": [100, 90, 80]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[0.0, -200.0], [0.0, -100.0], [75.0, -100.0], [75.0, -125.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[75.0, -100.0], [150.0, -100.0], [150.0, -200.0], [75.0, -125.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
     }
 ]

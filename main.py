@@ -168,6 +168,10 @@ def level_editor():
             if controller.toggle_dynamic:
                 level.toggle_dynamic()
 
+            # If the editor is toggling bouncy, toggle bouncy.
+            if controller.toggle_bouncy:
+                level.toggle_bouncy()
+
             # If the editor presses delete, delete the editing vertex or shape.
             if controller.delete:
                 if(level.editing_polygon is not None and

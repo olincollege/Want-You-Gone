@@ -1,1 +1,24 @@
-[]
+[
+    {       
+		"comment": "Unnamed Dynamic Circle",
+		"radius": 25.0,
+		"position": [-350.0, 350.0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": true,
+		"is_slippery": true,
+		"color": [60, 180, 100]
+    },
+    {       
+		"comment": "Unnamed Dynamic Circle",
+		"radius": 25.0,
+		"position": [1962.9241725686588, 411.53994179591484],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": true,
+		"is_slippery": true,
+		"color": [60, 180, 100]
+    }
+]

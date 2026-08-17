@@ -219,6 +219,11 @@ class Shape:
         Non-dynamic shapes cannot be impulsed.
         """
 
+    def accelerate(self, acceleration, dt):
+        """
+        Non-dynamic shapes cannot be accelerated
+        """
+
 
 class DynamicShape(Shape):
     """

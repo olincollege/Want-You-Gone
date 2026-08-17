@@ -19,6 +19,8 @@ class Level:
 
     Attributes:
         _GRAVITY: A Vector representing the gravity on the level.
+        _GRAVITY_NORMAL: A Vector with length 1 representing the
+        direction of the gravity on the level.
         _JUMP_STRENGTH: A float representing the strength of the jump.
         _DEFAULT_COR: A float representing the
         default coefficient of restitution.
@@ -59,6 +61,7 @@ class Level:
         """
         # Set all constants and the path for the level.
         self._GRAVITY = self.make_vector(constants["gravity"])
+        self._GRAVITY_NORMAL = self._GRAVITY.normal()
         self._JUMP_STRENGTH = constants["jump_strength"]
         self._DEFAULT_COR = constants["default_cor"]
         self._BOUNCY_COR = constants["bouncy_cor"]
@@ -480,7 +483,7 @@ class Level:
                 self.polygon_polygon_collision(polygon, other_polygon)
 
     def circle_polygon_collision(
-        self, circle, polygon, is_jumping=False, is_bouncing=False
+        self, circle, polygon, is_jumping=False, is_bouncing=True
     ):
         """
         Detect and apply a collision between a circle and a polygon.
@@ -700,7 +703,7 @@ class Level:
                 )
 
     def circle_circle_collision(
-        self, circle1, circle2, is_jumping=False, is_bouncing=False
+        self, circle1, circle2, is_jumping=False, is_bouncing=True
     ):
         """
         Detect and apply a collision between two circles.
@@ -1194,43 +1197,6 @@ class Level:
             displacement
         )
 
-    def vertex_edge_impulse(
-        self, polygon1, polygon2, vertex, edge, distance
-    ):
-        """
-        Apply the impulse for a collision between a vertex and an edge.
-
-        Args:
-            polygon1: A Polygon representing the first polygon in the collision.
-            polygon2: A Polygon, the second polygon in the collision.
-            vertex: A Vector representing the position of the vertex in the
-            collision on polygon1 in world space.
-            edge: A integer representing the index of the edge in the
-            collision on polygon2, between vertices edge - 1 and edge.
-            distance: A float representing the distance between the vertex and
-            the closest point on the edge to the vertex.
-        """
-        # Find the normal vector for the collision.
-        tangent = Vector.diff(
-            polygon2.world_vertices[edge - 1],
-            polygon2.world_vertices[edge]
-        ).normal()
-        normal = Vector(-tangent.y, tangent.x)
-
-        # Calculate displacement.
-        displacement = normal.scale(-distance)
-
-        # Calculate and apply the impulse
-        self.apply_collision(
-            polygon1,
-            polygon2,
-            normal,
-            vertex,
-            False,
-            False,
-            displacement
-        )
-
     def move_shape(self, movement, dt):
         """
         ONLY FOR TESTING PURPOSES. NOT FOR ACTUAL GAMEPLAY.
@@ -1322,15 +1288,20 @@ class LELevel(Level):
         or None.
         _editing_shape_is_dynamic: A boolean representing
         whether the shape currently being edited is dynamic or not.
+        _editing_shape_is_bouncy: A boolean representing
+        whether the shape currently being edited is bouncy or not.
         _DYNAMIC_COLOR: A tuple of 3 integers
         representing the RGB color of dynamic shapes.
         _STATIONARY_COLOR: A tuple of 3 integers
         representing the RGB color of stationary shapes.
+        _BOUNCY_COLOR: A tuple of 3 integers
+        representing the RGB color of bouncy shapes.
         All other attributes are inherited from Level.
     """
-    # Set the colors for dynamic and stationary shapes.
+    # Set the colors for dynamic, stationary and bouncy shapes.
     _DYNAMIC_COLOR = (200, 20, 20)
     _STATIONARY_COLOR = (111, 135, 209)
+    _BOUNCY_COLOR = (60, 180, 100)
 
     def __init__(self, shapes_path, portals, constants):
         """
@@ -1342,7 +1313,8 @@ class LELevel(Level):
         super().__init__(shapes_path, portals, constants)
         self._editing_polygon = None
         self._editing_circle = None
-        self._editing_shape_is_dynamic = True
+        self._editing_shape_is_dynamic = False
+        self._editing_shape_is_bouncy = False
 
     def set_path(self, new_path):
         """
@@ -1356,6 +1328,12 @@ class LELevel(Level):
         Toggle whether the shape currently being edited is dynamic or not.
         """
         self._editing_shape_is_dynamic = not self._editing_shape_is_dynamic
+
+    def toggle_bouncy(self):
+        """
+        Toggle whether the shape currently being edited is bouncy or not.
+        """
+        self._editing_shape_is_bouncy = not self._editing_shape_is_bouncy
 
     def reformat_json(self, path):
         """
@@ -1469,9 +1447,9 @@ class LELevel(Level):
                 0,
                 0,
                 False,
-                False,
+                self._editing_shape_is_bouncy,
                 True,
-                self._DYNAMIC_COLOR,
+                self.editing_color,
                 "Unnamed Dynamic Polygon"
             )
             return polygon
@@ -1496,9 +1474,9 @@ class LELevel(Level):
                 0,
                 0,
                 False,
+                self._editing_shape_is_bouncy,
                 False,
-                False,
-                self._STATIONARY_COLOR,
+                self.editing_color,
                 "Unnamed Polygon"
             )
             return polygon
@@ -1523,9 +1501,9 @@ class LELevel(Level):
                 Vector(0, 0),
                 0,
                 0,
-                False,
+                self._editing_shape_is_bouncy,
                 True,
-                self._DYNAMIC_COLOR,
+                self.editing_color,
                 "Unnamed Dynamic Circle"
             )
             return circle
@@ -1550,9 +1528,9 @@ class LELevel(Level):
                 Vector(0, 0),
                 0,
                 0,
+                self._editing_shape_is_bouncy,
                 False,
-                False,
-                self._STATIONARY_COLOR,
+                self.editing_color,
                 "Unnamed Circle"
             )
             return circle
@@ -1775,6 +1753,7 @@ class LELevel(Level):
             raise IndexError("Polygon index out of range.")
         self._editing_polygon = self._polygons[polygon].world_vertices.copy()
         self._editing_shape_is_dynamic = False
+        self._editing_shape_is_bouncy = self._polygons[polygon].is_bouncy
         self._polygons.pop(polygon)
         self.pop_json("polygons.json", polygon)
 
@@ -1795,6 +1774,8 @@ class LELevel(Level):
         self._editing_polygon = self._dynamic_polygons[polygon
             ].world_vertices.copy()
         self._editing_shape_is_dynamic = True
+        self._editing_shape_is_bouncy = self._dynamic_polygons[
+            polygon].is_bouncy
         self._dynamic_polygons.pop(polygon)
         self.pop_json("dynamic_polygons.json", polygon)
 
@@ -1817,6 +1798,7 @@ class LELevel(Level):
             self._circles[circle].radius
         ]
         self._editing_shape_is_dynamic = False
+        self._editing_shape_is_bouncy = self._circles[circle].is_bouncy
         self._circles.pop(circle)
         self.pop_json("circles.json", circle)
 
@@ -1839,6 +1821,7 @@ class LELevel(Level):
             self._dynamic_circles[circle].radius
         ]
         self._editing_shape_is_dynamic = True
+        self._editing_shape_is_bouncy = self._dynamic_circles[circle].is_bouncy
         self._dynamic_circles.pop(circle)
         self.pop_json("dynamic_circles.json", circle)
 
@@ -1858,7 +1841,9 @@ class LELevel(Level):
         Get the RGB color of the shape currently being edited
         based on whether it is dynamic or stationary.
         """
-        if self._editing_shape_is_dynamic:
+        if self._editing_shape_is_bouncy:
+            return self._BOUNCY_COLOR
+        elif self._editing_shape_is_dynamic:
             return self._DYNAMIC_COLOR
         else:
             return self._STATIONARY_COLOR
