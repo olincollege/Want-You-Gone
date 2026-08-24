@@ -9,7 +9,7 @@
     },
     {
         "comment": "control scheme movement",
-        "text": "Sideways arrow keys to move",
+        "text": "Sideways arrow keys to rotate",
         "subtitle": null,
         "position": [-2800, 800],
         "size": 28,
@@ -56,10 +56,34 @@
         "color": [255, 255, 255]
     },
     {
-        "comment": "It's ramp time?",
+        "comment": "It's ramp time!",
         "text": "It's helpful for going down/up ramps!",
         "subtitle": null,
         "position": [-400, 175],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "he's bouncy again?",
+        "text": "Green means a spring",
+        "subtitle": null,
+        "position": [-2850, -750],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "he's bouncy again!",
+        "text": "",
+        "subtitle": null,
+        "position": [-2450, -950],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "big jump time",
+        "text": "Jumping on them gets you higher than where you started",
+        "subtitle": null,
+        "position": [-2350, -1750],
         "size": 28,
         "color": [255, 255, 255]
     }
