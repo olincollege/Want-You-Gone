@@ -118,7 +118,7 @@ def level_editor():
     fps = 40
     mode = "normal"
     portals = "close"
-    starting_level = "austin_1"
+    starting_level = "ella_1"
     click_distance = 10
     snap_distance = 25
     # --------------------------------------------------------------------------

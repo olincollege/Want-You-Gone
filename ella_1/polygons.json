@@ -1,0 +1,101 @@
+[
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[-3000.0, 1000.0], [-1975.0, 1000.0], [-2025.0, 925.0], [-2025.0, 875.0], [-2525.0, 875.0], [-2525.0, 925.0], [-2525.0, 950.0], [-3000.0, 950.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[-525.0, 1000.0], [-425.0, 1000.0], [-325.0, 1000.0], [-425.0, 875.0], [-525.0, 875.0], [-525.0, 800.0], [-1775.0, 800.0], [-1750.0, 875.0], [-1775.0, 1000.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[800.0, 1000.0], [1000.0, 1000.0], [1000.0, 700.0], [800.0, 700.0], [800.0, 800.0], [225.0, 800.0], [250.0, 925.0], [225.0, 1000.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[425.0, 625.0], [725.0, 625.0], [725.0, 600.0], [425.0, 600.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[500.0, 500.0], [350.0, 500.0], [200.0, 500.0], [200.0, 525.0], [500.0, 525.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[324.99999999999994, 400.0], [150.0, 400.0], [150.0, 300.0], [125.0, 275.0], [-725.0, 275.0], [-725.0, 425.0], [324.99999999999994, 425.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[150.0, 200.0], [150.0, -200.0], [75.0, -275.0], [-75.0, -325.0], [-200.0, -200.0], [-200.0, 225.0], [125.00000000000001, 225.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[-725.0, 425.0], [-725.0, 275.0], [-1275.0, 300.0], [-1525.0, 275.0], [-1675.0, 125.0], [-1750.0, -25.0], [-1775.0, -125.0], [-1775.0, -50.0], [-1775.0, 425.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    },
+    {       
+		"comment": "Unnamed Polygon",
+		"vertices": [[-1950.0, -375.0], [-1975.0, -525.0], [-1950.0, -600.0], [-2400.0, -600.0], [-2400.0, -375.0], [-2275.0, -125.0], [-1775.0, 174.99999999999994], [-1775.0, -175.0]],
+		"position": [0, 0],
+		"velocity": [0.0, 0.0],
+		"angle": 0,
+		"angular_velocity": 0,
+		"is_bouncy": false,
+		"is_slippery": false,
+		"color": [111, 135, 209]
+    }
+]

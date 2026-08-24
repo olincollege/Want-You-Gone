@@ -1,0 +1,66 @@
+[
+    {
+        "comment": "Mind the gap",
+        "text": "Mind the gap",
+        "subtitle": null,
+        "position": [-2100, 700],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "control scheme movement",
+        "text": "Sideways arrow keys to move",
+        "subtitle": null,
+        "position": [-2800, 800],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "control scheme jumps",
+        "text": "Up arrow key to say 'Apple'",
+        "subtitle": null,
+        "position": [-2500, 700],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "catch up speed",
+        "text": "Catch up speed to clear long gaps!",
+        "subtitle": null,
+        "position": [-1600, 700],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "leap of faith",
+        "text": "WHeeeeeeeeeee",
+        "subtitle": null,
+        "position": [-500, 700],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "he's bouncy",
+        "text": "This guy's a pretty bouncy fellow right?",
+        "subtitle": null,
+        "position": [500, 700],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "he's not bouncy :(",
+        "text": "Hold down arrow to avoid bouncing",
+        "subtitle": null,
+        "position": [350, 175],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "It's ramp time?",
+        "text": "It's helpful for going down/up ramps!",
+        "subtitle": null,
+        "position": [-400, 175],
+        "size": 28,
+        "color": [255, 255, 255]
+    }
+]
