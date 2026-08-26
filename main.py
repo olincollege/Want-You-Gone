@@ -375,7 +375,7 @@ def level_editor():
                     continue
 
                 # If the editor opens a new polygon:
-                if controller.new_polygon and controller.edit_click:
+                elif controller.new_polygon and controller.edit_click:
                     # Make a new editing polygon
                     # and start editing the first vertex.
                     level.new_editing_polygon(
@@ -385,7 +385,7 @@ def level_editor():
                     continue
 
                 # If the editor clicks on the player:
-                if controller.edit_click and Vector.diff(
+                elif controller.edit_click and Vector.diff(
                     editor_position,
                     level.player.position
                 ).magnitude_squared() < (
@@ -395,8 +395,12 @@ def level_editor():
                     last_player_position = level.player.position
                     continue
 
-                # If the editor clicks on the border
-                if controller.edit_click:
+                # If the editor clicks:
+                elif controller.edit_click:
+                    # Only click on one shape.
+                    shape_found = False
+
+                    # If the player clicks on the border:
                     for v, vertex in enumerate(level.border.world_vertices):
                         try:
                             if abs(editor_position.edge_point_distance(
@@ -405,12 +409,15 @@ def level_editor():
                             )) < click_distance:
                                 dragging_border = True
                                 editing_index = v
+                                shape_found = True
+                                break
                         except TypeError:
                             pass
 
-                # If the editor clicks on a pre-existing circle:
-                if controller.edit_click:
+                    # If the editor clicks on a pre-existing circle:
                     for c, circle in enumerate(level.circles):
+                        if shape_found:
+                            break
                         if Vector.diff(
                             editor_position,
                             circle.position
@@ -418,8 +425,11 @@ def level_editor():
                             # Start editing that circle
                             level.edit_existing_circle(c)
                             editing_index = None
-                            continue
+                            shape_found = True
+                            break
                     for c, circle in enumerate(level.dynamic_circles):
+                        if shape_found:
+                            break
                         if Vector.diff(
                             editor_position,
                             circle.position
@@ -427,23 +437,30 @@ def level_editor():
                             # Start editing that circle
                             level.edit_existing_dynamic_circle(c)
                             editing_index = None
-                            continue
+                            shape_found = True
+                            break
 
                     # If the clicks on a pre-existing polygon:
                     for p, polygon in enumerate(level.polygons):
+                        if shape_found:
+                            break
                         if editor_position.is_in_polygon(
                             polygon.world_vertices):
                             # Start editing that polygon.
                             level.edit_existing_polygon(p)
                             editing_index = None
-                            continue
+                            shape_found = True
+                            break
                     for p, polygon in enumerate(level.dynamic_polygons):
+                        if shape_found:
+                            break
                         if editor_position.is_in_polygon(
                             polygon.world_vertices):
                             # Start editing that polygon.
                             level.edit_existing_dynamic_polygon(p)
                             editing_index = None
-                            continue
+                            shape_found = True
+                            break
 
         # Otherwise, tick the Level forward in time.
         else:
