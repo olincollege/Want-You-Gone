@@ -134,5 +134,29 @@
         "position": [-1225, -2800],
         "size": 28,
         "color": [255, 255, 255]
+    },
+    {
+        "comment": "Ooh cool new thing",
+        "text": "Red objects are interactable",
+        "subtitle": null,
+        "position": [-625, -3500],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "Headpats",
+        "text": "Good job on the tutorial! Enter the portal",
+        "subtitle": null,
+        "position": [625, -3800],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "More headpats",
+        "text": "to exit this level and continue",
+        "subtitle": null,
+        "position": [625, -3750],
+        "size": 28,
+        "color": [255, 255, 255]
     }
 ]
