@@ -138,6 +138,7 @@ def level_editor():
     editing_index = None
     dragging_player = False
     last_player_position = None
+    dragging_border = False
 
     # Run the game until the window is closed.
     while True:
@@ -197,6 +198,22 @@ def level_editor():
                     last_player_position = level.player.position
                 else:
                     dragging_player = False
+
+            # If the editor is dragging the border:
+            if dragging_border:
+                # If the editor released the drag:
+                if editor_position is None:
+                    # Finish editing the border.
+                    dragging_border = False
+                    editing_index = None
+                    level.finish_editing(save_border=True)
+
+                # If the editor is still dragging:
+                else:
+                    level.drag_boarder(
+                        editing_index,
+                        editor_position.snap_grid(snap_distance)
+                    )
 
             # If the editor is editing a circle.
             if level.editing_circle is not None:
@@ -358,7 +375,7 @@ def level_editor():
                     continue
 
                 # If the editor opens a new polygon:
-                if controller.new_polygon and controller.edit_click:
+                elif controller.new_polygon and controller.edit_click:
                     # Make a new editing polygon
                     # and start editing the first vertex.
                     level.new_editing_polygon(
@@ -368,7 +385,7 @@ def level_editor():
                     continue
 
                 # If the editor clicks on the player:
-                if controller.edit_click and Vector.diff(
+                elif controller.edit_click and Vector.diff(
                     editor_position,
                     level.player.position
                 ).magnitude_squared() < (
@@ -378,8 +395,21 @@ def level_editor():
                     last_player_position = level.player.position
                     continue
 
+                # If the editor clicks on the border
+                elif controller.edit_click:
+                    for v, vertex in enumerate(level.border.world_vertices):
+                        try:
+                            if abs(editor_position.edge_point_distance(
+                                vertex,
+                                level.border.world_vertices[v - 1]
+                            )) < click_distance:
+                                dragging_border = True
+                                editing_index = v
+                        except TypeError:
+                            pass
+
                 # If the editor clicks on a pre-existing circle:
-                if controller.edit_click:
+                elif controller.edit_click:
                     for c, circle in enumerate(level.circles):
                         if Vector.diff(
                             editor_position,

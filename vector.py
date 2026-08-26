@@ -36,7 +36,7 @@ class Vector:
         def _fmt(v):
             return int(v) if v == int(v) else v
 
-        return f"({_fmt(self._x)}, {_fmt(self._y)})"
+        return f"({self.x_int}, {self.y_int})"
 
     def get_tuple(self):
         """
@@ -65,6 +65,34 @@ class Vector:
         Returns:
             self._y: A float representing the y component of the vector.
         """
+        return self._y
+
+    @property
+    def x_int(self):
+        """
+        Get self._x, if it is a whole number return an integer.
+
+        Returns:
+            self._x: An integer or float representing
+            the x component of the vector.
+        """
+        int_x = int(self._x)
+        if self._x == int_x:
+            return int_x
+        return self._x
+
+    @property
+    def y_int(self):
+        """
+        Get self._y, if it is a whole number return an integer.
+
+        Returns:
+            self._y: An integer or float representing
+            the y component of the vector.
+        """
+        int_y = int(self._y)
+        if self._y == int_y:
+            return int_y
         return self._y
 
     def add(self, increment):

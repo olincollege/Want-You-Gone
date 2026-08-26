@@ -1347,6 +1347,8 @@ class LELevel(Level):
         with open(path, 'r', encoding='utf-8') as f:
             data = f.read()
 
+        is_list = data[0] == "["
+
         # Pass through the data and reformat it.
         can_edit = False
         i = 0
@@ -1381,10 +1383,22 @@ class LELevel(Level):
                 if data[i] == ",":
                     data = data[:i + 1] + " " + data[i + 1:]
 
+            # If i is a closing bracket, following four spaces
+            # and a newline, and can_edit is True,
+            # remove the newline and spaces.
+            elif (
+                data[i] == "]" and
+                i - 5 >= 0 and
+                data[i - 5:i] == "\n    " and
+                can_edit
+            ):
+                data = data[:i - 5] + data[i:]
+                i -= 5
+
             # If i is a closing bracket, following eight spaces
             # and a newline, and can_edit is True,
             # remove the newline and spaces.
-            if (
+            elif (
                 data[i] == "]" and
                 i - 9 >= 0 and
                 data[i - 9:i] == "\n        " and
@@ -1396,7 +1410,7 @@ class LELevel(Level):
             # If i is a closing bracket, following 12 spaces
             # and a newline, and can_edit is True,
             # remove the newline and spaces.
-            if (
+            elif (
                 data[i] == "]" and
                 i - 13 >= 0 and
                 data[i - 13:i] == "\n            " and
@@ -1407,14 +1421,15 @@ class LELevel(Level):
 
             # If i is a quotation mark that is following
             # something other than a colon, then a space,
-            # replace the space with a newline and two tabs.
-            if (
+            # replace the space with a newline and two tabs
+            # (one tab if not is_list).
+            elif (
                 data[i] == "\"" and
                 i - 1 >= 0 and
                 data[i - 2] != ":" and
                 data[i - 1] == " "
             ):
-                data = data[:i - 1] + "\n\t\t" + data[i:]
+                data = data[:i - 1] + "\n\t" + ("\t" * int(is_list)) + data[i:]
 
             # Increment i to move to the next character.
             i += 1
@@ -1422,7 +1437,7 @@ class LELevel(Level):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(data)
 
-    def finish_editing(self):
+    def finish_editing(self, save_border=False):
         """
         Finish editing the current shape and add it to the level
         and corresponding .json file.
@@ -1547,13 +1562,13 @@ class LELevel(Level):
             # Make a dictionary representing the shape.
             if issubclass(type(shape), Polygon):
                 position = shape.position
-                vertices = [[v.x + position.x, v.y + position.y]
+                vertices = [[v.x_int + position.x_int, v.y_int + position.y_int]
                     for v in shape.local_vertices]
                 shape_dict = {
-                    "comment": shape.__repr__(),
+                    "comment": repr(shape),
                     "vertices": vertices,
                     "position": [0, 0],
-                    "velocity": [shape.velocity.x, shape.velocity.y],
+                    "velocity": [shape.velocity.x_int, shape.velocity.y_int],
                     "angle": shape.angle,
                     "angular_velocity": shape.angular_velocity,
                     "is_bouncy": shape.is_bouncy,
@@ -1562,10 +1577,10 @@ class LELevel(Level):
                 }
             elif issubclass(type(shape), Circle):
                 shape_dict = {
-                    "comment": shape.__repr__(),
+                    "comment": repr(shape),
                     "radius": shape.radius,
-                    "position": [shape.position.x, shape.position.y],
-                    "velocity": [shape.velocity.x, shape.velocity.y],
+                    "position": [shape.position.x_int, shape.position.y_int],
+                    "velocity": [shape.velocity.x_int, shape.velocity.y_int],
                     "angle": shape.angle,
                     "angular_velocity": shape.angular_velocity,
                     "is_bouncy": shape.is_bouncy,
@@ -1583,12 +1598,21 @@ class LELevel(Level):
             except FileNotFoundError:
                 shapes = []
 
-            # Append the new shape to the list of shapes.
-            shapes.append(shape_dict)
+            # If the contents of the .json file is a list:
+            if isinstance(shapes, list):
+                # Append the new shape to the list of shapes.
+                shapes.append(shape_dict)
 
-            # Write the updated list of shapes to the .json file.
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(shapes, f, indent=4)
+                # Write the updated list of shapes to the .json file.
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(shapes, f, indent=4)
+
+            # Otherwise:
+            else:
+                # Write the new shape to the .json file.
+                del shape_dict["comment"]
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(shape_dict, f, indent=4)
 
             # Reformat the .json file to be more human-readable.
             self.reformat_json(path)
@@ -1617,6 +1641,10 @@ class LELevel(Level):
                 self._circles.append(circle)
                 append_json("circles.json", circle)
             self._editing_circle = None
+
+        # If the border needs to be saved to its .json file:
+        if save_border:
+            append_json("border.json", self._border)
 
     def new_editing_polygon(self, vertex):
         """
@@ -1834,6 +1862,47 @@ class LELevel(Level):
             and in what direction to move the player.
         """
         self._player.nudge(displacement)
+
+    def drag_boarder(self, index, position):
+        """
+        Drag one edge of the border to a position and make it vertical.
+
+        Args:
+            index: An integer representing the edge to drag.
+            position: A Vector representing the position to drag it to.
+        """
+        # Copy the vertices of the border.
+        vertices = self._border.world_vertices[:]
+
+        # If the edge is vertical:
+        edge = Vector.diff(vertices[index],
+            vertices[index - 1])
+        if abs(edge.x) < abs(edge.y):
+            # Set the x coordinates of both vertices of the edge to
+            # the x coordinate of position.
+            vertices[index] = Vector(position.x, vertices[index].y)
+            vertices[index - 1] = Vector(position.x, vertices[index - 1].y)
+
+        # If the edge is horizontal:
+        else:
+            # Set the y coordinates of both vertices of the edge to
+            # the y coordinate of position.
+            vertices[index] = Vector(vertices[index].x, position.y)
+            vertices[index - 1] = Vector(vertices[index - 1].x, position.y)
+
+        # Reset the vertices of the border to the updated ones.
+        self._border = Polygon(
+            vertices,
+            Vector(0, 0),
+            self._border.velocity,
+            self._border.angle,
+            self._border.angular_velocity,
+            True,
+            self._border.is_bouncy,
+            self._border.is_slippery,
+            self._border.color,
+            repr(self._border)
+        )
 
     @property
     def editing_color(self):
