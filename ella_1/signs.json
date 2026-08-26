@@ -1,5 +1,13 @@
 [
     {
+        "comment": "I did an oopsie button",
+        "text": "Press R to restart",
+        "subtitle": null,
+        "position": [-4000, 750],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
         "comment": "Mind the gap",
         "text": "Mind the gap",
         "subtitle": null,
@@ -84,6 +92,46 @@
         "text": "Jumping on them gets you higher than where you started",
         "subtitle": null,
         "position": [-2350, -1750],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "i n f i n i t e j u m p",
+        "text": "Jumping multiple times on a spring gets you",
+        "subtitle": null,
+        "position": [700, -1350],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "i n f i n i t e j u m p 2",
+        "text": "higher and higher",
+        "subtitle": null,
+        "position": [700, -1300],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "jumping other directions",
+        "text": "Jumping isn't just vertical",
+        "subtitle": null,
+        "position": [-350, -2650],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "jumping other directions 2",
+        "text": "You can jump off of non-vertical",
+        "subtitle": null,
+        "position": [-1225, -2850],
+        "size": 28,
+        "color": [255, 255, 255]
+    },
+    {
+        "comment": "jumping other directions 3",
+        "text": "surfaces too",
+        "subtitle": null,
+        "position": [-1225, -2800],
         "size": 28,
         "color": [255, 255, 255]
     }
