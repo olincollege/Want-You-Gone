@@ -3,7 +3,7 @@
         "comment": "Mind the gap",
         "text": "Mind the gap",
         "subtitle": null,
-        "position": [-2100, 700],
+        "position": [-2550, 700],
         "size": 28,
         "color": [255, 255, 255]
     },
@@ -11,7 +11,7 @@
         "comment": "control scheme movement",
         "text": "Sideways arrow keys to rotate",
         "subtitle": null,
-        "position": [-2800, 800],
+        "position": [-4000, 800],
         "size": 28,
         "color": [255, 255, 255]
     },
@@ -19,7 +19,7 @@
         "comment": "control scheme jumps",
         "text": "Up arrow key to say 'Apple'",
         "subtitle": null,
-        "position": [-2500, 700],
+        "position": [-3450, 700],
         "size": 28,
         "color": [255, 255, 255]
     },
@@ -27,7 +27,7 @@
         "comment": "catch up speed",
         "text": "Catch up speed to clear long gaps!",
         "subtitle": null,
-        "position": [-1600, 700],
+        "position": [-2100, 600],
         "size": 28,
         "color": [255, 255, 255]
     },
