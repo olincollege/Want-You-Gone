@@ -200,7 +200,7 @@ def level_editor():
                     dragging_player = False
 
             # If the editor is dragging the border:
-            if dragging_border:
+            elif dragging_border:
                 # If the editor released the drag:
                 if editor_position is None:
                     # Finish editing the border.
@@ -216,7 +216,7 @@ def level_editor():
                     )
 
             # If the editor is editing a circle.
-            if level.editing_circle is not None:
+            elif level.editing_circle is not None:
                 if controller.edit_click:
                     # If the editor clicks on the circle's circumference:
                     if abs(sqrt(Vector.diff(
