@@ -375,7 +375,7 @@ def level_editor():
                     continue
 
                 # If the editor opens a new polygon:
-                elif controller.new_polygon and controller.edit_click:
+                if controller.new_polygon and controller.edit_click:
                     # Make a new editing polygon
                     # and start editing the first vertex.
                     level.new_editing_polygon(
@@ -385,7 +385,7 @@ def level_editor():
                     continue
 
                 # If the editor clicks on the player:
-                elif controller.edit_click and Vector.diff(
+                if controller.edit_click and Vector.diff(
                     editor_position,
                     level.player.position
                 ).magnitude_squared() < (
@@ -396,7 +396,7 @@ def level_editor():
                     continue
 
                 # If the editor clicks on the border
-                elif controller.edit_click:
+                if controller.edit_click:
                     for v, vertex in enumerate(level.border.world_vertices):
                         try:
                             if abs(editor_position.edge_point_distance(
@@ -409,7 +409,7 @@ def level_editor():
                             pass
 
                 # If the editor clicks on a pre-existing circle:
-                elif controller.edit_click:
+                if controller.edit_click:
                     for c, circle in enumerate(level.circles):
                         if Vector.diff(
                             editor_position,

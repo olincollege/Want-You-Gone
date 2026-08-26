@@ -32,10 +32,6 @@ class Vector:
         Returns:
             A string representing the vector in row vector format
         """
-
-        def _fmt(v):
-            return int(v) if v == int(v) else v
-
         return f"({self.x_int}, {self.y_int})"
 
     def get_tuple(self):
